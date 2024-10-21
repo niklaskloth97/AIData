@@ -17,7 +17,7 @@ $ # Go to the code location
 $ $ cd backend
 $ 
 $ #Install the virtual environment modules
-$ virtualenv env
+$ python -m virtualenv env
 $ .\env\Scripts\activate
 $
 $ # Install modules (database etc)
@@ -40,7 +40,7 @@ $ # Go to the code location
 $ cd backend
 $
 $ #Install the virtual environment modules
-$ virtualenv env
+$ python -m virtualenv env
 $ source env/bin/activate
 $
 $ # Install modules (database etc)
