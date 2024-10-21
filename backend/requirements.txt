@@ -1,0 +1,9 @@
+flask
+flask_login
+flask_sqlalchemy
+sqlalchemy
+numpy
+pandas
+psycopg2
+ipython
+jupyter
