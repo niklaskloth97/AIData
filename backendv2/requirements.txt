@@ -3,3 +3,13 @@ openai
 langchain
 python-dotenv
 sqlalchemy
+flask_login
+flask_sqlalchemy
+numpy
+pandas
+psycopg2-binary
+ipython
+jupyter
+langchain-community
+langchain
+langchain-core
