@@ -129,6 +129,11 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+backend/env/
+backend/env
+backendv2/env
+backendv2/env/
+
 
 # Spyder project settings
 .spyderproject
@@ -167,3 +172,4 @@ csv-files/
 backed/login-credentials.csv
 
 
+.DS_STORE
