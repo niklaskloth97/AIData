@@ -6,6 +6,7 @@ import openai
 from langchain_community.llms import OpenAI as LangChainOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain.chains import LLMChain
+from app.database import Database
 
 # Initialize extensions (no need to create DB locally)
 db = SQLAlchemy()
@@ -48,9 +49,12 @@ def create_app():
         )
         return jsonify(response)
 
+
+    # Define Routes for testing
     @app.route("/")
     def hello_world():
-        access_db()
+        db = Database()
+        db.fetchData()
         return "<p>Hello, Flask!</p>"
     
     # Define Routes for LangChain integration
