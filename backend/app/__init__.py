@@ -48,6 +48,11 @@ def create_app():
         )
         return jsonify(response)
 
+    @app.route("/")
+    def hello_world():
+        access_db()
+        return "<p>Hello, Flask!</p>"
+    
     # Define Routes for LangChain integration
     @app.route('/openai/langchain', methods=['POST'])
     def call_openai_with_langchain():
@@ -91,6 +96,7 @@ def create_app():
         return jsonify({"username": user.username, "email": user.email})
 
     return app
+
 
 # Models (Usually, this would be separated into a models file)
 class User(db.Model):
