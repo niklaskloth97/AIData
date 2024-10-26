@@ -12,4 +12,5 @@ ipython
 jupyter
 langchain-community
 langchain
-langchain-core
+langchain-core 
+langgraph
