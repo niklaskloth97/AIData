@@ -1,5 +1,5 @@
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
+import { AppSidebar } from "@/components/sidebar/app-sidebar"
 
 export default function DashboardLayout({
   children, 
@@ -10,8 +10,8 @@ export default function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-      <main>
-        <SidebarTrigger className="m-2"/>
+      <main className="p-2">
+        <SidebarTrigger className="bg-black"/>
         {children}
       </main>
       </SidebarInset>
