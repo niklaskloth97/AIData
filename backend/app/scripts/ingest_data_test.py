@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.schema.runnable import RunnableSequence
-import time
+import os
 
 # Load environment variables
 load_dotenv()
@@ -26,7 +26,7 @@ initial_prompt_template = PromptTemplate(
     template=(
         "You are an assistant that generates SQL schema scripts. I have a CSV file with columns: {csv_columns}. "
         "Map these columns to the SAP table '{table_name}' schema and provide a raw SQL "
-        "CREATE TABLE script with correct columns, data types, primary keys, Do not include foreign keys or references. "
+        "CREATE TABLE script with correct columns, data types, primary keys. Do not include foreign keys or references. "
         "Include necessary data integrity constraints. Make sure your whole answer is directly executable "
         "without any extra tokens as I want to directly feed it into a function. Do not include ```sql at beginning or end."
     ),
@@ -47,6 +47,7 @@ error_prompt_template = PromptTemplate(
 initial_chain = RunnableSequence(initial_prompt_template | llm)
 error_chain = RunnableSequence(error_prompt_template | llm)
 
+
 def verify_table_creation(table_name):
     """Verify if the table has been created in the database."""
     try:
@@ -54,20 +55,17 @@ def verify_table_creation(table_name):
             result = connection.execute(
                 text(f"SELECT table_name FROM information_schema.tables WHERE table_name = '{table_name.lower()}';")
             )
-            table_exists = result.fetchone() is not None
-            if table_exists:
-                print(f"Table '{table_name}' exists in the database.")
-            else:
-                print(f"Table '{table_name}' does not exist in the database.")
-            return table_exists
+            return result.fetchone() is not None
     except Exception as e:
         print(f"Error verifying table creation: {e}")
-        raise
-    
+        return False
+
+
 def get_csv_columns(csv_path):
     """Load CSV and extract column names."""
     df = pd.read_csv(csv_path)
-    return list(df.columns)
+    return list(df.columns), df
+
 
 def generate_create_table_script(table_name, csv_columns, error_message=None):
     """
@@ -96,47 +94,73 @@ def execute_sql_script(script):
     """Attempt to execute the provided SQL script and handle errors."""
     try:
         with engine.connect() as connection:
-            result = connection.execute(text(script))
-            print("db result:", result)
+            connection.execute(text(script))
             return True
     except Exception as e:
         print(f"Error executing SQL script: {e}")
         return str(e)
 
-def main():
-    table_name = "BKPF"  # Example table
 
-    csv_path = "app/data/BKPF_1.csv"
-    max_retries = 5  # Set a maximum retry limit
+def insert_csv_data_to_table(table_name, df):
+    """Insert CSV data into the created table."""
+    try:
+        df.to_sql(table_name, engine, if_exists='append', index=False)
+        print(f"Data successfully inserted into table '{table_name}'.")
+        return True
+    except Exception as e:
+        print(f"Error inserting data into table '{table_name}': {e}")
+        return False
+
+
+def process_csv_file(csv_path, table_name):
+    """Process a single CSV file: create table and insert data."""
+    max_retries = 5
     retries = 0
 
-    # Get column names from CSV
-    csv_columns = get_csv_columns(csv_path)
+    # Get column names and data from CSV
+    csv_columns, df = get_csv_columns(csv_path)
 
-    # Generate the initial create table script without error context
+    # Generate the initial create table script
     script = generate_create_table_script(table_name, csv_columns)
 
-    # Retry loop
+    # Retry loop for table creation
     while retries < max_retries:
-        # Attempt to execute the script
         error_message = execute_sql_script(script)
-        
         if error_message is True:
-            # Success, exit loop
+            print(f"Table '{table_name}' created successfully.")
             break
 
-        # Increment retry counter and ask OpenAI for a revised script
         retries += 1
-        print(f"Retrying... ({retries}/{max_retries})")
-
-        # Generate a new script with error context for subsequent attempts
+        print(f"Retrying table creation... ({retries}/{max_retries})")
         script = generate_create_table_script(table_name, csv_columns, error_message=error_message)
-        verify_table_creation(table_name)
 
     if retries == max_retries:
-        print("Max retries reached. Could not successfully create the table.")
-    else:
-        print("Table created successfully after retries.")
+        print(f"Max retries reached. Could not create table '{table_name}'.")
+        return False
+
+    # Insert data into the table
+    return insert_csv_data_to_table(table_name, df)
+
+
+def main():
+    csv_dir = "/Users/philipnartschik/Downloads/Demo"  # Directory containing CSV files
+    csv_files = [f for f in os.listdir(csv_dir) if f.endswith('.csv')]
+
+    if not csv_files:
+        print("No CSV files found in the directory.")
+        return
+
+    for csv_file in csv_files:
+        table_name = os.path.splitext(csv_file)[0]  # Use the CSV file name (without extension) as the table name
+        csv_path = os.path.join(csv_dir, csv_file)
+        print(f"Processing file: {csv_file}")
+
+        success = process_csv_file(csv_path, table_name)
+        if not success:
+            print(f"Failed to process file: {csv_file}")
+        else:
+            print(f"Successfully processed file: {csv_file}")
+
 
 if __name__ == "__main__":
     main()
