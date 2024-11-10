@@ -1,12 +1,16 @@
 import openai
 import pandas as pd
 from sqlalchemy import create_engine, text
-from app.config import Config
+import sys
+import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain.schema.runnable import RunnableSequence
 import time
+# Add the parent directory of 'app' to the Python path, when run from the main function in this directory
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+from app.config import Config
 
 # Load environment variables
 load_dotenv()
@@ -91,7 +95,7 @@ def generate_create_table_script(table_name, csv_columns, error_message=None):
 
     return response.content.strip()
 
-
+# Execute the SQL script of CREATING THE TABLE!
 def execute_sql_script(script):
     """Attempt to execute the provided SQL script and handle errors."""
     try:
@@ -104,15 +108,15 @@ def execute_sql_script(script):
         return str(e)
 
 def main():
+    print(os.path.abspath(os.getcwd()))
     table_name = "BKPF"  # Example table
-
-    csv_path = "app/data/BKPF_1.csv"
+    csv_path = "csv-files/BKPF_1.csv" 
     max_retries = 5  # Set a maximum retry limit
     retries = 0
 
     # Get column names from CSV
     csv_columns = get_csv_columns(csv_path)
-
+    
     # Generate the initial create table script without error context
     script = generate_create_table_script(table_name, csv_columns)
 

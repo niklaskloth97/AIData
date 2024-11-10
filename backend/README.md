@@ -75,6 +75,9 @@ $ # Start the application (development mode)
 $ # --host=0.0.0.0 - expose the app on all network interfaces (default 127.0.0.1)
 $ # --port=5000    - specify the app port (default 5000)  
 $ 
+$ # You might need to re-run the environment-command to re-activate the environment variable
+$ source env/bin/activate 
+$ 
 $ #Run the application
 $ python run.py
 
