@@ -2,15 +2,17 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import requests
 from io import StringIO
+import os
 
 class SAP_SQL_Information:
     def __init__(self, file_path):
         self.file_path = file_path
-        self.dataframes = self.loadCSV(file_path)
-        #self.dataframes = self.load_html_tables(file_path)
-        self.mainTable, self.foreignkeys = self.cleanup_dataframe()
-        self.primaryKeys = self.identifyPK()
-        
+        self.dataframes = self.load_file(file_path)
+        #self.mainTable, self.foreignkeys = self.cleanup_dataframe()
+        #self.primaryKeys = self.identify_pk_html()
+        self.primaryKeys = self.identify_pk_csv()
+
+    
     # Function to load multiple HTML tables into a list of DataFrames
     # This is especially for the html files of leanx.eu
     def load_html_tables(self, file_path):
@@ -27,21 +29,50 @@ class SAP_SQL_Information:
         print(table)
         return table
 
+    # Function to distinguish file type and load accordingly
+    def load_file(self, file_path):
+        _, file_extension = os.path.splitext(file_path)
+        if file_extension.lower() == '.html':
+            return self.load_html_tables(file_path)
+        elif file_extension.lower() == '.csv':
+            return self.loadCSV(file_path)
+
+        else:
+            raise ValueError("Unsupported file type: {}".format(file_extension))
+
     # Returns the primary key or keys of the table
     # How it works: Function loads and prints only the first <td> entry after each <tr class="info">
     # This is how the columns are displayed as primary keys in the html files of leanx.eu
-    def identifyPK(self):
+    def identify_pk_html(self):
         # Read and parse the HTML file with BeautifulSoup
         with open(self.file_path, 'r', encoding='utf-8') as f:
             soup = BeautifulSoup(f, 'html.parser')
-        # Find all <tr> elements with the class "info"
-        info_rows = soup.find_all("tr", {"class": "info"})
+        # Your logic to identify primary keys goes here
+        # For example:
+        primary_keys = []
+        for tr in soup.find_all('tr', class_='info'):
+            td = tr.find('td')
+            if td:
+                primary_keys.append(td.text.strip())
+        return primary_keys
+    
+    #Identify the PK based on the csv file of sapdatasheet.org
+    def identify_pk_csv(self):
+        primaryKeys = []
+        for index, row in self.dataframes.iterrows(): # does the same liek self.dataframes.iloc[1][5], but prettier
+            if "X" in row['KEYFLAG']:
+                primaryKeys.append(row['FIELDNAME'])
+        print ("Primary Keys:")
+        print(primaryKeys)
+        return primaryKeys
 
-        #Iterate over each "info" row and print the first <td> element's content
-        for row in info_rows:
-            first_td = row.find("td")  # Get the first <td> element in the row
-            if first_td:
-                print(first_td.get_text(strip=True))  # Print the text of the first <td> element
+    # Placeholder for cleanup_dataframe function
+    def cleanup_dataframe(self):
+        # Your logic to clean up the dataframe goes here
+        # For example:
+        main_table = self.dataframes[0]  # Assuming the first table is the main table
+        foreignkeys = self.dataframes[-1]  # Assuming the last table contains foreign keys
+        return main_table, foreignkeys
 
     # Function to display each DataFrame, just for debugging purposes
     def display_all_raw_dataframes(self):
@@ -89,6 +120,7 @@ class SAP_SQL_Information:
 
 def run():
     # Load the tables from the HTML file
+    #file_path = 'bkpf.html'
     file_path = 'sap-table-BKPF.csv'
     sap_sql_info = SAP_SQL_Information(file_path)
 
