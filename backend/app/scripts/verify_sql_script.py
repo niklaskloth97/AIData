@@ -3,29 +3,64 @@ from bs4 import BeautifulSoup
 import requests
 from io import StringIO
 import os
+import tempfile
 
 class SAP_SQL_Information:
     # Initialization for loading centrally all SQL relevant informaiton
-    def __init__(self, file_path):
-        self.file_path = file_path
-        _, file_extension = os.path.splitext(file_path)
+    def __init__(self, table_name): #pfev file_path
+        self.table_name = table_name
+
+        self.file_path = self.download_csv(table_name)#file_path
+        _, file_extension = os.path.splitext(self.file_path)
 
         # distinguish depending on the data type, so we have a backup solution if one site is down again...
         if file_extension.lower() == '.html':
-          self.dataframes = self.load_html_tables(file_path)
+          self.dataframes = self.load_html_tables(self.file_path)
           self.file_orign = 'leanx'
-          self.load_html_tables(file_path)
+          self.load_html_tables(self.file_path)
           self.mainTable, self.foreignkeys = self.cleanup_dataframe()
           self.primaryKeys = self.identify_pk_html()
 
         elif file_extension.lower() == '.csv':
             self.file_orign = 'sapdatasheet'
-            self.mainTable = self.load_csv_table(file_path)
+            self.mainTable = self.load_csv_table(self.file_path)
             self.primaryKeys = self.identify_pk_csv()
             self.foreignkeys = self.identify_fk_csv()
         else:
             raise ValueError("Unsupported file type: {}".format(file_extension))
-        
+    
+    def download_csv(self, table_name):
+    # # Downloads a CSV file for the given SAP table name.
+    # The file is stored in a temporary location and downloaded only if it doesn't already exist.
+    # Args:table_name (str): The name of the SAP table (e.g., "BKPF").
+    # Returns:
+    #     str: Path to the downloaded CSV file.
+    # """
+    # Define the URL with the table name
+        url = f"https://www.sapdatasheet.org/download/abap-tabl-component.php?format=csv&tabname={table_name}"
+
+        # Create a temporary directory
+        temp_dir = tempfile.gettempdir()
+        file_path = os.path.join(temp_dir, f"{table_name}.csv")
+
+        # Check if the file already exists
+        if os.path.exists(file_path):
+            print(f"File '{file_path}' already exists. Skipping download.")
+        else:
+            # Download the file
+            print(f"Downloading CSV file for table '{table_name}'...")
+            response = requests.get(url)
+
+            # Raise an error if the request failed
+            response.raise_for_status()
+
+            # Save the file to the temporary location
+            with open(file_path, 'wb') as file:
+                file.write(response.content)
+            print(f"File downloaded and saved as '{file_path}'.")
+
+        return file_path
+
     # Function to load multiple HTML tables into a list of DataFrames
     # This is especially for the html files of leanx.eu
     def load_html_tables(self, file_path):
@@ -149,8 +184,10 @@ class SAP_SQL_Information:
 def run():
     # Load the tables from the HTML file
     #file_path = 'bkpf.html'
-    file_path = 'sap-table-BKPF.csv'
-    sap_sql_info = SAP_SQL_Information(file_path)
+    #file_path = 'sap-table-BKPF.csv'
+    #sap_sql_info = SAP_SQL_Information(file_path)
+
+    sap_sql_info = SAP_SQL_Information("TCURC")
 
     sap_sql_info.display_relevantSAPdata()
 
