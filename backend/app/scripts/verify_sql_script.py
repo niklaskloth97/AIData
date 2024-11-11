@@ -1,20 +1,31 @@
 import pandas as pd
 from bs4 import BeautifulSoup
 import requests
+from io import StringIO
 
 class SAP_SQL_Information:
     def __init__(self, file_path):
         self.file_path = file_path
-        self.dataframes = self.load_html_tables(file_path)
+        self.dataframes = self.loadCSV(file_path)
+        #self.dataframes = self.load_html_tables(file_path)
         self.mainTable, self.foreignkeys = self.cleanup_dataframe()
         self.primaryKeys = self.identifyPK()
         
     # Function to load multiple HTML tables into a list of DataFrames
     # This is especially for the html files of leanx.eu
     def load_html_tables(self, file_path):
-        # Read the HTML file and parse all tables
-        tables = pd.read_html(file_path)
+        # Read the HTML file content
+        with open(file_path, 'r', encoding='utf-8') as file:
+            file_content = file.read()
+        # Parse all tables from the HTML content
+        tables = pd.read_html(StringIO(file_content))
+        print(tables)
         return tables  # List of DataFrames
+
+    def loadCSV(self, file_path):
+        table = pd.read_csv(file_path)
+        print(table)
+        return table
 
     # Returns the primary key or keys of the table
     # How it works: Function loads and prints only the first <td> entry after each <tr class="info">
@@ -26,7 +37,7 @@ class SAP_SQL_Information:
         # Find all <tr> elements with the class "info"
         info_rows = soup.find_all("tr", {"class": "info"})
 
-        # Iterate over each "info" row and print the first <td> element's content
+        #Iterate over each "info" row and print the first <td> element's content
         for row in info_rows:
             first_td = row.find("td")  # Get the first <td> element in the row
             if first_td:
@@ -78,7 +89,7 @@ class SAP_SQL_Information:
 
 def run():
     # Load the tables from the HTML file
-    file_path = 'csv-files/bkpf.html'
+    file_path = 'sap-table-BKPF.csv'
     sap_sql_info = SAP_SQL_Information(file_path)
 
     sap_sql_info.display_relevantSAPdata()

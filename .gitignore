@@ -173,3 +173,7 @@ backed/login-credentials.csv
 
 
 .DS_STORE
+backend/app/scripts/BKPF_1.csv
+backend/app/scripts/bkpf2.html
+backend/app/scripts/bkpf.html
+backend/app/scripts/sap-table-BKPF.csv

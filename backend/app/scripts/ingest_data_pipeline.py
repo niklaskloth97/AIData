@@ -93,7 +93,7 @@ def execute_sql_script(script):
 def main():
     print(os.path.abspath(os.getcwd()))
     table_name = "BKPF"  # Example table
-    csv_path = "csv-files/BKPF_1.csv" #@Philip, I changed it to the general folder
+    csv_path = "BKPF_1.csv" #@Philip, I changed it to the general folder
     max_retries = 5  # Set a maximum retry limit
     retries = 0
 

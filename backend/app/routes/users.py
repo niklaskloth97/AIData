@@ -16,11 +16,8 @@ def add_user():
     new_user = User(username=username, email=email)
     db.session.add(new_user)
     db.session.commit()
-
     return jsonify({"message": "User added successfully"}), 201
-
     
-
 
 @users_bp.route('/users/<int:id>', methods=['GET'])
 def get_user(id):
