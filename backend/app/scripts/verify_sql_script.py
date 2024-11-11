@@ -5,14 +5,27 @@ from io import StringIO
 import os
 
 class SAP_SQL_Information:
+    # Initialization for loading centrally all SQL relevant informaiton
     def __init__(self, file_path):
         self.file_path = file_path
-        self.dataframes = self.load_file(file_path)
-        #self.mainTable, self.foreignkeys = self.cleanup_dataframe()
-        #self.primaryKeys = self.identify_pk_html()
-        self.primaryKeys = self.identify_pk_csv()
+        _, file_extension = os.path.splitext(file_path)
 
-    
+        # distinguish depending on the data type, so we have a backup solution if one site is down again...
+        if file_extension.lower() == '.html':
+          self.dataframes = self.load_html_tables(file_path)
+          self.file_orign = 'leanx'
+          self.load_html_tables(file_path)
+          self.mainTable, self.foreignkeys = self.cleanup_dataframe()
+          self.primaryKeys = self.identify_pk_html()
+
+        elif file_extension.lower() == '.csv':
+            self.file_orign = 'sapdatasheet'
+            self.mainTable = self.load_csv_table(file_path)
+            self.primaryKeys = self.identify_pk_csv()
+            self.foreignkeys = self.identify_fk_csv()
+        else:
+            raise ValueError("Unsupported file type: {}".format(file_extension))
+        
     # Function to load multiple HTML tables into a list of DataFrames
     # This is especially for the html files of leanx.eu
     def load_html_tables(self, file_path):
@@ -21,24 +34,13 @@ class SAP_SQL_Information:
             file_content = file.read()
         # Parse all tables from the HTML content
         tables = pd.read_html(StringIO(file_content))
-        print(tables)
+        #print(tables)
         return tables  # List of DataFrames
 
-    def loadCSV(self, file_path):
+    def load_csv_table(self, file_path):
         table = pd.read_csv(file_path)
         print(table)
         return table
-
-    # Function to distinguish file type and load accordingly
-    def load_file(self, file_path):
-        _, file_extension = os.path.splitext(file_path)
-        if file_extension.lower() == '.html':
-            return self.load_html_tables(file_path)
-        elif file_extension.lower() == '.csv':
-            return self.loadCSV(file_path)
-
-        else:
-            raise ValueError("Unsupported file type: {}".format(file_extension))
 
     # Returns the primary key or keys of the table
     # How it works: Function loads and prints only the first <td> entry after each <tr class="info">
@@ -59,7 +61,7 @@ class SAP_SQL_Information:
     #Identify the PK based on the csv file of sapdatasheet.org
     def identify_pk_csv(self):
         primaryKeys = []
-        for index, row in self.dataframes.iterrows(): # does the same liek self.dataframes.iloc[1][5], but prettier
+        for index, row in self.mainTable.iterrows(): # does the same like self.dataframes.iloc[1][5], but prettier
             if "X" in row['KEYFLAG']:
                 primaryKeys.append(row['FIELDNAME'])
         print ("Primary Keys:")
@@ -96,6 +98,17 @@ class SAP_SQL_Information:
         foreignkeys = self.dataframes[-1] # TIL this is the last element in a list
         return mainTable, foreignkeys
 
+    def identify_fk_csv(self):
+        # Format foreign keys as ("Foreign Key", "Table it references")
+        foreignKeys = []
+        for index, row in self.mainTable.iterrows():
+            checktable = row['CHECKTABLE'].strip()  # Remove leading/trailing whitespace
+            if checktable == '' or checktable == '*':
+                continue  # Skip empty or '*' entries
+            foreignKeys.append((row['FIELDNAME'], checktable))
+        print("Foreign Keys:")
+        print(foreignKeys)
+        return foreignKeys
 
     # Function to get specific rows based on a query for a specific table
     # Meant to be used to check, if the information matches with other input (correction approach)
@@ -106,12 +119,27 @@ class SAP_SQL_Information:
             return None
         # Filter rows where the specified column matches the given value
         result = df[df[column_name] == value]
+        print ("error?")
         return result
+    
+    # def check_value_in_table(self, mainTable, value):
+    #     print(mainTable['FIELDNAME'])
+
+    #     for index in range(len(mainTable['FIELDNAME'])):
+    #         if mainTable['FIELDNAME'][index] == value:
+    #             return value
+
 
     # Perform the query if the selected table exists, prints out the whole collumn
-    def checkCollumnExistence(self, collumnName):
-        column_name = 'Field'  # Defaults to the first column, but with Field.1 we can also access the "true meaning" of the collumn -> relevant for the processLOG
-        result = self.query_dataframe(self.mainTable, column_name, collumnName)
+    def checkCollumnExistence(self, searchForCollumn):
+        if  self.file_orign == 'leanx':
+            column_name = 'Field'  # Defaults to the first column, but with Field.1 we can also access the "true meaning" of the collumn -> relevant for the processLOG
+        elif  self.file_orign == 'sapdatasheet':
+            column_name = 'FIELDNAME'
+        else:
+            raise ValueError("Unsupported file origin: {}".format(self.file_orign))
+
+        result = self.query_dataframe(self.mainTable, column_name, searchForCollumn)
         if result is not None:
             print("The Collumn exists:")
             print(result)
@@ -126,18 +154,16 @@ def run():
 
     sap_sql_info.display_relevantSAPdata()
 
-
     # Example query on the first table (assuming target column and value are correct)
     # Replace 'Column_Name' and 'Value' with the column name and search value you need
     #column_name = 'Field'  # Replace with the actual column name you want to query
-    collumnName = 'FRATH'  # Replace with the actual value you want to search for
-
+    searchForCollumn = 'FRATH'  # Replace with the actual value you want to search for
 
     print("Primary Key(s):")
-    sap_sql_info.identifyPK()   
+    print(sap_sql_info.primaryKeys)
 
-    print("Now check, if the following collumn exists:"+ collumnName)
-    sap_sql_info.checkCollumnExistence(collumnName)
+    print("Now check, if the following collumn exists: "+ searchForCollumn)
+    sap_sql_info.checkCollumnExistence(searchForCollumn)
 
 if __name__ == "__main__":  
     run()
