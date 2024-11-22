@@ -1,5 +1,5 @@
-from app.scripts.schema_application import schema_application_pipeline
-from app.scripts.metadata_and_schema import metadata_pipeline
+from backend.app.scripts.legacy.schema_application import schema_application_pipeline
+from backend.app.scripts.legacy.metadata_and_schema import metadata_pipeline
 
 if __name__ == "__main__":
     # Inputs
