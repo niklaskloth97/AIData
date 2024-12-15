@@ -10,9 +10,17 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
-        destructive:
+          "bg-ercis-red-dark text-white rounded-md hover:bg-ercis-red-dark/90",
+        grey:
+          "bg-ercis-grey-light text-white rounded-md hover:bg-ercis-grey-light/90",
+        defaultold:
+          "bg-primary text-primary-foreground shadow hover:bg-primary/90",  
+        hilti:
           "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        red:
+          "border border-maroon-700 text-maroon-700 rounded-md hover:bg-maroon-700/10",
+        destructive:
+          "border border-grey-600 text-black font-semibold shadow-sm hover:bg-gray-200/90",
         outline:
           "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
         secondary:
