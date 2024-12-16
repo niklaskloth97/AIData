@@ -26,8 +26,8 @@ import {
 } from "../ui/dropdown-menu";
 
 const user = {
-    name: "John Doe",
-    email: "john.doe@example.org",
+    name: "Example User",
+    email: "example.user@hilti.li",
     avatar: "https://randomuser.me/api/port",
 };
 

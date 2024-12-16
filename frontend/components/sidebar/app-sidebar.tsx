@@ -3,10 +3,13 @@
 import {
     BookOpen,
     Bot,
+    BotIcon,
     Database,
     FlaskConical,
     Settings,
+    Settings2,
     Table2,
+    Workflow,
 } from "lucide-react";
 import { NavMenu } from "@/components/sidebar/nav-menu";
 import {
@@ -21,44 +24,78 @@ import { NavHeader } from "@/components/sidebar/nav-header";
 // Menu items.
 const menuItems = [
     {
-        title: "Context",
-        url: "context",
-        icon: BookOpen,
+        title: "Process Modoel",
+        url: "processmodel",
+        icon: Workflow,
     },
     {
-        title: "Data Sources",
-        url: "datasources",
+        title: "Data Models",
+        url: "datamodels",
         icon: Database,
         items: [
             {
-                title: "Databases",
-                url: "databases",
+                title: "Editor",
+                url: "editor",
             },
             {
-                title: "Files",
-                url: "files",
+                title: "Instances",
+                url: "instances",
             }
         ]
     },
     {
-        title: "Tables",
-        url: "tables",
-        icon: Table2,
+        title: "Generate",
+        url: "gneerate",
+        icon: BotIcon,
+        items: [
+            {
+                title: "Workbench",
+                url: "workbench",
+            },
+            {
+                title: "History",
+                url: "history",
+            }
+        ]
     },
     {
         title: "Tests",
         url: "tests",
         icon: FlaskConical,
+        items: [
+            {
+                title: "Execute",
+                url: "execute-tests",
+            },
+            {
+                title: "History",
+                url: "history-tests",
+            }
+        ]
     },
     {
-        title: "Models",
-        url: "models",
-        icon: Bot,
+        title: "Manual",
+        url: "manual",
+        icon: BookOpen,
     },
     {
         title: "Settings",
-        url: "settings",
+        url: "datamodels",
         icon: Settings,
+        items: [
+            {
+                title: "Databases",
+                url: "database-settings",
+            },
+            {
+                title: "Files",
+                url: "files-settings",
+            },
+            {
+                title: "Billing and Pricing",
+                url: "billing-pricing",
+            }
+        ]
     },
 ];
 

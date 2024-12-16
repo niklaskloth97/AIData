@@ -1,22 +1,22 @@
 import NavLogoHeader from "@/components/sidebar/nav-header-logo";
 import { NavProjectsHeader } from "@/components/sidebar/nav-header-projects";
-import { AudioWaveform, Command, GalleryVerticalEnd } from "lucide-react";
+import { AudioWaveform, Bot, Command, GalleryVerticalEnd, HandCoins, Truck } from "lucide-react";
 
 //Project items.
 const projects = [
     {
-        name: "Acme Inc",
-        logo: GalleryVerticalEnd,
+        name: "[SAP] Order-to-Cash"  ,
+        logo: HandCoins,
         plan: "Enterprise",
     },
     {
-        name: "Acme Corp.",
-        logo: AudioWaveform,
+        name: "[SAP] Order-to-Delivery",
+        logo: Truck,
         plan: "Startup",
     },
     {
-        name: "Evil Corp.",
-        logo: Command,
+        name: "Round-Nail-Production",
+        logo: Bot,
         plan: "Free",
     },
 ];
