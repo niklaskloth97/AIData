@@ -20,7 +20,7 @@ const buttonVariants = cva(
         red:
           "border border-maroon-700 text-maroon-700 rounded-md hover:bg-maroon-700/10",
         destructive:
-          "border border-grey-600 text-black font-semibold shadow-sm hover:bg-gray-200/90",
+          "border border-grey-600 text-black font-medium shadow-sm hover:bg-gray-200/90",
         outline:
           "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
         secondary:

@@ -35,26 +35,26 @@ const menuItems = [
         items: [
             {
                 title: "Editor",
-                url: "editor",
+                url: "datamodels/editor",
             },
             {
                 title: "Instances",
-                url: "instances",
+                url: "datamodels/instances",
             }
         ]
     },
     {
         title: "Generate",
-        url: "gneerate",
+        url: "gerneate",
         icon: BotIcon,
         items: [
             {
                 title: "Workbench",
-                url: "workbench",
+                url: "gerneate/workbench",
             },
             {
                 title: "History",
-                url: "history",
+                url: "gerneate/history",
             }
         ]
     },
@@ -65,11 +65,11 @@ const menuItems = [
         items: [
             {
                 title: "Execute",
-                url: "execute-tests",
+                url: "tests/execute",
             },
             {
                 title: "History",
-                url: "history-tests",
+                url: "tests/history",
             }
         ]
     },
@@ -80,20 +80,20 @@ const menuItems = [
     },
     {
         title: "Settings",
-        url: "datamodels",
+        url: "settings",
         icon: Settings,
         items: [
             {
                 title: "Databases",
-                url: "database-settings",
+                url: "settings/database",
             },
             {
                 title: "Files",
-                url: "files-settings",
+                url: "settings/files",
             },
             {
                 title: "Billing and Pricing",
-                url: "billing-pricing",
+                url: "settings/billing",
             }
         ]
     },
