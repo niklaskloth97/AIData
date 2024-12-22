@@ -53,7 +53,7 @@ export function AdapterSelection() {
                 </div>
                 <Button type="submit" className="w-full">
                   Continue with selected Adapter</Button>
-                <Button type="submit" className="w-full" variant="destructive">
+                <Button type="submit" className="w-full" variant="white">
                   Continue without Adapter</Button>
               </div>
           </div>
