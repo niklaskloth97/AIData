@@ -37,16 +37,12 @@ export function AdapterSelection() {
                   <Label htmlFor="adapter">Adapter</Label>
                   <Select>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a fruit" />
+                      <SelectValue placeholder="Select a suitable Adapter" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Supported AI models</SelectLabel>
-                        <SelectItem value="4o-mini">OpenAI GPT-4o-mini</SelectItem>
-                        <SelectItem value="llama-32">Meta Llama 3.2</SelectItem>
-                        <SelectItem value="mistral">Mistral AI</SelectItem>
-                        <SelectItem value="claude">Claue</SelectItem>
-
+                        <SelectItem value="sap">SAP Table adapter</SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
