@@ -24,7 +24,7 @@ import { NavHeader } from "@/components/sidebar/nav-header";
 // Menu items.
 const menuItems = [
     {
-        title: "Process Modoel",
+        title: "Process Model",
         url: "processmodel",
         icon: Workflow,
     },
@@ -45,16 +45,16 @@ const menuItems = [
     },
     {
         title: "Generate",
-        url: "gerneate",
+        url: "generate",
         icon: BotIcon,
         items: [
             {
                 title: "Workbench",
-                url: "gerneate/workbench",
+                url: "generate/workbench",
             },
             {
                 title: "History",
-                url: "gerneate/history",
+                url: "generate/history",
             }
         ]
     },
