@@ -1,7 +1,7 @@
 "use client";
 
-
 import React, { useState } from "react";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 interface Step {
   id: number;
@@ -22,75 +22,74 @@ const NewPage = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      {/* Page Header */}
-      <h1 className="text-3xl font-bold mb-2">New Page</h1>
-      <p className="text-gray-500 mb-6">View and manage your content here.</p>
+      {/* Frame */}
+      <div className="border border-gray-300 rounded-lg shadow-md p-6 bg-white">
+        {/* Page Header */}
+        <h1 className="font-bold text-xl mb-1">Process Model</h1>
+        <p className="text-gray-500 mb-4">View and manage your process model.</p>
 
-      {/* Title and Description */}
-      <div className="mb-4">
-        <label className="block font-semibold mb-1">Title</label>
-        <input
-          type="text"
-          placeholder="Enter title here"
-          className="w-full border rounded-md px-3 py-2"
-        />
-      </div>
-      <div className="mb-6">
-        <label className="block font-semibold mb-1">Description</label>
-        <textarea
-          placeholder="Enter description here"
-          className="w-full border rounded-md px-3 py-2"
-          rows={3}
-        />
-      </div>
+        {/* Title and Description */}
+        <div className="mb-4">
+          <label className="block font-semibold mb-1">Process Name</label>
+          <input
+            type="text"
+            placeholder="Enter title here"
+            className="w-full border rounded-md px-3 py-2"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block font-semibold mb-1">Process Description</label>
+          <textarea
+            placeholder="Enter description here"
+            className="w-full border rounded-md px-3 py-2"
+            rows={3}
+          />
+        </div>
 
-      {/* Steps */}
-      <h2 className="font-bold text-xl mb-2">Steps</h2>
-      <div className="space-y-3">
-        {steps.map((step) => (
-          <div
-            key={step.id}
-            className="flex items-center justify-between border rounded-md px-4 py-2"
-          >
-            {/* Step Text */}
-            <span>{step.text}</span>
+        {/* Steps */}
+        <h2 className="block font-semibold mb-1">Process Steps</h2>
+        <div className="space-y-3">
+          {steps.map((step) => (
+            <div
+              key={step.id}
+              className="flex items-center justify-between border rounded-md px-4 py-2"
+            >
+              {/* Step Text */}
+              <span>{step.text}</span>
 
-            {/* Edit and Delete Buttons */}
-            <div className="flex space-x-2">
-              <button
-                className="flex items-center justify-center border border-gray-300 rounded-md px-3 py-1 hover:bg-gray-100"
-                onClick={() => alert("Edit functionality not implemented yet")}
-              >
-                <img src="/edit-icon.png" alt="Edit" className="w-4 h-4 mr-1" />
-                Edit
-              </button>
+              {/* Edit and Delete Buttons */}
+              <div className="flex space-x-2">
+                <button
+                  className="flex items-center justify-center border border-gray-300 rounded-full p-2 hover:bg-gray-100"
+                  onClick={() => alert("Edit functionality not implemented yet")}
+                  aria-label="Edit"
+                >
+                  <FaEdit className="text-gray-600" />
+                </button>
 
-              <button
-                className="flex items-center justify-center border border-red-300 rounded-md px-3 py-1 text-red-600 hover:bg-red-100"
-                onClick={() => handleDelete(step.id)}
-              >
-                <img
-                  src="/delete-icon.png"
-                  alt="Delete"
-                  className="w-4 h-4 mr-1"
-                />
-                Delete
-              </button>
+                <button
+                  className="flex items-center justify-center border border-red-300 rounded-full p-2 hover:bg-red-100"
+                  onClick={() => handleDelete(step.id)}
+                  aria-label="Delete"
+                >
+                  <FaTrash className="text-red-600" />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* Add New Step Button */}
-      <div className="mt-6">
-        <button
-          className="w-full border rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"
-          onClick={() =>
-            setSteps([...steps, { id: Date.now(), text: "New Step" }])
-          }
-        >
-          +
-        </button>
+        {/* Add New Step Button */}
+        <div className="mt-6">
+          <button
+            className="w-full border rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"
+            onClick={() =>
+              setSteps([...steps, { id: Date.now(), text: "New Step" }])
+            }
+          >
+            +
+          </button>
+        </div>
       </div>
     </div>
   );
