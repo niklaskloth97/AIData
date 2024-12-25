@@ -10,9 +10,13 @@ export default function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-      <main className="p-2">
-        <SidebarTrigger className="bg-white"/>
-        {children}
+      <main className="">
+        <div className="mx-4 mt-4 mb-2">
+          <SidebarTrigger className="bg-white"/>
+        </div>
+        <div className="mx-6">
+          {children}
+        </div>
       </main>
       </SidebarInset>
     </SidebarProvider>

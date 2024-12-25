@@ -28,7 +28,7 @@ import {
 const user = {
     name: "Example User",
     email: "example.user@hilti.li",
-    avatar: "https://randomuser.me/api/port",
+    avatar: "",
 };
 
 export function NavFooter() {

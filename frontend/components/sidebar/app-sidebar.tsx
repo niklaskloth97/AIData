@@ -24,37 +24,37 @@ import { NavHeader } from "@/components/sidebar/nav-header";
 // Menu items.
 const menuItems = [
     {
-        title: "Process Modoel",
+        title: "Process Model",
         url: "processmodel",
         icon: Workflow,
     },
     {
         title: "Data Models",
-        url: "datamodels",
+        url: "data-models",
         icon: Database,
         items: [
             {
                 title: "Editor",
-                url: "datamodels/editor",
+                url: "data-models/editor",
             },
             {
                 title: "Instances",
-                url: "datamodels/instances",
+                url: "data-models/instances",
             }
         ]
     },
     {
         title: "Generate",
-        url: "gerneate",
+        url: "generate",
         icon: BotIcon,
         items: [
             {
                 title: "Workbench",
-                url: "gerneate/workbench",
+                url: "generate/workbench",
             },
             {
                 title: "History",
-                url: "gerneate/history",
+                url: "generate/history",
             }
         ]
     },
