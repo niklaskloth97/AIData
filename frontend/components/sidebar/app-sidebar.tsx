@@ -30,16 +30,16 @@ const menuItems = [
     },
     {
         title: "Data Models",
-        url: "datamodels",
+        url: "data-models",
         icon: Database,
         items: [
             {
                 title: "Editor",
-                url: "datamodels/editor",
+                url: "data-models/editor",
             },
             {
                 title: "Instances",
-                url: "datamodels/instances",
+                url: "data-models/instances",
             }
         ]
     },
