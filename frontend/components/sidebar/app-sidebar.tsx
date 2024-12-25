@@ -24,7 +24,7 @@ import { NavHeader } from "@/components/sidebar/nav-header";
 // Menu items.
 const menuItems = [
     {
-        title: "Process Modoel",
+        title: "Process Model",
         url: "processmodel",
         icon: Workflow,
     },
@@ -50,11 +50,11 @@ const menuItems = [
         items: [
             {
                 title: "Workbench",
-                url: "workbench",
+                url: "generate/workbench",
             },
             {
                 title: "History",
-                url: "history",
+                url: "generate/history",
             }
         ]
     },
@@ -65,11 +65,11 @@ const menuItems = [
         items: [
             {
                 title: "Execute",
-                url: "execute-tests",
+                url: "tests/execute",
             },
             {
                 title: "History",
-                url: "history-tests",
+                url: "tests/history",
             }
         ]
     },
@@ -80,20 +80,20 @@ const menuItems = [
     },
     {
         title: "Settings",
-        url: "datamodels",
+        url: "settings",
         icon: Settings,
         items: [
             {
                 title: "Databases",
-                url: "database-settings",
+                url: "settings/database",
             },
             {
                 title: "Files",
-                url: "files-settings",
+                url: "settings/files",
             },
             {
                 title: "Billing and Pricing",
-                url: "billing-pricing",
+                url: "settings/billing",
             }
         ]
     },

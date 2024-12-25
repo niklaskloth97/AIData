@@ -37,19 +37,19 @@ export function AdapterSelection() {
                   <Label htmlFor="adapter">Adapter</Label>
                   <Select>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a suitable Adapter" />
+                      <SelectValue placeholder="Select an Adapter" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectLabel>Supported AI models</SelectLabel>
-                        <SelectItem value="sap">SAP Table adapter</SelectItem>
+                        <SelectLabel>Supported Adapters</SelectLabel>
+                        <SelectItem value="sap-adapter">SAP Table Adapter</SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
                 </div>
                 <Button type="submit" className="w-full">
                   Continue with selected Adapter</Button>
-                <Button type="submit" className="w-full" variant="white">
+                <Button type="submit" className="w-full" variant="destructive">
                   Continue without Adapter</Button>
               </div>
           </div>
