@@ -1,5 +1,5 @@
 "use client"
-import { DataTable } from "@/components/data-table";
+import { DataTable } from "@/components/DataTable";
 import { columns, TableData } from "./columns";
 
 export default function editor() {
