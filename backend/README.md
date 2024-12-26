@@ -1,3 +1,9 @@
+---
+noteId: "1257ab91c2fb11efa4c4335eb2d15b95"
+tags: []
+
+---
+
 # Get Started
 
 ## 1. Install requirements
