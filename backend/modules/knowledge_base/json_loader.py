@@ -1,9 +1,15 @@
 import json
+import sys
+import os
+
+# Add the parent directory to sys.path
 
 class KnowledgeLoader:
     def __init__(self, json_path):
+        
+        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
         self.json_path = json_path
-
+        
     def load(self):
         """
         Load the JSON knowledge data.
