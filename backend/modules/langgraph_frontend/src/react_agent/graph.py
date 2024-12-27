@@ -1,189 +1,273 @@
-"""Define a custom Reasoning and Action agent.
-
-Works with a chat model with tool calling support.
-"""
-
-from datetime import datetime, timezone
-from typing import Dict, List, Literal, cast
-
-from langchain_core.messages import AIMessage
-from langchain_core.runnables import RunnableConfig
-from langgraph.graph import StateGraph
-from langgraph.prebuilt import ToolNode
+import os
+import sys
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.tools.retriever import create_retriever_tool
 from langchain.schema import Document
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
-from react_agent.configuration import Configuration
-from react_agent.state import InputState, State
-from react_agent.tools import TOOLS
-from react_agent.utils import load_chat_model
+from knowledge_base.json_loader import KnowledgeLoader  # Assuming this exists in your project
+# Paths
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+JSON_PATH = os.path.join(BASE_DIR, "knowledge_base/knowledge.json")
 
-# Define the function that calls the model
+from knowledge_base.json_loader import KnowledgeLoader  # Assuming this exists in your project
+# Load documents from knowledge.json
+loader = KnowledgeLoader(json_path=JSON_PATH)
+raw_documents = loader.load()  # Assuming this returns a list of `Document` objects
 
-from knowledge_base.vectorestore import VectorStore
-from knowledge_base.json_loader import KnowledgeLoader
+# Create LangChain documents
+documents = [Document(page_content=doc["content"], metadata={"id": doc["id"]}) for doc in raw_documents]
 
-# Initialize loader and vector store
-loader = KnowledgeLoader(json_path="knowledge.json")
-documents = loader.load()
+# Split documents
+text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(chunk_size=500, chunk_overlap=50)
 
-vectorstore = VectorStore(persist_directory="./chroma_db")
+doc_splits = text_splitter.split_documents(documents)
 
-retriever = vectorstore.as_retriever(search_kwargs={"k":2})
+# Create the Chroma vector database
+vectorstore = Chroma.from_documents(
+    documents=doc_splits,
+    collection_name="rag-chroma",
+    embedding=OpenAIEmbeddings(),  # Use your preferred embeddings here
+)
 
-try:
-    # Load the existing vectorstore if it exists
-    vectorstore.load()
-except Exception:
-    # If not, initialize it
-    vectorstore.initialize(documents)
+# Create a retriever
+retriever = vectorstore.as_retriever()
 
-def query_vectorstore(query):
+# Create a tool for the retriever
+retriever_tool = create_retriever_tool(
+    retriever,
+    "retrieve_knowledge",
+    "Search and retrieve information from the knowledge base stored in knowledge.json.",
+)
+
+# Define the tools
+tools = [retriever_tool]
+
+
+from typing import Annotated, Sequence
+from typing_extensions import TypedDict
+
+from langchain_core.messages import BaseMessage
+
+from langgraph.graph.message import add_messages
+
+
+class AgentState(TypedDict):
+    # The add_messages function defines how an update should be processed
+    # Default is to replace. add_messages says "append"
+    messages: Annotated[Sequence[BaseMessage], add_messages]
+    
+
+from typing import Annotated, Literal, Sequence
+from typing_extensions import TypedDict
+
+from langchain import hub
+from langchain_core.messages import BaseMessage, HumanMessage
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate
+from langchain_openai import ChatOpenAI
+
+from pydantic import BaseModel, Field
+
+
+from langgraph.prebuilt import tools_condition
+
+### Edges
+
+
+def grade_documents(state) -> Literal["generate", "rewrite"]:
     """
-    Query the Chroma vectorstore for a response.
-    """
-    results = vectorstore.search(query, top_k=3)
-    return [result.page_content for result in results]
-
-async def call_model(
-    state: State, config: RunnableConfig
-) -> Dict[str, List[AIMessage]]:
-    """Call the LLM powering our "agent".
-
-    This function prepares the prompt, initializes the model, and processes the response.
+    Determines whether the retrieved documents are relevant to the question.
 
     Args:
-        state (State): The current state of the conversation.
-        config (RunnableConfig): Configuration for the model run.
+        state (messages): The current state
 
     Returns:
-        dict: A dictionary containing the model's response message.
+        str: A decision for whether the documents are relevant or not
     """
-    configuration = Configuration.from_runnable_config(config)
 
-    # Initialize the model with tool binding. Change the model or add more tools here.
-    model = load_chat_model(configuration.model).bind_tools(TOOLS)
+    print("---CHECK RELEVANCE---")
 
-    # Format the system prompt. Customize this to change the agent's behavior.
-    system_message = configuration.system_prompt.format(
-        system_time=datetime.now(tz=timezone.utc).isoformat()
+    # Data model
+    class grade(BaseModel):
+        """Binary score for relevance check."""
+
+        binary_score: str = Field(description="Relevance score 'yes' or 'no'")
+
+    # LLM
+    model = ChatOpenAI(temperature=0, model="gpt-4-0125-preview", streaming=True)
+
+    # LLM with tool and validation
+    llm_with_tool = model.with_structured_output(grade)
+
+    # Prompt
+    prompt = PromptTemplate(
+        template="""You are a grader assessing relevance of a retrieved document to a user question. \n 
+        Here is the retrieved document: \n\n {context} \n\n
+        Here is the user question: {question} \n
+        If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant. \n
+        Give a binary score 'yes' or 'no' score to indicate whether the document is relevant to the question.""",
+        input_variables=["context", "question"],
     )
 
-    # Get the model's response
-    response = cast(
-        AIMessage,
-        await model.ainvoke(
-            [{"role": "system", "content": system_message}, *state.messages], config
-        ),
-    )
+    # Chain
+    chain = prompt | llm_with_tool
 
-    # Handle the case when it's the last step and the model still wants to use a tool
-    if state.is_last_step and response.tool_calls:
-        return {
-            "messages": [
-                AIMessage(
-                    id=response.id,
-                    content="Sorry, I could not find an answer to your question in the specified number of steps.",
-                )
-            ]
-        }
+    messages = state["messages"]
+    last_message = messages[-1]
 
-    # Return the model's response as a list to be added to existing messages
+    question = messages[0].content
+    docs = last_message.content
+
+    scored_result = chain.invoke({"question": question, "context": docs})
+
+    score = scored_result.binary_score
+
+    if score == "yes":
+        print("---DECISION: DOCS RELEVANT---")
+        return "generate"
+
+    else:
+        print("---DECISION: DOCS NOT RELEVANT---")
+        print(score)
+        return "rewrite"
+
+
+### Nodes
+
+
+def agent(state):
+    """
+    Invokes the agent model to generate a response based on the current state. Given
+    the question, it will decide to retrieve using the retriever tool, or simply end.
+
+    Args:
+        state (messages): The current state
+
+    Returns:
+        dict: The updated state with the agent response appended to messages
+    """
+    print("---CALL AGENT---")
+    messages = state["messages"]
+    model = ChatOpenAI(temperature=0, streaming=True, model="gpt-4-turbo")
+    model = model.bind_tools(tools)
+    response = model.invoke(messages)
+    # We return a list, because this will get added to the existing list
     return {"messages": [response]}
 
-def retrieve(state):
+
+def rewrite(state):
     """
-    Retrieve documents from vectorstore
+    Transform the query to produce a better question.
 
     Args:
-        state (dict): The current graph state
+        state (messages): The current state
 
     Returns:
-        state (dict): New key added to state, documents, that contains retrieved documents
+        dict: The updated state with re-phrased question
     """
-    print("---RETRIEVE---")
-    question = state["question"]
 
-    # Retrieval
-    documents = retriever.invoke(question)
-    return {"documents": documents, "question": question}
+    print("---TRANSFORM QUERY---")
+    messages = state["messages"]
+    question = messages[0].content
+
+    msg = [
+        HumanMessage(
+            content=f""" \n 
+    Look at the input and try to reason about the underlying semantic intent / meaning. \n 
+    Here is the initial question:
+    \n ------- \n
+    {question} 
+    \n ------- \n
+    Formulate an improved question: """,
+        )
+    ]
+
+    # Grader
+    model = ChatOpenAI(temperature=0, model="gpt-4o", streaming=True)
+    response = model.invoke(msg)
+    return {"messages": [response]}
+
 
 def generate(state):
     """
-    Generate answer using RAG on retrieved documents
+    Generate answer
 
     Args:
-        state (dict): The current graph state
+        state (messages): The current state
 
     Returns:
-        state (dict): New key added to state, generation, that contains LLM generation
+         dict: The updated state with re-phrased question
     """
     print("---GENERATE---")
-    question = state["question"]
-    documents = state["documents"]
-    
-    # RAG generation
-    generation = rag_chain.invoke({"context": documents, "question": question})
-    return {"documents": documents, "question": question, "generation": generation}
-#
+    messages = state["messages"]
+    question = messages[0].content
+    last_message = messages[-1]
+
+    docs = last_message.content
+
+    # Prompt
+    prompt = hub.pull("rlm/rag-prompt")
+
+    # LLM
+    llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0, streaming=True)
+
+    # Post-processing
+    def format_docs(docs):
+        return "\n\n".join(doc.page_content for doc in docs)
+
+    # Chain
+    rag_chain = prompt | llm | StrOutputParser()
+
+    # Run
+    response = rag_chain.invoke({"context": docs, "question": question})
+    return {"messages": [response]}
+
+
+print("*" * 20 + "Prompt[rlm/rag-prompt]" + "*" * 20)
+prompt = hub.pull("rlm/rag-prompt").pretty_print()  # Show what the prompt looks like
+
+from langgraph.graph import END, StateGraph, START
+from langgraph.prebuilt import ToolNode
 
 # Define a new graph
+workflow = StateGraph(AgentState)
 
-builder = StateGraph(State, input=InputState, config_schema=Configuration)
+# Define the nodes we will cycle between
+workflow.add_node("agent", agent)  # agent
+retrieve = ToolNode([retriever_tool])
+workflow.add_node("retrieve", retrieve)  # retrieval
+workflow.add_node("rewrite", rewrite)  # Re-writing the question
+workflow.add_node(
+    "generate", generate
+)  # Generating a response after we know the documents are relevant
+# Call agent node to decide to retrieve or not
+workflow.add_edge(START, "agent")
 
-# Define the two nodes we will cycle between
-builder.add_node(call_model)
-builder.add_node("tools", ToolNode(TOOLS))
-builder.add_node("retrieve", retrieve) # retrieve
-builder.add_node("generate", generate) # generatae
-# Set the entrypoint as `call_model`
-# This means that this node is the first one called
-builder.add_edge("__start__", "retrieve")
-builder.add_edge("retrieve", "generate")
-
-
-def route_model_output(state: State) -> Literal["__end__", "tools"]:
-    """Determine the next node based on the model's output.
-
-    This function checks if the model's last message contains tool calls.
-
-    Args:
-        state (State): The current state of the conversation.
-
-    Returns:
-        str: The name of the next node to call ("__end__" or "tools").
-    """
-    last_message = state.messages[-1]
-    if not isinstance(last_message, AIMessage):
-        raise ValueError(
-            f"Expected AIMessage in output edges, but got {type(last_message).__name__}"
-        )
-    # If there is no tool call, then we finish
-    if not last_message.tool_calls:
-        return "__end__"
-    # Otherwise we execute the requested actions
-    return "tools"
-
-
-# Add a conditional edge to determine the next step after `call_model`
-builder.add_conditional_edges(
-    "call_model",
-    # After call_model finishes running, the next node(s) are scheduled
-    # based on the output from route_model_output
-    route_model_output,
+# Decide whether to retrieve
+workflow.add_conditional_edges(
+    "agent",
+    # Assess agent decision
+    tools_condition,
+    {
+        # Translate the condition outputs to nodes in our graph
+        "tools": "retrieve",
+        END: END,
+    },
 )
 
-# Add a normal edge from `tools` to `call_model`
-# This creates a cycle: after using tools, we always return to the model
-builder.add_edge("tools", "call_model")
-
-# Compile the builder into an executable graph
-# You can customize this by adding interrupt points for state updates
-graph = builder.compile(
-    interrupt_before=[],  # Add node names here to update state before they're called
-    interrupt_after=[],  # Add node names here to update state after they're called
+# Edges taken after the `action` node is called.
+workflow.add_conditional_edges(
+    "retrieve",
+    # Assess agent decision
+    grade_documents,
 )
-graph.name = "ReAct Agent"  # This customizes the name in LangSmith
+workflow.add_edge("generate", END)
+workflow.add_edge("rewrite", "agent")
+
+from langgraph.checkpoint.memory import MemorySaver
+
+checkpointer = MemorySaver()
+graph = workflow.compile(checkpointer=checkpointer)
