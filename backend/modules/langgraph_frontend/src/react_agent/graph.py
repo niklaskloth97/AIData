@@ -12,6 +12,39 @@ from knowledge_base.json_loader import KnowledgeLoader  # Assuming this exists i
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
 JSON_PATH = os.path.join(BASE_DIR, "knowledge_base/knowledge.json")
 
+def process_raw_documents(raw_documents):
+    """
+    Process raw documents into LangChain-compatible Document objects.
+    :param raw_documents: List of raw JSON objects with 'content' and 'id' fields.
+    :return: List of split Document objects.
+    """
+    # Ensure 'content' is a string and 'id' is valid
+    formatted_documents = []
+    for doc in raw_documents:
+        if isinstance(doc.get("content"), list):
+            # Convert list to string (e.g., join with newlines)
+            page_content = "\n".join(doc["content"])
+        else:
+            # Directly use the content if it's already a string
+            page_content = doc.get("content", "")
+        
+        # Ensure `page_content` is a string
+        if not isinstance(page_content, str):
+            raise ValueError(f"Invalid content format for document ID {doc.get('id')}. Content must be a string.")
+        
+        # Create the LangChain Document
+        formatted_documents.append(
+            Document(page_content=page_content, metadata={"id": doc.get("id")})
+        )
+
+    # Split documents using a text splitter
+    text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+        chunk_size=500, chunk_overlap=50
+    )
+    split_documents = text_splitter.split_documents(formatted_documents)
+
+    return split_documents
+
 from knowledge_base.json_loader import KnowledgeLoader  # Assuming this exists in your project
 # Load documents from knowledge.json
 loader = KnowledgeLoader(json_path=JSON_PATH)
@@ -76,7 +109,6 @@ from langgraph.prebuilt import tools_condition
 
 ### Edges
 
-
 def grade_documents(state) -> Literal["generate", "rewrite"]:
     """
     Determines whether the retrieved documents are relevant to the question.
@@ -97,7 +129,7 @@ def grade_documents(state) -> Literal["generate", "rewrite"]:
         binary_score: str = Field(description="Relevance score 'yes' or 'no'")
 
     # LLM
-    model = ChatOpenAI(temperature=0, model="gpt-4-0125-preview", streaming=True)
+    model = ChatOpenAI(temperature=0, model="gpt-4o", streaming=True)
 
     # LLM with tool and validation
     llm_with_tool = model.with_structured_output(grade)
@@ -115,24 +147,40 @@ def grade_documents(state) -> Literal["generate", "rewrite"]:
     # Chain
     chain = prompt | llm_with_tool
 
+    # Extract the messages from the state
     messages = state["messages"]
-    last_message = messages[-1]
 
-    question = messages[0].content
+    # Find the latest HumanMessage
+    user_query = None
+    for message in reversed(messages):
+        if isinstance(message, HumanMessage):
+            user_query = message.content
+            break
+
+    # Fallback to the first message if no HumanMessage is found
+    if user_query is None:
+        user_query = messages[0].content
+
+    # Extract the last message's content for document context
+    last_message = messages[-1]
     docs = last_message.content
 
-    scored_result = chain.invoke({"question": question, "context": docs})
+    # Invoke the chain with the latest user query and document context
+    scored_result = chain.invoke({"question": user_query, "context": docs})
 
+    # Extract the score
     score = scored_result.binary_score
 
+    # Decision based on relevance
     if score == "yes":
         print("---DECISION: DOCS RELEVANT---")
         return "generate"
-
     else:
         print("---DECISION: DOCS NOT RELEVANT---")
         print(score)
         return "rewrite"
+
+
 
 
 ### Nodes
@@ -157,7 +205,6 @@ def agent(state):
     # We return a list, because this will get added to the existing list
     return {"messages": [response]}
 
-
 def rewrite(state):
     """
     Transform the query to produce a better question.
@@ -171,7 +218,17 @@ def rewrite(state):
 
     print("---TRANSFORM QUERY---")
     messages = state["messages"]
-    question = messages[0].content
+
+    # Find the latest HumanMessage
+    question = None
+    for message in reversed(messages):
+        if isinstance(message, HumanMessage):
+            question = message.content
+            break
+
+    # Fallback to the first message content if no HumanMessage is found
+    if question is None:
+        question = messages[0].content
 
     msg = [
         HumanMessage(
@@ -203,16 +260,37 @@ def generate(state):
     """
     print("---GENERATE---")
     messages = state["messages"]
-    question = messages[0].content
-    last_message = messages[-1]
 
+    # Find the latest HumanMessage
+    question = None
+    for message in reversed(messages):
+        if isinstance(message, HumanMessage):
+            question = message.content
+            break
+
+    # Fallback to the first message content if no HumanMessage is found
+    if question is None:
+        question = messages[0].content
+
+    # Use the content of the last message as document context
+    last_message = messages[-1]
     docs = last_message.content
 
+    sap_processes = ["Order to Cash", "Procure to Pay"]
     # Prompt
-    prompt = hub.pull("rlm/rag-prompt")
+    prompt = PromptTemplate(
+        template="""Act like an SQL Expert. You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. 
+        Your goal is to find out which of the standard SAP processes {sap_process} are related to the user question.
+        If you find a match, provide a 2 sentence overview of the process and then all the steps defined in the knowledge in a structured format.
+        If you are not sure, ask questions to the user to clarify the context.
+        Question: {question}
+        Context: {context}
+        Answer:""",
+        input_variables=["question", "context"],
+    )
 
     # LLM
-    llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0, streaming=True)
+    llm = ChatOpenAI(model_name="gpt-4o", temperature=0, streaming=True)
 
     # Post-processing
     def format_docs(docs):
