@@ -7,7 +7,7 @@ import os
 class KnowledgeLoader:
     def __init__(self, json_path):
         
-        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
+        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
         self.json_path = json_path
         
     def load(self):

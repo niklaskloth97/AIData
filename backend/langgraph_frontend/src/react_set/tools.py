@@ -11,7 +11,8 @@ from langchain.schema import Document, HumanMessage
 from langchain.prompts import PromptTemplate
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
-from knowledge_base.json_loader import KnowledgeLoader  # Assuming this exists in your project
+from langgraph_frontend.knowledge_base.json_loader import KnowledgeLoader
+
 # Paths
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
 JSON_PATH = os.path.join(BASE_DIR, "knowledge_base/knowledge.json")
