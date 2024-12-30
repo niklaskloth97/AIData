@@ -20,7 +20,7 @@ export function NavMenu({
 }: {
     items: {
         title: string;
-        url: string;
+        url?: string;
         icon: LucideIcon;
         isActive?: boolean;
         items?: {
