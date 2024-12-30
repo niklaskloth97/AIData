@@ -35,11 +35,11 @@ const menuItems = [
         items: [
             {
                 title: "Editor",
-                url: "dashboard/data-models/editor",
+                url: "/dashboard/data-models/editor",
             },
             {
                 title: "Instances",
-                url: "dashboard/data-models/instances",
+                url: "/dashboard/data-models/instances",
             }
         ]
     },
@@ -50,11 +50,11 @@ const menuItems = [
         items: [
             {
                 title: "Workbench",
-                url: "dashboard/generate/workbench",
+                url: "/dashboard/generate/workbench",
             },
             {
                 title: "History",
-                url: "dashboard/generate/history",
+                url: "/dashboard/generate/history",
             }
         ]
     },
@@ -65,17 +65,17 @@ const menuItems = [
         items: [
             {
                 title: "Execute",
-                url: "dashboard/tests/execute",
+                url: "/dashboard/tests/execute",
             },
             {
                 title: "History",
-                url: "dashboard/tests/history",
+                url: "/dashboard/tests/history",
             }
         ]
     },
     {
         title: "Manual",
-        url: "dashboard/manual",
+        url: "/dashboard/manual",
         icon: BookOpen,
     },
     {
@@ -85,19 +85,19 @@ const menuItems = [
         items: [
             {
                 title: "General",
-                url: "dashboard/settings/general",
+                url: "/dashboard/settings/general",
             },
             {
                 title: "Databases",
-                url: "dashboard/settings/database",
+                url: "/dashboard/settings/databases",
             },
             {
                 title: "Files",
-                url: "dashboard/settings/files",
+                url: "/dashboard/settings/files",
             },
             {
                 title: "Billing and Pricing",
-                url: "dashboard/settings/billing",
+                url: "/dashboard/settings/billing",
             }
         ]
     },
