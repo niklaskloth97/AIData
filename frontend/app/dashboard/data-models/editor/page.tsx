@@ -1,26 +1,24 @@
-"use client"
+"use client";
 import { DataTable } from "@/components/DataTable";
 import { columns, TableData } from "./columns";
+import PageHeader from "@/components/PageHeader";
+import useMockTables from "@/hooks/api/useMockTables";
 
-export default function editor() {
-    const mockData: TableData[] = [
-        {
-            tableName: "BKPF",
-            referenceColumn: "ORDERID",
-            description: "Helps identify the type",
-        },
-        {
-            tableName: "BKPF",
-            referenceColumn: "RDERID",
-            description: "Helps identify the type",
-        }
-    ];
+export default function Page() {
+    const { isLoading, data } = useMockTables();
+    const mockData = data ?? [];
 
     return (
         <>
-            <h1 className="">Hello, Editor page!</h1>
-
-            <DataTable data={mockData} columns={columns} />
+            <PageHeader
+                heading="Data Model Editor"
+                subtext="This is the subtext."
+            />
+            {isLoading ? (
+                <div>Loading...</div>
+            ) : (
+                <DataTable data={mockData} columns={columns} />
+            )}
         </>
     );
 }

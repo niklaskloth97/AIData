@@ -12,7 +12,7 @@ export default function NavLogoHeader() {
                     className="w-5/6"
                 />
             </div>
-            <div className="mx-2 text-primary">
+            <div className="mx-2 text-primary font-semibold">
                 X
             </div>
             <div className="w-1/2 h-5/6 flex flex-row">

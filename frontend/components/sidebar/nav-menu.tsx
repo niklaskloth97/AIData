@@ -14,13 +14,14 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "../ui/collapsible";
+import Link from "next/link";
 
 export function NavMenu({
     items,
 }: {
     items: {
         title: string;
-        url: string;
+        url?: string;
         icon: LucideIcon;
         isActive?: boolean;
         items?: {
@@ -58,15 +59,11 @@ export function NavMenu({
                                                     <SidebarMenuSubButton
                                                         asChild
                                                     >
-                                                        <a
-                                                            href={subItem.url}
-                                                        >
+                                                        <Link href={subItem.url}>
                                                             <span>
-                                                                {
-                                                                    subItem.title
-                                                                }
+                                                                {subItem.title}
                                                             </span>
-                                                        </a>
+                                                        </Link>
                                                     </SidebarMenuSubButton>
                                                 </SidebarMenuSubItem>
                                             ))}
@@ -78,7 +75,9 @@ export function NavMenu({
                             <SidebarMenuItem key={item.title}>
                                 <SidebarMenuButton tooltip={item.title}>
                                     {item.icon && <item.icon />}
-                                    <span>{item.title}</span>
+                                    <Link href={item.url? item.url : "/"}>
+                                        <span>{item.title}</span>
+                                    </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         )
