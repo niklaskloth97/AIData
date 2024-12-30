@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Highlight } from "@/components/ui/highlight"; // Add a component for SQL highlighting
+import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import { DataTable } from "@/components/DataTable";
 import { columns, TableData } from "@/app/dashboard/script-proposal/columns";
 import { Button } from "@/components/ui/button";
@@ -47,29 +47,30 @@ export default function Page() {
     <div className="p-6 bg-gray-50 min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div className="bg-white shadow rounded-lg p-4">
         <h2 className="text-xl font-bold mb-4">SQL Script Proposal for Delivery Mapping</h2>
-        <Highlight
+        <SyntaxHighlighter
           language="sql"
-          editable
+          editable="true"  // ← Change to a string
           value={sql}
-          onChange={(value) => setSql(value)}
+          onChange={(value: string) => setSql(value)}
           className="border border-gray-200 rounded p-2 bg-gray-50"
-        />
+        >
+          {""}
+        </SyntaxHighlighter>
         <div className="flex justify-between mt-4">
           <Button variant="secondary" onClick={() => alert("Mappings Edited")}>Edit Mappings</Button>
           <Button variant="destructive" onClick={() => alert("Changes Discarded")}>Discard Changes</Button>
-          <Button variant="primary" onClick={() => alert("Script Regenerated")}>ReGenerate</Button>
-          <Button variant="primary" onClick={() => alert("Script Exported")}>Export</Button>
+          <Button onClick={() => alert("Script Regenerated")}>ReGenerate</Button>
+          <Button onClick={() => alert("Script Exported")}>Export</Button>
         </div>
       </div>
 
       <div className="bg-white shadow rounded-lg p-4">
         <h2 className="text-xl font-bold mb-4">Add Feedback</h2>
-        <Textarea
-          value={feedback}
-          onChange={(e) => setFeedback(e.target.value)}
+        <SyntaxHighlighter
+          language="sql"
+          onChange={(value: string) => setSql(value)}
           placeholder="Provide the AI with feedback for the displayed script before (Re)Generating."
-          className="w-full h-24 border border-gray-200 rounded mb-4"
-        />
+          className="w-full h-24 border border-gray-200 rounded mb-4" children={""}        />
         <h2 className="text-xl font-bold mb-4">Event Log Preview</h2>
         <DataTable columns={columns} data={sampleData} />
       </div>
