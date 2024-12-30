@@ -25,75 +25,79 @@ import { NavHeader } from "@/components/sidebar/nav-header";
 const menuItems = [
     {
         title: "Process Model",
-        url: "processmodel",
+        url: "dashboard/process-model",
         icon: Workflow,
     },
     {
         title: "Data Models",
-        url: "data-models",
+        // url: "dashboard/data-models",
         icon: Database,
         items: [
             {
                 title: "Editor",
-                url: "data-models/editor",
+                url: "/dashboard/data-models/editor",
             },
             {
                 title: "Instances",
-                url: "data-models/instances",
+                url: "/dashboard/data-models/instances",
             }
         ]
     },
     {
         title: "Generate",
-        url: "generate",
+        // url: "dashboard/generate",
         icon: BotIcon,
         items: [
             {
                 title: "Workbench",
-                url: "generate/workbench",
+                url: "/dashboard/generate/workbench",
             },
             {
                 title: "History",
-                url: "generate/history",
+                url: "/dashboard/generate/history",
             }
         ]
     },
     {
         title: "Tests",
-        url: "tests",
+        // url: "dashboard/tests",
         icon: FlaskConical,
         items: [
             {
                 title: "Execute",
-                url: "tests/execute",
+                url: "/dashboard/tests/execute",
             },
             {
                 title: "History",
-                url: "tests/history",
+                url: "/dashboard/tests/history",
             }
         ]
     },
     {
         title: "Manual",
-        url: "manual",
+        url: "/dashboard/manual",
         icon: BookOpen,
     },
     {
         title: "Settings",
-        url: "settings",
+        // url: "dashboard/settings",
         icon: Settings,
         items: [
             {
+                title: "General",
+                url: "/dashboard/settings/general",
+            },
+            {
                 title: "Databases",
-                url: "settings/database",
+                url: "/dashboard/settings/databases",
             },
             {
                 title: "Files",
-                url: "settings/files",
+                url: "/dashboard/settings/files",
             },
             {
                 title: "Billing and Pricing",
-                url: "settings/billing",
+                url: "/dashboard/settings/billing",
             }
         ]
     },

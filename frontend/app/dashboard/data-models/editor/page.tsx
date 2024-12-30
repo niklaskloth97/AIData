@@ -2,7 +2,7 @@
 import { DataTable } from "@/components/DataTable";
 import { columns, TableData } from "./columns";
 
-export default function editor() {
+export default function Page() {
     const mockData: TableData[] = [
         {
             tableName: "BKPF",
