@@ -50,7 +50,7 @@ retriever_tool = create_retriever_tool(
 tools = [retriever_tool]
 
 
-def grade_documents(state) -> Literal["generate", "rewrite"]:
+def process_detected(state) -> Literal["generate", "rewrite"]:
     """
     Determines whether the retrieved documents are relevant to the question.
 
@@ -75,15 +75,23 @@ def grade_documents(state) -> Literal["generate", "rewrite"]:
     # LLM with tool and validation
     llm_with_tool = model.with_structured_output(grade)
 
+    print("---PROCESS DETECTION---")
+    user_question = state["messages"][-1].content
+    process_Steps_O2C = "0rder2Cash: Create Sales Order (SO), Approve Sales Order (SO), Delivery Creation, Goods Issue (GI), Billing Document Creation, Receive Payment",
+    process_Steps_P2P = "Procure2Pay: Create Purchase Requisition (PR), Approve Purchase Requisition (PR), Create Purchase Order (PO), Approve Purchase Order (PO), Goods Receipt (GR), Create Invoice, Verify Invoice, Clear Invoice, Payment",
     # Prompt
     prompt = PromptTemplate(
-        template="""You are a grader assessing relevance of a retrieved document to a user question. \n 
-        Here is the retrieved document: \n\n {context} \n\n
+        template="""You are a grader assessing if a user Query matches one of the 2 given SAP Standard Processes \n 
+        The two processes are  \n\n {stepsp2p} \n\n
+        and \n\n {stepso2c} \n\n
         Here is the user question: {question} \n
-        If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant. \n
-        Give a binary score 'yes' or 'no' score to indicate whether the document is relevant to the question.""",
-        input_variables=["context", "question"],
+        If you feel like you have a good guess that this is one of the two processes\n
+        Give a binary score 'yes' or 'no' score to indicate whether there is a match or not""",
+        input_variables=["stepsp2p", "stepso2c", "question"],
     )
+    
+    model = ChatOpenAI(temperature=0, streaming=True, model="gpt-4o")
+    
 
     # Chain
     chain = prompt | llm_with_tool
@@ -102,12 +110,7 @@ def grade_documents(state) -> Literal["generate", "rewrite"]:
     if user_query is None:
         user_query = messages[0].content
 
-    # Extract the last message's content for document context
-    last_message = messages[-1]
-    docs = last_message.content
-
-    # Invoke the chain with the latest user query and document context
-    scored_result = chain.invoke({"question": user_query, "context": docs})
+    scored_result = chain.invoke({"stepsp2p": process_Steps_P2P, "stepso2c": process_Steps_O2C, "question": user_question})
 
     # Extract the score
     score = scored_result.binary_score
@@ -115,8 +118,8 @@ def grade_documents(state) -> Literal["generate", "rewrite"]:
     # Decision based on relevance
     if score == "yes":
         print("---DECISION: DOCS RELEVANT---")
-        return "generate"
+        return "give process"
     else:
         print("---DECISION: DOCS NOT RELEVANT---")
         print(score)
-        return "rewrite"
+        return "ask for clarification"

@@ -1,89 +1,66 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Client } from "@langchain/langgraph-sdk";
 import PageHeader from "@/components/PageHeader";
-
 import Link from "next/link";
 
-
-interface Assistant {
-  name: string;
-  assistant_id: string;
-}
+import { Client } from "@langchain/langgraph-sdk";
+import { RemoteGraph } from "@langchain/langgraph/remote";
 
 const client = new Client({
   apiKey: "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",
+  //apiUrl: "http://localhost:8123",
   apiUrl: "http://127.0.0.1:2024",
 });
 
+const graphName = "setup";
+const remoteGraph = new RemoteGraph({ graphId: graphName, client });
+
 const ChatInteraction = () => {
-  const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selectedAssistant, setSelectedAssistant] = useState<Assistant | null>(null);
+  const [threadId, setThreadId] = useState<string | null>(null);
 
   useEffect(() => {
-    const initializeClient = async () => {
+    const initializeThread = async () => {
       try {
-        const assistantsList = await client.assistants.search({
-          metadata: null,
-          offset: 0,
-          limit: 10,
-        });
-        setAssistants(assistantsList);
-
-        if (assistantsList.length > 0) {
-          setSelectedAssistant(assistantsList[0]);
-        }
+        // Create a thread or resume an existing one
+        const thread = await client.threads.create();
+        setThreadId(thread.thread_id);
+        console.log("Thread ID:", thread.thread_id);  
       } catch (error) {
-        console.error("Error fetching assistants:", error);
+        console.error("Error creating thread:", error);
       }
     };
 
-    initializeClient();
+    initializeThread();
   }, []);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || !selectedAssistant) return;
+    if (!inputValue.trim() || !threadId) return;
 
-    const newMessage = { role: "human", content: inputValue };
+    const newMessage = { role: "user", content: inputValue };
     setMessages((prev) => [...prev, newMessage]); // Add user message to the state
     setInputValue(""); // Clear the input field
 
     try {
       setLoading(true);
-      const thread = await client.threads.create();
 
-      const streamResponse = client.runs.stream(
-        thread["thread_id"],
-        selectedAssistant["assistant_id"],
-        {
-          input: { messages: [...messages, newMessage] },
-        }
-      );
+      // Configure the graph invocation with the thread ID
+      const config = { configurable: { thread_id: threadId } };
+      const result = await remoteGraph.invoke({
+        messages: [...messages, newMessage],
+        config,
+      });
 
-      let assistantResponse = null;
+      // Extract messages from the result
+      const assistantMessages = result.messages.filter((msg: any) => msg.role === "assistant");
+      setMessages((prev) => [...prev, ...assistantMessages]);
 
-      for await (const chunk of streamResponse) {
-        if (chunk.event === "values") {
-          const newMessages = chunk.data.messages.map((msg: { content: string }) => ({
-            role: "assistant",
-            content: msg.content,
-          }));
-
-          // Always keep only the last assistant response
-          assistantResponse = newMessages.slice(-1)[0];
-        }
-      }
-
-      // Update the state with the last assistant response
-      if (assistantResponse) {
-        setMessages((prev) => [...prev, assistantResponse]);
-      }
+      // Verify the persisted state
     } catch (error) {
-      console.error("Error during streaming:", error);
+      console.error("Error during graph invocation:", error);
     } finally {
       setLoading(false);
     }
@@ -114,13 +91,13 @@ const ChatInteraction = () => {
           <div className="p-6 pt-0">
             <div
               className="space-y-4 h-96 overflow-y-auto"
-              style={{ scrollbarWidth: "thin", scrollbarColor: "#ccc transparent" }} // Optional custom scrollbar
+              style={{ scrollbarWidth: "thin", scrollbarColor: "#ccc transparent" }}
             >
               {messages.map((message, index) => (
                 <div
                   key={index}
                   className={`flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm ${
-                    message.role === "human"
+                    message.role === "user"
                       ? "ml-auto bg-primary text-primary-foreground"
                       : "bg-muted"
                   }`}
@@ -130,7 +107,7 @@ const ChatInteraction = () => {
               ))}
             </div>
           </div>
-  
+
           {/* Proceed Button */}
           <div className="flex items-center justify-center p-4">
             <Link href="/additional-events">
@@ -139,7 +116,7 @@ const ChatInteraction = () => {
               </button>
             </Link>
           </div>
-  
+
           {/* Input Area */}
           <div className="flex items-center p-6 pt-0">
             <form
@@ -182,8 +159,7 @@ const ChatInteraction = () => {
         </div>
       </div>
     </div>
-  );    
-}
-  
+  );
+};
 
 export default ChatInteraction;
