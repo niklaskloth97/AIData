@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import QueryProvider from "@/components/QueryProvider";
 
 export const metadata: Metadata = {
     title: "Hilti Project Seminar",
     description: "Frontend for Hilti Project Seminar",
 };
 
-const queryClient = new QueryClient();
+// const queryClient = new QueryClient();
 
 export default function RootLayout({
     children,
@@ -18,7 +19,7 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body>
-                <QueryClientProvider client={queryClient}>
+                <QueryProvider>
                     <ThemeProvider
                         attribute="class"
                         defaultTheme="system"
@@ -27,7 +28,7 @@ export default function RootLayout({
                     >
                         {children}
                     </ThemeProvider>
-                </QueryClientProvider>
+                </QueryProvider>
             </body>
         </html>
     );

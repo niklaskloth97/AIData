@@ -3,16 +3,7 @@ import {
   ColumnDef,
 } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal, Search, Edit } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export type TableData = {
     tableName: string;
