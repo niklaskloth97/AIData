@@ -3,15 +3,6 @@ import React from "react";
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import PageHeader from "@/components/PageHeader";
 import { columns, MappingData } from "./columns";
 
 const sampleData: MappingData[] = [
