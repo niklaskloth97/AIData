@@ -11,46 +11,10 @@ from langchain.schema import Document, HumanMessage
 from langchain.prompts import PromptTemplate
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
 
-from langgraph_frontend.knowledge_base.json_loader import KnowledgeLoader
-
 # Paths
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
-JSON_PATH = os.path.join(BASE_DIR, "knowledge_base/knowledge.json")
-
-# Load documents from knowledge.json
-loader = KnowledgeLoader(json_path=JSON_PATH)
-raw_documents = loader.load()  # Assuming this returns a list of `Document` objects
-
-# Create LangChain documents
-documents = [Document(page_content=doc["content"], metadata={"id": doc["id"]}) for doc in raw_documents]
-
-# Split documents
-text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(chunk_size=500, chunk_overlap=50)
-
-doc_splits = text_splitter.split_documents(documents)
-
-# Create the Chroma vector database
-vectorstore = Chroma.from_documents(
-    documents=doc_splits,
-    collection_name="rag-chroma",
-    embedding=OpenAIEmbeddings(),  # Use your preferred embeddings here
-)
-
-# Create a retriever
-retriever = vectorstore.as_retriever()
-
-# Create a tool for the retriever
-retriever_tool = create_retriever_tool(
-    retriever,
-    "retrieve_knowledge",
-    "Search and retrieve information from the knowledge base stored in knowledge.json.",
-)
-
-# Define the tools
-tools = [retriever_tool]
 
 
-def grade_documents(state) -> Literal["generate", "rewrite"]:
+def process_detected(state) -> Literal["agent", "adjust_process"]:
     """
     Determines whether the retrieved documents are relevant to the question.
 
@@ -75,18 +39,36 @@ def grade_documents(state) -> Literal["generate", "rewrite"]:
     # LLM with tool and validation
     llm_with_tool = model.with_structured_output(grade)
 
+    print("---PROCESS DETECTION---")
+    user_question = state["messages"][-1].content
+    process_Steps_O2C = "0rder2Cash: Create Sales Order (SO), Approve Sales Order (SO), Delivery Creation, Goods Issue (GI), Billing Document Creation, Receive Payment",
+    process_Steps_P2P = "Procure2Pay: Create Purchase Requisition (PR), Approve Purchase Requisition (PR), Create Purchase Order (PO), Approve Purchase Order (PO), Goods Receipt (GR), Create Invoice, Verify Invoice, Clear Invoice, Payment",
     # Prompt
-    prompt = PromptTemplate(
-        template="""You are a grader assessing relevance of a retrieved document to a user question. \n 
-        Here is the retrieved document: \n\n {context} \n\n
+    promptp2p = PromptTemplate(
+        template="""You are a grader assessing if a user is looking for the following SAP Standard Process \n 
+        The process is  \n\n {stepsp2p} \n\n
         Here is the user question: {question} \n
-        If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant. \n
-        Give a binary score 'yes' or 'no' score to indicate whether the document is relevant to the question.""",
-        input_variables=["context", "question"],
+        If you feel like you have a good guess that this is one of the two processes\n
+        Give a binary score 'yes' or 'no' score to indicate whether there is a match or not""",
+        input_variables=["stepsp2p", "question"],
     )
+    
+    prompto2c = PromptTemplate(
+        template="""You are a grader assessing if a user is looking for the following SAP Standard Process \n 
+        The process is  \n\n {stepso2c} \n\n
+        Here is the user question: {question} \n
+        If you feel like you have a good guess that this is one of the two processes\n
+        Give a binary score 'yes' or 'no' score to indicate whether there is a match or not""",
+        input_variables=["stepso2c", "question"],
+    )
+    
+    model = ChatOpenAI(temperature=0, streaming=True, model="gpt-4o")
+    
 
     # Chain
-    chain = prompt | llm_with_tool
+    chain = promptp2p | llm_with_tool
+    
+    chain2 = prompto2c | llm_with_tool
 
     # Extract the messages from the state
     messages = state["messages"]
@@ -102,21 +84,116 @@ def grade_documents(state) -> Literal["generate", "rewrite"]:
     if user_query is None:
         user_query = messages[0].content
 
-    # Extract the last message's content for document context
-    last_message = messages[-1]
-    docs = last_message.content
-
-    # Invoke the chain with the latest user query and document context
-    scored_result = chain.invoke({"question": user_query, "context": docs})
-
+    scored_result_p2p = chain.invoke({"stepsp2p": process_Steps_P2P, "question": user_question})
     # Extract the score
-    score = scored_result.binary_score
+    scorep2p = scored_result_p2p.binary_score
+    
+    scored_result_p2p = chain2.invoke({"stepso2c": process_Steps_O2C, "question": user_question})
+    
+    scoreo2c = scored_result_p2p.binary_score
 
     # Decision based on relevance
-    if score == "yes":
-        print("---DECISION: DOCS RELEVANT---")
-        return "generate"
+    if scorep2p == "yes":
+        print("---DECISION: P2P---")
+        state["agenttask"] = "p2p"
+        return "agent"
     else:
         print("---DECISION: DOCS NOT RELEVANT---")
-        print(score)
-        return "rewrite"
+        if scoreo2c == "yes":
+            print("---DECISION: O2C---")
+            state["agenttask"] = "o2c"
+            return "agent"
+        state["agenttask"] = "clarify"
+        return "agent"
+
+def need_clarification(state) -> Literal["agent", "adjust_process"]:
+    """
+    Determines whether the retrieved documents are relevant to the question.
+
+    Args:
+        state (messages): The current state
+
+    Returns:
+        str: A decision for whether the documents are relevant or not
+    """
+
+    print("---CHECK RELEVANCE---")
+
+    # Data model
+    class grade(BaseModel):
+        """Binary score for relevance check."""
+
+        binary_score: str = Field(description="Relevance score 'yes' or 'no'")
+
+    # LLM
+    model = ChatOpenAI(temperature=0, model="gpt-4o", streaming=True)
+
+    # LLM with tool and validation
+    llm_with_tool = model.with_structured_output(grade)
+
+    print("---PROCESS DETECTION---")
+    user_question = state["messages"][-1].content
+    process_Steps_O2C = "0rder2Cash: Create Sales Order (SO), Approve Sales Order (SO), Delivery Creation, Goods Issue (GI), Billing Document Creation, Receive Payment",
+    process_Steps_P2P = "Procure2Pay: Create Purchase Requisition (PR), Approve Purchase Requisition (PR), Create Purchase Order (PO), Approve Purchase Order (PO), Goods Receipt (GR), Create Invoice, Verify Invoice, Clear Invoice, Payment",
+    # Prompt
+    promptp2p = PromptTemplate(
+        template="""You are a grader assessing if a user is looking for the following SAP Standard Process \n 
+        The process is  \n\n {stepsp2p} \n\n
+        Here is the user question: {question} \n
+        If you feel like you have a good guess that this is one of the two processes\n
+        Give a binary score 'yes' or 'no' score to indicate whether there is a match or not""",
+        input_variables=["stepsp2p", "question"],
+    )
+    
+    prompto2c = PromptTemplate(
+        template="""You are a grader assessing if a user is looking for the following SAP Standard Process \n 
+        The process is  \n\n {stepso2c} \n\n
+        Here is the user question: {question} \n
+        If you feel like you have a good guess that this is one of the two processes\n
+        Give a binary score 'yes' or 'no' score to indicate whether there is a match or not""",
+        input_variables=["stepso2c", "question"],
+    )
+    
+    model = ChatOpenAI(temperature=0, streaming=True, model="gpt-4o")
+    
+
+    # Chain
+    chain = promptp2p | llm_with_tool
+    
+    chain2 = prompto2c | llm_with_tool
+
+    # Extract the messages from the state
+    messages = state["messages"]
+
+    # Find the latest HumanMessage
+    user_query = None
+    for message in reversed(messages):
+        if isinstance(message, HumanMessage):
+            user_query = message.content
+            break
+
+    # Fallback to the first message if no HumanMessage is found
+    if user_query is None:
+        user_query = messages[0].content
+
+    scored_result_p2p = chain.invoke({"stepsp2p": process_Steps_P2P, "question": user_question})
+    # Extract the score
+    scorep2p = scored_result_p2p.binary_score
+    
+    scored_result_p2p = chain2.invoke({"stepso2c": process_Steps_O2C, "question": user_question})
+    
+    scoreo2c = scored_result_p2p.binary_score
+
+    # Decision based on relevance
+    if scorep2p == "yes":
+        print("---DECISION: P2P---")
+        state["agenttask"] = "p2p"
+        return "adjust_process"
+    else:
+        print("---DECISION: DOCS NOT RELEVANT---")
+        if scoreo2c == "yes":
+            print("---DECISION: O2C---")
+            state["agenttask"] = "o2c"
+            return  "adjust_process"
+        state["agenttask"] = "clarify"
+        return "agent"

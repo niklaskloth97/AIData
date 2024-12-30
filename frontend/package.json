@@ -9,7 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@assistant-ui/react": "^0.7.21",
+    "@assistant-ui/react-langgraph": "^0.1.8",
+    "@assistant-ui/react-markdown": "^0.7.7",
     "@hookform/resolvers": "^3.9.1",
+    "@langchain/langgraph": "^0.2.36",
     "@langchain/langgraph-sdk": "^0.0.32",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.3",

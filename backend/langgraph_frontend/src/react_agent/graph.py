@@ -2,9 +2,10 @@ from langgraph.graph.message import add_messages
 from typing import Annotated, Sequence
 from typing_extensions import TypedDict
 from langchain_core.messages import BaseMessage
-from react_agent.nodes import agent, rewrite, generate
+from src.react_agent.nodes import agent, rewrite, generate
+
 from langgraph.prebuilt import tools_condition
-from react_agent.tools import retriever_tool, grade_documents
+from src.react_agent.tools import retriever_tool, grade_documents
 from langgraph.graph import END, StateGraph, START
 from langgraph.prebuilt import ToolNode
 
