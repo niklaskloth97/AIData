@@ -34,6 +34,5 @@ graph.add_edge("adjust_process", END)
 from langgraph.checkpoint.memory import MemorySaver
 
 checkpointer = MemorySaver()
-graph = graph.compile(checkpointer=checkpointer, 
-                      interrupt_before=["adjust_process"],
+graph = graph.compile(checkpointer=checkpointer
                       )
