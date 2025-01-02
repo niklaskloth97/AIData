@@ -25,7 +25,7 @@ import { NavHeader } from "@/components/sidebar/nav-header";
 const menuItems = [
     {
         title: "Process Model",
-        url: "dashboard/process-model",
+        url: "/dashboard/process-model",
         icon: Workflow,
     },
     {
