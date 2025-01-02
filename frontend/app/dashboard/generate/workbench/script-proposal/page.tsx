@@ -1,13 +1,15 @@
 "use client";
 import React, { useState } from "react";
-import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
+import Controlled from "@uiw/react-codemirror";
+import {basicSetup} from "codemirror"
+import { sql as sqlLang} from "@codemirror/lang-sql"; // SQL syntax highlighting
+import { githubLight } from "@uiw/codemirror-theme-github";
 import { DataTable } from "@/components/DataTable";
 import { columns, TableData } from "@/app/dashboard/generate/workbench/script-proposal/columns";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label";
 
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 const initialSQL = `CREATE TABLE currency_conversion AS
 SELECT
@@ -50,19 +52,18 @@ export default function Page() {
     <div className="p-6 rounded-md grid grid-cols-2 gap-4">
       <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
         <h2 className="text-xl font-bold mb-4">SQL Script Proposal for Delivery Mapping</h2>
-        <SyntaxHighlighter
-          language="sql"
-          editable="true"  // ← Change to a string
-          value={initialSQL}
-          onChange={(value: string) => setSql(value)}
-          className="border border-gray-200 rounded p-2 bg-gray-50"
-        >
-          {""}
-        </SyntaxHighlighter>
+        <Controlled
+          value={sql}
+          extensions={[basicSetup, sqlLang() as any]}  // Enable SQL syntax highlighting
+          theme={githubLight}
+          onChange={(value) => setSql(value)}
+          className="border border-gray-200 rounded p-2"
+        />
+        <div className="mt-2 text-sm text-gray-600">Your changes will be passed to the AI-Engine as part of the feedback</div>
         <div className="flex justify-between mt-4">
           <Button variant="secondary" onClick={() => alert("Mappings Edited")}>Edit Mappings</Button>
           <Button variant="destructive" onClick={() => alert("Changes Discarded")}>Discard Changes</Button>
-          <Button onClick={() => alert("Script Regenerated")}>ReGenerate</Button>
+          <Button onClick={() => alert("Script Regenerated")}>Re-Generate</Button>
           <Button onClick={() => alert("Script Exported")}>Export</Button>
         </div>
       </div>
