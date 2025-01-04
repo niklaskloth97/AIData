@@ -1,8 +1,9 @@
-import { ThreadState, Client } from "@langchain/langgraph-sdk";
+import { Client, ThreadState } from "@langchain/langgraph-sdk";
+import { interrupt, Command } from "@langchain/langgraph";
 import { LangChainMessage } from "@assistant-ui/react-langgraph";
-
+ 
 const createClient = () => {
-  const apiUrl =
+  const apiUrl = 
     "http://127.0.0.1:2024";
   return new Client({
     apiUrl,
@@ -10,59 +11,72 @@ const createClient = () => {
   });
 };
 
-export const createAssistant = async (graphId: string) => {
+export const getUserInput = async (question: string): Promise<string> => {
+  return new Promise((resolve) => {
+    const userInput = window.prompt(question);
+    resolve(userInput || "");
+  });
+};
+export const handleInterrupt = async (threadId: string, interruptData: any) => {
+  // Prompt the user for input based on interruptData
+  const userInput = await getUserInput(interruptData.question);
+
+  // Resume the graph execution with the user's input
+  const command = new Command({ resume: userInput });
   const client = createClient();
-  return client.assistants.create({ graphId });
+  return client.runs.stream(
+    command,
+    threadId,
+    "setup"!,
+    streamMode: "messages",
+  );
 };
 
+ 
 export const createThread = async () => {
   const client = createClient();
   return client.threads.create();
 };
-
+ 
 export const getThreadState = async (
-  threadId: string
-): Promise<ThreadState<Record<string, any>>> => {
+  threadId: string,
+): Promise<ThreadState<{ messages: LangChainMessage[] }>> => {
   const client = createClient();
   return client.threads.getState(threadId);
 };
-
-export const updateState = async (
-  threadId: string,
-  fields: {
-    newState: Record<string, any>;
-    asNode?: string;
-  }
-) => {
-  const client = createClient();
-  return client.threads.updateState(threadId, {
-    values: fields.newState,
-    asNode: fields.asNode!,
-  });
-};
-
+ 
 export const sendMessage = async (params: {
   threadId: string;
-  messages: LangChainMessage[];
+  messages: LangChainMessage;
 }) => {
   const client = createClient();
-
-  let input: Record<string, any> | null = {
-    messages: params.messages,
-  };
-  const config = {
-    configurable: {
-      model_name: "openai",
-    },
-  };
-
   return client.runs.stream(
     params.threadId,
     "setup"!,
     {
-      input,
-      config,
+      input: {
+        messages: params.messages,
+      },
+      streamMode: "messages",
+    },
+  );
+};
+
+const streamMessages = async (threadId: string, messages: LangChainMessage) => {
+  const client = createClient();
+  const responseStream = client.runs.stream(
+    threadId,
+    "setup",
+    {
+      input: {
+        messages: messages,
+      },
       streamMode: "messages",
     }
   );
-};
+
+  for await (const message of responseStream) {
+    // Handle each streamed message
+    displayMessage(message);
+  }
+};g
