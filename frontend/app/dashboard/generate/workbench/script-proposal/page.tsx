@@ -1,10 +1,15 @@
 "use client";
 import React, { useState } from "react";
-import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
+import Controlled from "@uiw/react-codemirror";
+import {basicSetup} from "codemirror"
+import { sql as sqlLang} from "@codemirror/lang-sql"; // SQL syntax highlighting
+import { githubLight } from "@uiw/codemirror-theme-github";
 import { DataTable } from "@/components/DataTable";
-import { columns, TableData } from "@/app/dashboard/script-proposal/columns";
+import { columns, TableData } from "@/app/dashboard/generate/workbench/script-proposal/columns";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 const initialSQL = `CREATE TABLE currency_conversion AS
 SELECT
@@ -44,35 +49,39 @@ export default function Page() {
   const [feedback, setFeedback] = useState("");
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div className="bg-white shadow rounded-lg p-4">
+    <div className="p-6 rounded-md grid grid-cols-2 gap-4">
+      <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
         <h2 className="text-xl font-bold mb-4">SQL Script Proposal for Delivery Mapping</h2>
-        <SyntaxHighlighter
-          language="sql"
-          editable="true"  // ← Change to a string
+        <Controlled
           value={sql}
-          onChange={(value: string) => setSql(value)}
-          className="border border-gray-200 rounded p-2 bg-gray-50"
-        >
-          {""}
-        </SyntaxHighlighter>
+          extensions={[basicSetup, sqlLang() as any]}  // Enable SQL syntax highlighting
+          theme={githubLight}
+          onChange={(value) => setSql(value)}
+          className="border border-gray-200 rounded p-2"
+        />
+        <div className="mt-2 text-sm text-gray-600">Your changes will be passed to the AI-Engine as part of the feedback</div>
         <div className="flex justify-between mt-4">
           <Button variant="secondary" onClick={() => alert("Mappings Edited")}>Edit Mappings</Button>
           <Button variant="destructive" onClick={() => alert("Changes Discarded")}>Discard Changes</Button>
-          <Button onClick={() => alert("Script Regenerated")}>ReGenerate</Button>
+          <Button onClick={() => alert("Script Regenerated")}>Re-Generate</Button>
           <Button onClick={() => alert("Script Exported")}>Export</Button>
         </div>
       </div>
-
-      <div className="bg-white shadow rounded-lg p-4">
-        <h2 className="text-xl font-bold mb-4">Add Feedback</h2>
-        <SyntaxHighlighter
-          language="sql"
-          onChange={(value: string) => setSql(value)}
-          placeholder="Provide the AI with feedback for the displayed script before (Re)Generating."
-          className="w-full h-24 border border-gray-200 rounded mb-4" children={""}        />
-        <h2 className="text-xl font-bold mb-4">Event Log Preview</h2>
-        <DataTable columns={columns} data={sampleData} />
+      <div className="grid grid-cols-subgrid gap-4">
+        {/* 2nd card: "Add Feedback" */}
+        <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
+          <h2 className="text-xl font-bold mb-4">Add Feedback</h2>
+          <div className="">
+            <Label htmlFor="message">Your message</Label>
+            <Textarea placeholder="Type your feedback to the AI here." id="feedback" />
+          </div>
+        </div>
+      
+      {/* 3rd card: "Event Log Preview" */}
+        <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
+          <h2 className="text-xl font-bold mb-4">Event Log Preview</h2>
+          <DataTable columns={columns} data={sampleData} />
+        </div>
       </div>
     </div>
   );

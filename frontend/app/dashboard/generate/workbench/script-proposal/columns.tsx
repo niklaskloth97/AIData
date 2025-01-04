@@ -1,5 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+import {Search} from "lucide-react";
+
 
 export type TableData = {
   caseId: number;
@@ -34,7 +36,9 @@ export const columns: ColumnDef<TableData>[] = [
     header: "Actions",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm">🔍</Button>
+         <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => alert(`Search action for Event log preview`)}>
+                    <Search className="h-5 w-5" />
+                  </Button>
       </div>
     ),
   },
