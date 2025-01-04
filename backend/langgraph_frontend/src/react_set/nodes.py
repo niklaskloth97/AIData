@@ -3,6 +3,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage
 from langgraph.graph import StateGraph, START, END
 from langchain.prompts import PromptTemplate
+from langgraph.types import Command, interrupt
 
 # Define the nodes for the graph
 def agent(state):
@@ -11,19 +12,9 @@ def agent(state):
     """
     print("---AGENT NODE---")
     messages = state["messages"]
-    user_question = messages[-1].content if messages else ""
-
-    sap_processes = {
-        "Order to Cash": ["Create Sales Order (SO)", "Approve Sales Order (SO)", "Delivery Creation", "Goods Issue (GI)", "Billing Document Creation", "Receive Payment"],
-        "Procure to Pay": ["Create Purchase Requisition (PR)", "Approve Purchase Requisition (PR)", "Create Purchase Order (PO)", "Approve Purchase Order (PO)", "Goods Receipt (GR)", "Create Invoice", "Verify Invoice", "Clear Invoice", "Payment"]
-    }
-
-    process_steps = {
-        "O2C": ["Create Sales Order (SO)", "Approve Sales Order (SO)", "Delivery Creation", "Goods Issue (GI)", "Billing Document Creation", "Receive Payment"],
-        "P2P": ["Create Purchase Requisition (PR)", "Approve Purchase Requisition (PR)", "Create Purchase Order (PO)", "Approve Purchase Order (PO)", "Goods Receipt (GR)", "Create Invoice", "Verify Invoice", "Clear Invoice", "Payment"]
-    }
-    tasks = state["agenttask"]
-    task = tasks[-1] if tasks else ""
+    task = state["agenttask"]
+    print(f"Task: {task}")
+    
     if task == "p2p":
         # Handle Procure-to-Pay (P2P) task
         response = (
@@ -41,7 +32,10 @@ def agent(state):
         )
         messages.append({"role": "assistant", "content": response})
         state["detected_process"] = "Procure to Pay"
-        return {"messages": messages, "detected_process": "Procure to Pay"}
+        return Command(
+            update={"messages": messages, "detected_process": "Procure to Pay"},
+            goto="human_feedback"
+        )
 
     elif task == "o2c":
         # Handle Order-to-Cash (O2C) task
@@ -57,7 +51,10 @@ def agent(state):
         )
         messages.append({"role": "assistant", "content": response})
         state["detected_process"] = "Order to Cash"
-        return {"messages": messages, "detected_process": "Order to Cash"}
+        return Command(
+            update={"messages": messages, "detected_process": "Order to Cash"},
+            goto="human_feedback"
+        )
 
     elif task == "clarify":
         # Handle clarification task
@@ -66,14 +63,16 @@ def agent(state):
             "Based on the user query: '{user_question}', generate a clarification question "
             "to determine whether the user is referring to 'Order-to-Cash (O2C)' or 'Procure-to-Pay (P2P)'."
         )
-        clarification_question = model.invoke(clarification_prompt.format(user_question=user_question))
-        response = clarification_question or (
+        # clarification_question = model.invoke(clarification_prompt.format(user_question=user_question))
+        response =  (
             "I couldn\'t determine the process from your input. Could you clarify if you are referring to "
             "the 'Order-to-Cash (O2C)' or 'Procure-to-Pay (P2P)' process?"
         )
         messages.append({"role": "assistant", "content": response})
-        state["interrupted"] = True
-        return {"messages": messages, "interrupted": True}
+        return Command(
+            update={"messages": messages},
+            goto="human_feedback"
+        )
 
     else:
         # Default response for unknown tasks
@@ -82,8 +81,15 @@ def agent(state):
             "information about 'Order-to-Cash (O2C)', 'Procure-to-Pay (P2P)', or need clarification?"
         )
         messages.append({"role": "assistant", "content": response})
-        state["interrupted"] = True
-        return {"messages": messages, "interrupted": True}
+        return Command(
+            update={"messages": messages},
+            goto="human_feedback"
+        )
+
+def human_feedback(state):
+    print("---human_feedback---")
+    feedback = interrupt("Please provide feedback:")
+    return {"user_feedback": feedback}
 
 
 def adjust_process(state):
@@ -111,5 +117,5 @@ def adjust_process(state):
     messages = state["messages"]
     response = f"The steps for the '{detected_process}' process are:\n" + "\n".join(f"{i+1}. {step}" for i, step in enumerate(steps))
     response += "\nWould you like to drop any steps? Please specify step numbers."
-    messages.append(HumanMessage(content=response))
+    messages.append({"role": "assistant", "content": response})
     return {"messages": messages, "steps": steps}

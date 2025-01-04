@@ -1,8 +1,8 @@
 "use client";
 
-import { Thread } from "@assistant-ui/react";
 import { makeMarkdownText } from "@assistant-ui/react-markdown";
 import Link from "next/link";
+import { MyAssistant } from "@/components/MyAssistant";
 
 const MarkdownText = makeMarkdownText({});
 
@@ -25,9 +25,9 @@ export default function Home() {
           {/* Chat Area */}
           <div className="p-6 h-96">
             <div className="h-full w-full rounded-md border border-border bg-muted-foreground">
-              <Thread
-                assistantMessage={{ components: { Text: MarkdownText } }}
-              />
+                <main className="h-dvh">
+                  <MyAssistant />
+                </main>
             </div>
           </div>
 
