@@ -29,3 +29,63 @@ class ProjectTableSchema(BaseModel):
 
     class Config:
         orm_mode = True
+        
+class AdapterBusinessObjectSchema(BaseModel):
+    id: int
+    name: str
+    description: str
+    storage: str
+    changeQuery_SQL: str
+    changeQuery_explanation: str
+    adapterProcessSteps_id: int
+
+    class Config:
+        orm_mode = True
+
+
+class AdapterProcessStepSchema(BaseModel):
+    id: int
+    name: str
+    description: str
+    tablesInvolved: str
+    projectProcess_id: int
+    business_objects: List[AdapterBusinessObjectSchema]
+
+    class Config:
+        orm_mode = True
+
+
+class ProjectProcessSchema(BaseModel):
+    id: int
+    name: str
+    description: str
+    project_id: int
+    steps: List[AdapterProcessStepSchema]
+
+    class Config:
+        orm_mode = True
+        
+class CaseIDSchema(BaseModel):
+    id: int
+    projectTables_nativeTableName: str
+    caseidkey: str
+    projectTables_description: str
+    projectTables_id: Optional[int]  # If you want to include FK to ProjectTable
+
+    class Config:
+        orm_mode = True
+
+class MappingSchema(BaseModel):
+    id: int
+    timestamp_column: str
+    eventtype: str
+    otherAttributes: List[str]
+
+    class Config:
+        orm_mode = True
+
+
+class CreateMappingSchema(BaseModel):
+    timestamp_column: str
+    eventtype: str
+    otherAttributes: List[str]
