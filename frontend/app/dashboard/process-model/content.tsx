@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -10,99 +10,35 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { FaEdit, FaTrash, FaGripVertical, FaCheck } from "react-icons/fa";
+import ProcessModelStep from "@/components/processModel/ProcessModelStep";
+import useProcessModel from "@/hooks/api/useProcessModel";
 
 interface Step {
   id: number;
   text: string;
 }
 
-const SortableItem = ({
-  id,
-  step,
-  onDelete,
-  onEdit,
-  isEditing,
-  toggleEditMode,
-}: {
-  id: number;
-  step: Step;
-  onDelete: () => void;
-  onEdit: (id: number, text: string) => void;
-  isEditing: boolean;
-  toggleEditMode: () => void;
-}) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    marginBottom: "12px",
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="flex items-center justify-between border rounded-md px-4 py-2 bg-white shadow-sm"
-    >
-      <div
-        className={`flex items-center cursor-grab ${
-          isEditing ? "pointer-events-none" : ""
-        }`}
-        {...(isEditing ? {} : listeners)} // Enable drag-and-drop only when not editing
-        {...attributes}
-      >
-        <FaGripVertical className="text-gray-400 mr-3" />
-      </div>
-      {isEditing ? (
-        <input
-          type="text"
-          value={step.text}
-          onChange={(e) => onEdit(id, e.target.value)}
-          className="flex-1 border rounded-md px-2 py-1 w-full"
-        />
-      ) : (
-        <span className="flex-1">{step.text}</span>
-      )}
-      <div className="flex items-center space-x-2">
-        {isEditing ? (
-          <button
-            className="flex items-center justify-center border border-green-300 rounded-full p-2 hover:bg-green-100"
-            onClick={toggleEditMode}
-            aria-label="Save"
-          >
-            <FaCheck className="text-green-600" /> {/* Save button updated */}
-          </button>
-        ) : (
-          <button
-            className="flex items-center justify-center border border-gray-300 rounded-full p-2 hover:bg-gray-100"
-            onClick={toggleEditMode}
-            aria-label="Edit"
-          >
-            <FaEdit className="text-gray-600" />
-          </button>
-        )}
-        <button
-          className="flex items-center justify-center border border-red-300 rounded-full p-2 hover:bg-red-100"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          aria-label="Delete"
-        >
-          <FaTrash className="text-red-600" />
-        </button>
-      </div>
-    </div>
-  );
-};
+export interface ProcessModelData {
+  processName: string;
+  description: string;
+  steps: Step[];
+}
 
 const ProcessModelContent = () => {
-  const [steps, setSteps] = useState<Step[]>([
-    { id: 1, text: "Step 1: Define your step here" },
-    { id: 2, text: "Step 2: Add another step" },
-  ]);
+  const {data, isLoading} = useProcessModel();
+
+  // Update state when data changes
+  useEffect(() => {
+    if (data) {
+      setSteps(data.steps);
+      setProcessName(data.processName);
+      setProcessDescription(data.description);
+    }
+  }, [data]);
+
+  const [steps, setSteps] = useState<Step[]>(data?.steps ?? []);
+  const [processName, setProcessName] = useState<string>(data?.processName ?? "");
+  const [processDescription, setProcessDescription] = useState<string>(data?.description ?? "");
 
   const [editingStep, setEditingStep] = useState<number | null>(null);
 
@@ -140,6 +76,8 @@ const ProcessModelContent = () => {
         <label className="block font-semibold mb-2">Process Name</label>
         <input
           type="text"
+          value={processName}
+          onChange={(e) => setProcessName(e.target.value)}
           placeholder="Enter title here"
           className="w-full border rounded-md px-3 py-2"
         />
@@ -149,6 +87,8 @@ const ProcessModelContent = () => {
       <div className="mb-6">
         <label className="block font-semibold mb-2">Process Description</label>
         <textarea
+          value={processDescription}
+          onChange={(e) => setProcessDescription(e.target.value)}
           placeholder="Enter description here"
           className="w-full border rounded-md px-3 py-2"
           rows={3}
@@ -167,7 +107,7 @@ const ProcessModelContent = () => {
             strategy={verticalListSortingStrategy}
           >
             {steps.map((step) => (
-              <SortableItem
+              <ProcessModelStep
                 key={step.id}
                 id={step.id}
                 step={step}
@@ -193,6 +133,24 @@ const ProcessModelContent = () => {
           >
             +
           </button>
+          <div className="my-2"/>
+            <button
+            className="w-full border rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"
+            onClick={() =>
+              console.log({processName, processDescription, steps})
+            }
+            >
+            Print state
+            </button>
+          <div className="my-2"/>
+            <button
+            className="w-full border rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"
+            onClick={() =>
+              alert("Not implemented")
+            }
+            >
+            Upload to backend
+            </button>
         </div>
       </div>
     </div>
