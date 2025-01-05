@@ -1,10 +1,11 @@
 import Image from "next/image";
 import hiltiLogo from "@/public/hilti_logo.svg";
 import ercisLogo from "@/public/ercis_logo.png";
+import Link from "next/link";
 
-export default function NavLogoHeader() {
+export default function NavLogoHeader({ link } : { link: string }) {
     return (
-        <div className="flex flex-row items-center justify-center h-16 border-0 rounded-md">
+        <Link className="flex flex-row items-center justify-center h-16 border-0 rounded-md" href={link}>
             <div className="w-1/2 h-5/6 flex flex-row-reverse">
                 <Image
                     src={hiltiLogo}
@@ -22,6 +23,6 @@ export default function NavLogoHeader() {
                     className="w-5/6"
                 />
             </div>
-        </div>
+        </Link>
     );
 }
