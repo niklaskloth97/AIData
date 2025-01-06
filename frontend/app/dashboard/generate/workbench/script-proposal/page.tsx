@@ -15,7 +15,7 @@ import useMockScriptProposal from "@/hooks/api/useMockScriptProposal";
 
 export default function Page() {
   const { isLoading, data: mockData } = useMockScriptProposal();
-  const [sql, setSql] = useState(mockData.initialSQL) ;
+  const [sql, setSql] = useState(mockData?.initialSQL || ""); // Add null check and default value
   const [feedback, setFeedback] = useState("");
 
   if (isLoading) {
@@ -64,10 +64,10 @@ export default function Page() {
       {/* 3rd card: "Event Log Preview" */}
         <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
         <PageHeader
-                heading="Event Log Preview"
-                subtext="Anything missing? Add feedback or adapt the script"
+          heading="Event Log Preview"
+          subtext="Anything missing? Add feedback or adapt the script"
             />
-          <DataTable columns={columns} data={mockData.sampleData} />
+          <DataTable columns={columns} data={mockData?.sampleData || []} />
         </div>
       </div>
     </div>
