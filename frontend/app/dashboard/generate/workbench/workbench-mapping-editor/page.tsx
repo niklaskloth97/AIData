@@ -4,6 +4,7 @@ import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { columns, MappingData } from "./columns";
+import PageHeader from "@/components/PageHeader";
 
 const sampleData: MappingData[] = [
   {
@@ -35,10 +36,10 @@ const sampleData: MappingData[] = [
 export default function Page() {
   return (
     <div className="p-6 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Workbench Mapping Editor</h1>
-      <p className="text-gray-600 mb-6">
-        The Workbench Mapping Editor maps event types to process stepts of the process model.
-      </p>
+      <PageHeader
+                      heading="Workbench Mapping Editor"
+                      subtext="The Workbench Mapping Editor maps event types to process steps of the process model."
+                  />
       <DataTable columns={columns} data={sampleData} />
       <div className="flex justify-between mt-6">
         <Button variant="destructive" onClick={() => alert("Going back")}>Back</Button>
