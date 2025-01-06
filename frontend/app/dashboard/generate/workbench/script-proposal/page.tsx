@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import PageHeader from "@/components/PageHeader";
 
 const initialSQL = `CREATE TABLE currency_conversion AS
 SELECT
@@ -51,7 +52,10 @@ export default function Page() {
   return (
     <div className="p-6 rounded-md grid grid-cols-2 gap-4">
       <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
-        <h2 className="text-xl font-bold mb-4">SQL Script Proposal for Delivery Mapping</h2>
+         <PageHeader
+                        heading="SQL Script Proposal"
+                        subtext="Adjust the SQL script to your needs."
+                    />
         <Controlled
           value={sql}
           extensions={[basicSetup, sqlLang() as any]}  // Enable SQL syntax highlighting
@@ -60,7 +64,7 @@ export default function Page() {
           className="border border-gray-200 rounded p-2"
         />
         <div className="mt-2 text-sm text-gray-600">Your changes will be passed to the AI-Engine as part of the feedback</div>
-        <div className="flex justify-between mt-4">
+        <div className="flex flex-wrap gap-4 mt-4 justify-start">
           <Button variant="secondary" onClick={() => alert("Mappings Edited")}>Edit Mappings</Button>
           <Button variant="destructive" onClick={() => alert("Changes Discarded")}>Discard Changes</Button>
           <Button onClick={() => alert("Script Regenerated")}>Re-Generate</Button>
@@ -70,7 +74,10 @@ export default function Page() {
       <div className="grid grid-cols-subgrid gap-4">
         {/* 2nd card: "Add Feedback" */}
         <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
-          <h2 className="text-xl font-bold mb-4">Add Feedback</h2>
+          <PageHeader
+                heading="Add Feedback"
+                subtext="Your feedback will be attached to the SQL script."
+            />
           <div className="">
             <Label htmlFor="message">Your message</Label>
             <Textarea placeholder="Type your feedback to the AI here." id="feedback" />
@@ -79,7 +86,10 @@ export default function Page() {
       
       {/* 3rd card: "Event Log Preview" */}
         <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
-          <h2 className="text-xl font-bold mb-4">Event Log Preview</h2>
+        <PageHeader
+                heading="Event Log Preview"
+                subtext="Anything missing? Add feedback or adapt the script"
+            />
           <DataTable columns={columns} data={sampleData} />
         </div>
       </div>
