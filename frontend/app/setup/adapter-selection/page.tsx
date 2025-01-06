@@ -29,10 +29,10 @@ export function AdapterSelection() {
   const [selectedAdapter, setSelectedAdapter] = useState("");
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-gray-100">
+    <div className="min-h-screen flex flex-col justify-between">
       {/* Adapter Selection Form */}
       <div className="flex items-center justify-center flex-grow">
-        <div className="bg-white shadow-lg rounded-md w-full max-w-lg p-8"> <PageHeader
+        <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow w-full max-w-lg"> <PageHeader
                 heading="Select Adapter"
                 subtext="The Adapter will provide the AI with database context and additional knowledge to ensure good results."
             />
