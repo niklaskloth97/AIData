@@ -3,6 +3,7 @@ import { DataTable } from "@/components/DataTable";
 import { columns, TableData } from "./columns";
 import PageHeader from "@/components/PageHeader";
 import useMockTables from "@/hooks/api/useMockTables";
+import { Loader } from "lucide-react";
 
 export default function Page() {
     const { isLoading, data } = useMockTables();
@@ -12,10 +13,12 @@ export default function Page() {
         <>
             <PageHeader
                 heading="Data Model Editor"
-                subtext="This is the subtext."
+                subtext="Change, which data are used in the system."
             />
             {isLoading ? (
-                <div>Loading...</div>
+                <div className="flex items-center justify-center min-h-[200px]">
+                    <Loader className="h-8 w-8 animate-spin" />
+                </div>
             ) : (
                 <DataTable data={mockData} columns={columns} />
             )}
