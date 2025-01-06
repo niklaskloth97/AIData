@@ -1,53 +1,30 @@
 "use client";
 import React, { useState } from "react";
 import Controlled from "@uiw/react-codemirror";
-import {basicSetup} from "codemirror"
-import { sql as sqlLang} from "@codemirror/lang-sql"; // SQL syntax highlighting
+import { basicSetup } from "codemirror";
+import { sql as sqlLang } from "@codemirror/lang-sql";
 import { githubLight } from "@uiw/codemirror-theme-github";
 import { DataTable } from "@/components/DataTable";
-import { columns, TableData } from "@/app/dashboard/generate/workbench/script-proposal/columns";
+import { columns } from "./columns";
 import { Button } from "@/components/ui/button";
-
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/PageHeader";
-
-const initialSQL = `CREATE TABLE currency_conversion AS
-SELECT
-  F.AWKEY,
-  F.BLART,
-  F.USNAM,
-  F.WAERS AS currency_code,
-  F.WWERT AS original_value,
-  (F.WWERT * C.conversion_rate) AS value_in_eur
-FROM filtered_process_log F
-JOIN currency_table C ON F.WAERS = C.currency_code
-WHERE EXTRACT(YEAR FROM F.CPUDT) = C.year;
-
--- Step 3: Create aggregated view
-CREATE TABLE user_document_summary AS
-SELECT
-  USNAM AS user_name,
-  BLART AS document_type,
-  COUNT(AWKEY) AS total_documents,
-  SUM(value_in_eur) AS total_value_in_eur,
-  AVG(value_in_eur) AS average_value_in_eur
-FROM currency_conversion
-GROUP BY USNAM, BLART
-ORDER BY total_value_in_eur DESC;`;
-
-const sampleData: TableData[] = [
-  { caseId: 1001, activity: "delivery_made", timestamp: "2024-11-01 09:00 AM", otherAttributes: "{Username: Alice, Price: $5, Amount Of Pieces: 6}" },
-  { caseId: 1002, activity: "delivery_made", timestamp: "2024-11-02 10:00 AM", otherAttributes: "{Username: Jan, PaymentMade: True, Success: True}" },
-  { caseId: 1003, activity: "delivery_made", timestamp: "2024-11-03 09:00 AM", otherAttributes: "{Username: Jan, PaymentMade: True, Success: True}" },
-  { caseId: 1004, activity: "delivery_made", timestamp: "2024-11-04 11:00 AM", otherAttributes: "{Username: Jan, PaymentMade: False, Success: False}" },
-  { caseId: 1005, activity: "delivery_made", timestamp: "2024-11-06 12:00 AM", otherAttributes: "{Username: Sandro, PaymentMethod: Paypal, Success: True}" },
-  { caseId: 1006, activity: "delivery_made", timestamp: "2024-11-07 08:00 AM", otherAttributes: "{Username: Jan, PaymentMade: True, Success: True}" },
-];
+import { Loader } from "lucide-react";
+import useMockScriptProposal from "@/hooks/api/useMockScriptProposal";
 
 export default function Page() {
-  const [sql, setSql] = useState(initialSQL);
+  const { isLoading, data: mockData } = useMockScriptProposal();
+  const [sql, setSql] = useState(mockData.initialSQL) ;
   const [feedback, setFeedback] = useState("");
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[200px]">
+        <Loader className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 rounded-md grid grid-cols-2 gap-4">
@@ -90,7 +67,7 @@ export default function Page() {
                 heading="Event Log Preview"
                 subtext="Anything missing? Add feedback or adapt the script"
             />
-          <DataTable columns={columns} data={sampleData} />
+          <DataTable columns={columns} data={mockData.sampleData} />
         </div>
       </div>
     </div>
