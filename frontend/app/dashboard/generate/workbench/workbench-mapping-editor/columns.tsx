@@ -1,8 +1,7 @@
-// columns.tsx
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Search, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export type MappingData = {
@@ -12,7 +11,14 @@ export type MappingData = {
   otherAttributes: string;
 };
 
-export const columns: ColumnDef<MappingData>[] = [
+interface ColumnOptions {
+  columns: string[];
+  eventTypes: string[];
+  attributes: string[];
+  onDelete: (index: number) => void;  // Add this line
+}
+
+export const createColumns = (options: ColumnOptions): ColumnDef<MappingData>[] => [
   {
     accessorKey: "displayName",
     header: "Display Name",
@@ -29,8 +35,11 @@ export const columns: ColumnDef<MappingData>[] = [
           <SelectValue placeholder="Select a column" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="column1">Column 1</SelectItem>
-          <SelectItem value="column2">Column 2</SelectItem>
+          {options.columns.map((column) => (
+            <SelectItem key={column} value={column}>
+              {column}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     ),
@@ -44,9 +53,11 @@ export const columns: ColumnDef<MappingData>[] = [
           <SelectValue placeholder="Select event type" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="Address_changed">Address Changed</SelectItem>
-          <SelectItem value="Payment_received">Payment Received</SelectItem>
-          <SelectItem value="Create/Select">Create / Select</SelectItem>
+          {options.eventTypes.map((type) => (
+            <SelectItem key={type} value={type}>
+              {type}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     ),
@@ -61,8 +72,11 @@ export const columns: ColumnDef<MappingData>[] = [
             <SelectValue placeholder="Select a column" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="employee_id">Employee ID</SelectItem>
-            <SelectItem value="time_taken">Time Taken</SelectItem>
+            {options.attributes.map((attr) => (
+              <SelectItem key={attr} value={attr}>
+                {attr}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -72,14 +86,23 @@ export const columns: ColumnDef<MappingData>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm">
-          <Edit className="h-5 w-5" />
+      <div className="flex items-center">
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={() => console.log("Inspect", row.original)}
+        >
+          <Search className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="sm" className="text-red-600">
-          <Trash2 className="h-5 w-5" /> 
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="text-red-600"
+          onClick={() => options.onDelete(row.index)}  // Call with row.index
+        >
+          <Trash2 className="h-5 w-5" />
         </Button>
       </div>
     ),
-  },
+  }
 ];
