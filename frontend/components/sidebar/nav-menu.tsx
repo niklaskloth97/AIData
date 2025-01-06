@@ -8,7 +8,7 @@ import {
     SidebarMenuSub,
     SidebarMenuSubButton,
     SidebarMenuSubItem,
-} from "../ui/sidebar";
+} from "@/components/sidebar/multisidebar";
 import {
     Collapsible,
     CollapsibleContent,

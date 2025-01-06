@@ -5,7 +5,7 @@ export default function Page() {
 
     return (
         <>
-            <PageHeader heading="Execute" subtext="This is the subtext."/>
+            <PageHeader heading="Tests Execute" subtext="This is the subtext."/>
         </>
     );
 }

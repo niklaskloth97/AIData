@@ -1,5 +1,6 @@
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
+import ChatSidebar from "@/components/chat-sidebar/ChatSidebar";
+import { MultiSidebarProvider, SidebarInset, SidebarTrigger } from "@/components/sidebar/multisidebar";
 
 export default function DashboardLayout({
   children, 
@@ -7,18 +8,20 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
+    <MultiSidebarProvider>
       <AppSidebar />
       <SidebarInset>
       <main className="">
-        <div className="mx-4 mt-4 mb-2">
+        <div className="mx-4 mt-4 mb-2 flex justify-between">
           <SidebarTrigger className="bg-white"/>
+          <SidebarTrigger side="right" className="bg-white alig"/>
         </div>
         <div className="mx-6">
           {children}
         </div>
       </main>
       </SidebarInset>
-    </SidebarProvider>
+      <ChatSidebar/>
+    </MultiSidebarProvider>
   );
 }
