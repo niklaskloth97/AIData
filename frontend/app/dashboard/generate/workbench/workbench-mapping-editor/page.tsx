@@ -37,7 +37,7 @@ export default function Page() {
     <div className="p-6 min-h-screen">
       <h1 className="text-2xl font-bold mb-4">Workbench Mapping Editor</h1>
       <p className="text-gray-600 mb-6">
-        Map columns to event types within the prospective event log.
+        The Workbench Mapping Editor maps event types to process stepts of the process model.
       </p>
       <DataTable columns={columns} data={sampleData} />
       <div className="flex justify-between mt-6">
@@ -47,3 +47,4 @@ export default function Page() {
     </div>
   );
 }
+// Todo: Also add the table browser for the mapping editor
