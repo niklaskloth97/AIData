@@ -2,7 +2,7 @@ import { Client, ThreadState } from "@langchain/langgraph-sdk";
 import { interrupt, Command } from "@langchain/langgraph";
 import { LangChainMessage } from "@assistant-ui/react-langgraph";
  
-const createClient = () => {
+export const createClient = () => {
   const apiUrl = 
     "http://127.0.0.1:2024";
   return new Client({
@@ -16,20 +16,6 @@ export const getUserInput = async (question: string): Promise<string> => {
     const userInput = window.prompt(question);
     resolve(userInput || "");
   });
-};
-export const handleInterrupt = async (threadId: string, interruptData: any) => {
-  // Prompt the user for input based on interruptData
-  const userInput = await getUserInput(interruptData.question);
-
-  // Resume the graph execution with the user's input
-  const command = new Command({ resume: userInput });
-  const client = createClient();
-  return client.runs.stream(
-    command,
-    threadId,
-    "setup"!,
-    streamMode: "messages",
-  );
 };
 
  
@@ -57,26 +43,7 @@ export const sendMessage = async (params: {
       input: {
         messages: params.messages,
       },
-      streamMode: "messages",
+      streamMode: "messages-tuple",
     },
   );
 };
-
-const streamMessages = async (threadId: string, messages: LangChainMessage) => {
-  const client = createClient();
-  const responseStream = client.runs.stream(
-    threadId,
-    "setup",
-    {
-      input: {
-        messages: messages,
-      },
-      streamMode: "messages",
-    }
-  );
-
-  for await (const message of responseStream) {
-    // Handle each streamed message
-    displayMessage(message);
-  }
-};g

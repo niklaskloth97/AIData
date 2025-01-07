@@ -1,51 +1,114 @@
 "use client";
+import { useState } from "react";
 import React from "react";
 import { DataTable } from "@/components/DataTable";
+import { createColumns, MappingData } from "./columns";
+import { createBrowserColumns, BrowserTableData } from "./database-browser-columns";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { columns, MappingData } from "./columns";
 import PageHeader from "@/components/PageHeader";
-
-const sampleData: MappingData[] = [
-  {
-    displayName: "Address Changing",
-    timestamp: "Select a column",
-    eventType: "Address_changed",
-    otherAttributes: "Select a column",
-  },
-  {
-    displayName: "Delivery Attempt",
-    timestamp: "Select a column",
-    eventType: "Create / Select",
-    otherAttributes: "employee_id, time_taken",
-  },
-  {
-    displayName: "Payment Stripe",
-    timestamp: "Select a column",
-    eventType: "Payment_received",
-    otherAttributes: "Select a column",
-  },
-  {
-    displayName: "Payment Paypal",
-    timestamp: "Select a column",
-    eventType: "Payment_received",
-    otherAttributes: "Select a column",
-  },
-];
+import { Loader } from "lucide-react";
+import useMockWorkbenchMappingEditor from "@/hooks/api/useMockWorkbenchMappingEditor";
+import useMockTableBrowser from "@/hooks/api/useMockTableBrowser";
+import { SelectNSearchTable } from "@/components/SelectNSearchTable";
 
 export default function Page() {
-  return (
-    <div className="p-6 min-h-screen">
-      <PageHeader
-                      heading="Workbench Mapping Editor"
-                      subtext="The Workbench Mapping Editor maps event types to process steps of the process model."
+    const { isLoading: isLoadingEditor, data: editorData } = useMockWorkbenchMappingEditor();
+    const { isLoading: isLoadingBrowser, data: browserData } = useMockTableBrowser();
+    const [mappings, setMappings] = useState<MappingData[]>([]);
+    const [editorFilter, setEditorFilter] = useState("");
+    const [browserFilter, setBrowserFilter] = useState("");
+
+    React.useEffect(() => {
+        if (editorData?.mappings) {
+            setMappings(editorData.mappings);
+        }
+    }, [editorData]);
+
+    const handleDelete = (index: number) => {
+        setMappings(mappings.filter((_, i) => i !== index));
+    };
+
+    const addNewColumn = () => {
+        const newMapping: MappingData = {
+            displayName: "",
+            timestamp: "",
+            eventType: "",
+            otherAttributes: "",
+        };
+        setMappings([...mappings, newMapping]);
+    };
+
+    const handleContinue = () => {
+        console.log("Current Mappings State:", mappings);
+    };
+
+    if (isLoadingEditor || !editorData) {
+        return (
+            <div className="flex items-center justify-center min-h-[200px]">
+                <Loader className="h-8 w-8 animate-spin" />
+            </div>
+        );
+    }
+
+    const columns = createColumns({
+        ...editorData.options,
+        onDelete: handleDelete 
+    });
+
+    return (
+        <div className="p-6 space-y-8">
+            {/* First Table Section */}
+            <div>
+              <div className="justify-between">
+                  <PageHeader
+                      heading="Mapping Editor"
+                      subtext="Define your event log structure"
                   />
-      <DataTable columns={columns} data={sampleData} />
-      <div className="flex justify-between mt-6">
-        <Button variant="destructive" onClick={() => alert("Going back")}>Back</Button>
-        <Button onClick={() => alert("Continuing")}>Continue</Button>
-      </div>
-    </div>
-  );
+                  <div className="mb-4">
+                      <Button variant={"secondary"} onClick={addNewColumn}>Add New Column</Button>
+                  </div>
+                  <SelectNSearchTable 
+                      globalFilter={editorFilter}
+                      setGlobalFilter={setEditorFilter}
+                      selectButton="Select Column Type"
+                  />
+                  
+                </div>
+                <DataTable 
+                    columns={columns} 
+                    data={mappings}
+                    globalFilter={editorFilter}
+                />
+            </div>
+
+            {/* Second Table Section */}
+            <div>
+                <PageHeader
+                    heading="Table Browser"
+                    subtext="Check the databases for suitable log tables"
+                />
+                <SelectNSearchTable 
+                    globalFilter={browserFilter}
+                    setGlobalFilter={setBrowserFilter}
+                    selectButton="Select Database"
+                />
+                {isLoadingBrowser ? (
+                    <div className="flex items-center justify-center min-h-[200px]">
+                        <Loader className="h-8 w-8 animate-spin" />
+                    </div>
+                ) : (
+                    <DataTable 
+                        columns={createBrowserColumns} 
+                        data={browserData?.tables ?? []}
+                        globalFilter={browserFilter}
+                    />
+                )}
+            </div>
+
+            <div className="mt-6 flex justify-between">
+                <Button variant="secondary">Back</Button>
+                <Button onClick={handleContinue}>Continue</Button>
+            </div>
+        </div>
+    );
 }
-// Todo: Also add the table browser for the mapping editor
