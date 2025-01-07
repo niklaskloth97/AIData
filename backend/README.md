@@ -7,9 +7,27 @@ tags: []
 # Get Started
 
 ## 1. Install requirements
+pip install -U langgraph-cli
+
+langgraph build -t my-image
+
+docker-compose up --build
 
 For developing the app, we recommend using VS Code later.
-
+fastapi-service:
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        image: fastapi-service
+        ports:
+            - "8001:8000"
+        depends_on:
+            langgraph-postgres:
+                condition: service_healthy
+        environment:
+            SQLITE_DATABASE_URL: sqlite:///./project_metadata.db
+        volumes:
+            - ./fastapi_app:/app
 
 **Windows:**
 

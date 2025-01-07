@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from models import ProjectTable, ProjectProcess, AdapterProcessStep, AdapterBusinessObject, Base, CaseID, Mapping
-from schemas import ProjectTableSchema, ProjectProcessSchema, AdapterProcessStepSchema, AdapterBusinessObjectSchema, CaseIDSchema, CreateMappingSchema
+from schemas import ProjectTableSchema, ProjectProcessSchema, AdapterProcessStepSchema, AdapterBusinessObjectSchema, CaseIDSchema, CreateMappingSchema, MappingSchema
 
 from typing import List
 import os
