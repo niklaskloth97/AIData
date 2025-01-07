@@ -41,3 +41,20 @@ services:
             LANGSMITH_API_KEY: ${LANGCHAIN_API_KEY}
             POSTGRES_URI: postgres://postgres:postgres@langgraph-postgres:5432/postgres?sslmode=disable
             PYTHONPATH: /app/langgraph_frontend
+
+    ###
+    fastapi-service:
+        build:
+            context: ./restapi
+            dockerfile: Dockerfile
+        image: fastapi-service
+        ports:
+            - "8001:8000"
+        depends_on:
+            langgraph-postgres:
+                condition: service_healthy
+        environment:
+            SQLITE_DATABASE_URL: sqlite:///./project_metadata.db
+        volumes:
+            - ./restapi:/app
+
