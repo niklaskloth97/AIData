@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
 import ChatSidebar from "@/components/chat-sidebar/ChatSidebar";
+import ChatSidebar2 from "@/components/chat-sidebar/ChatSidebar2";
 import { MultiSidebarProvider, SidebarInset, SidebarTrigger } from "@/components/sidebar/multisidebar";
 
 export default function DashboardLayout({
