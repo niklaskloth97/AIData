@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 import { DataTable } from "@/components/DataTable";
 import { createColumns, MappingData } from "./columns";
@@ -10,22 +10,37 @@ import { Loader } from "lucide-react";
 import useMockWorkbenchMappingEditor from "@/hooks/api/useMockWorkbenchMappingEditor";
 import useMockTableBrowser from "@/hooks/api/useMockTableBrowser";
 import { SelectNSearchTable } from "@/components/SelectNSearchTable";
+import { useWorkflow } from '../workflowContext';
+import router from "next/router";
 
 export default function Page() {
+    const { nextStep, previousStep } = useWorkflow();
     const { isLoading: isLoadingEditor, data: editorData } = useMockWorkbenchMappingEditor();
     const { isLoading: isLoadingBrowser, data: browserData } = useMockTableBrowser();
     const [mappings, setMappings] = useState<MappingData[]>([]);
     const [editorFilter, setEditorFilter] = useState("");
     const [browserFilter, setBrowserFilter] = useState("");
+    const [selectedMappings, setSelectedMappings] = useState<MappingData[]>([]);
 
-    React.useEffect(() => {
-        if (editorData?.mappings) {
+    // Load initial data
+    useEffect(() => {
+        const saved = sessionStorage.getItem('workbenchMappings');
+        if (saved) {
+            const { mappings: savedMappings, columnValues } = JSON.parse(saved);
+            // Merge saved column values with mapping structure
+            const restoredMappings = savedMappings.map((mapping: MappingData, index: number) => ({
+                ...mapping,
+                ...columnValues[index]
+            }));
+            setMappings(restoredMappings);
+        } else if (editorData?.mappings) {
             setMappings(editorData.mappings);
         }
     }, [editorData]);
 
     const handleDelete = (index: number) => {
-        setMappings(mappings.filter((_, i) => i !== index));
+        const newMappings = mappings.filter((_, i) => i !== index);
+        setMappings(newMappings); // Only update local state
     };
 
     const addNewColumn = () => {
@@ -35,11 +50,36 @@ export default function Page() {
             eventType: "",
             otherAttributes: "",
         };
-        setMappings([...mappings, newMapping]);
+        setMappings([...mappings, newMapping]); // Only update local state
     };
 
     const handleContinue = () => {
-        console.log("Current Mappings State:", mappings);
+        if (mappings.length > 0) {
+            // Save to session storage when continuing
+            sessionStorage.setItem('workbenchMappings', JSON.stringify({
+                mappings: mappings,
+                columnValues: mappings.map(mapping => ({
+                    displayName: mapping.displayName,
+                    timestamp: mapping.timestamp,
+                    eventType: mapping.eventType,
+                    otherAttributes: mapping.otherAttributes
+                }))
+            }));
+            nextStep();
+        }
+    };
+
+    const handleBack = () => {
+        previousStep();
+    };
+
+    const handleColumnChange = (index: number, field: keyof MappingData, value: string) => {
+        const newMappings = [...mappings];
+        newMappings[index] = {
+            ...newMappings[index],
+            [field]: value
+        };
+        setMappings(newMappings); // Only update local state
     };
 
     if (isLoadingEditor || !editorData) {
@@ -52,7 +92,7 @@ export default function Page() {
 
     const columns = createColumns({
         ...editorData.options,
-        onDelete: handleDelete 
+        onDelete: handleDelete
     });
 
     return (
@@ -106,8 +146,16 @@ export default function Page() {
             </div>
 
             <div className="mt-6 flex justify-between">
-                <Button variant="secondary">Back</Button>
-                <Button onClick={handleContinue}>Continue</Button>
+                <Button variant="secondary" onClick={handleBack}>
+                    Back
+                </Button>
+                <Button 
+                    variant="default" 
+                    onClick={handleContinue}
+                    disabled={mappings.length === 0}
+                >
+                    Continue
+                </Button>
             </div>
         </div>
     );

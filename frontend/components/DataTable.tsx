@@ -20,34 +20,48 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[];
+interface DataTableProps<TData> {
+    columns: ColumnDef<TData>[];
     data: TData[];
     globalFilter?: string;
+    onSelectionChange?: (rows: TData[]) => void;
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData>({
     columns,
     data,
     globalFilter,
-}: DataTableProps<TData, TValue>) {
+    onSelectionChange
+}: DataTableProps<TData>) {
+    const [rowSelection, setRowSelection] = useState({});
     const [sorting, setSorting] = useState<SortingState>([]);
-    // const [globalFilter, setGlobalFilter] = useState("");
+
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        enableRowSelection: true,
+        onRowSelectionChange: setRowSelection, 
+        onSortingChange: setSorting,  
         state: {
             sorting,
             globalFilter,
+            rowSelection,
         },
     });
+
+    // Note to myself...Moved effect outside table configuration, so that I can use it idependently
+    useEffect(() => {
+        if (onSelectionChange) {
+            const selectedRows = table.getSelectedRowModel().rows.map(row => row.original);
+            onSelectionChange(selectedRows);
+        }
+    }, [rowSelection]);  // Only depend on rowSelection for state save
 
     return (
         <>
