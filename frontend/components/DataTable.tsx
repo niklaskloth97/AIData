@@ -7,6 +7,7 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
+    RowData,
     SortingState,
     useReactTable,
 } from "@tanstack/react-table";
@@ -21,19 +22,54 @@ import {
 } from "@/components/ui/table";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
+import React from "react";
+
+declare module "@tanstack/react-table" {
+    interface TableMeta<TData extends RowData> {
+        updateData: (
+            rowIndex: number,
+            columnId: string,
+            value: unknown
+        ) => void;
+    }
+}
 
 interface DataTableProps<TData> {
     columns: ColumnDef<TData>[];
     data: TData[];
+    setData?: React.Dispatch<React.SetStateAction<TData[]>>;
     globalFilter?: string;
     onSelectionChange?: (rows: TData[]) => void;
+    autoResetPageIndex?: boolean;
+    skipAutoResetPageIndex?: () => void;
 }
+
+export function useSkipper() {
+    const shouldSkipRef = React.useRef(true);
+    const shouldSkip = shouldSkipRef.current;
+
+    // Wrap a function with this to skip a pagination reset temporarily
+    const skip = React.useCallback(() => {
+        shouldSkipRef.current = false;
+    }, []);
+
+    React.useEffect(() => {
+        shouldSkipRef.current = true;
+    });
+
+    return [shouldSkip, skip] as const;
+}
+
+// const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper()
 
 export function DataTable<TData>({
     columns,
     data,
+    setData,
     globalFilter,
-    onSelectionChange
+    onSelectionChange,
+    autoResetPageIndex,
+    skipAutoResetPageIndex,
 }: DataTableProps<TData>) {
     const [rowSelection, setRowSelection] = useState({});
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -46,22 +82,43 @@ export function DataTable<TData>({
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         enableRowSelection: true,
-        onRowSelectionChange: setRowSelection, 
-        onSortingChange: setSorting,  
+        onRowSelectionChange: setRowSelection,
+        onSortingChange: setSorting,
         state: {
             sorting,
             globalFilter,
             rowSelection,
+        },
+        autoResetPageIndex,
+        meta: {
+            updateData: (rowIndex, columnId, value) => {
+                // Skip page index reset until after next rerender
+                skipAutoResetPageIndex?.();
+                if (setData)
+                    setData((old) =>
+                        old.map((row, index) => {
+                            if (index === rowIndex) {
+                                return {
+                                    ...old[rowIndex]!,
+                                    [columnId]: value,
+                                };
+                            }
+                            return row;
+                        })
+                    );
+            },
         },
     });
 
     // Note to myself...Moved effect outside table configuration, so that I can use it idependently
     useEffect(() => {
         if (onSelectionChange) {
-            const selectedRows = table.getSelectedRowModel().rows.map(row => row.original);
+            const selectedRows = table
+                .getSelectedRowModel()
+                .rows.map((row) => row.original);
             onSelectionChange(selectedRows);
         }
-    }, [rowSelection]);  // Only depend on rowSelection for state save
+    }, [rowSelection]); // Only depend on rowSelection for state save
 
     return (
         <>

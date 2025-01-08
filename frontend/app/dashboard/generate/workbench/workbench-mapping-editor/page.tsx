@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import React from "react";
-import { DataTable } from "@/components/DataTable";
+import { DataTable, useSkipper } from "@/components/DataTable";
 import { createColumns, MappingData } from "./columns";
-import { createBrowserColumns, BrowserTableData } from "./database-browser-columns";
+import { createBrowserColumns } from "./database-browser-columns";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { Loader } from "lucide-react";
@@ -11,7 +11,6 @@ import useMockWorkbenchMappingEditor from "@/hooks/api/useMockWorkbenchMappingEd
 import useMockTableBrowser from "@/hooks/api/useMockTableBrowser";
 import { SelectNSearchTable } from "@/components/SelectNSearchTable";
 import { useWorkflow } from '../workflowContext';
-import router from "next/router";
 
 export default function Page() {
     const { nextStep, previousStep } = useWorkflow();
@@ -21,6 +20,7 @@ export default function Page() {
     const [editorFilter, setEditorFilter] = useState("");
     const [browserFilter, setBrowserFilter] = useState("");
     const [selectedMappings, setSelectedMappings] = useState<MappingData[]>([]);
+    const [autoResetPageIndexMappings, skipAutoResetPageIndexMappings] = useSkipper()
 
     // Load initial data
     useEffect(() => {
@@ -30,7 +30,7 @@ export default function Page() {
             // Merge saved column values with mapping structure
             const restoredMappings = savedMappings.map((mapping: MappingData, index: number) => ({
                 ...mapping,
-                ...columnValues[index]
+                // ...columnValues[index]
             }));
             setMappings(restoredMappings);
         } else if (editorData?.mappings) {
@@ -58,12 +58,12 @@ export default function Page() {
             // Save to session storage when continuing
             sessionStorage.setItem('workbenchMappings', JSON.stringify({
                 mappings: mappings,
-                columnValues: mappings.map(mapping => ({
-                    displayName: mapping.displayName,
-                    timestamp: mapping.timestamp,
-                    eventType: mapping.eventType,
-                    otherAttributes: mapping.otherAttributes
-                }))
+                // columnValues: mappings.map(mapping => ({
+                //     displayName: mapping.displayName,
+                //     timestamp: mapping.timestamp,
+                //     eventType: mapping.eventType,
+                //     otherAttributes: mapping.otherAttributes
+                // }))
             }));
             nextStep();
         }
@@ -71,15 +71,6 @@ export default function Page() {
 
     const handleBack = () => {
         previousStep();
-    };
-
-    const handleColumnChange = (index: number, field: keyof MappingData, value: string) => {
-        const newMappings = [...mappings];
-        newMappings[index] = {
-            ...newMappings[index],
-            [field]: value
-        };
-        setMappings(newMappings); // Only update local state
     };
 
     if (isLoadingEditor || !editorData) {
@@ -92,7 +83,7 @@ export default function Page() {
 
     const columns = createColumns({
         ...editorData.options,
-        onDelete: handleDelete
+        onDelete: handleDelete,
     });
 
     return (
@@ -117,7 +108,10 @@ export default function Page() {
                 <DataTable 
                     columns={columns} 
                     data={mappings}
+                    setData={setMappings}
                     globalFilter={editorFilter}
+                    autoResetPageIndex={autoResetPageIndexMappings}
+                    skipAutoResetPageIndex={skipAutoResetPageIndexMappings}
                 />
             </div>
 
@@ -155,6 +149,9 @@ export default function Page() {
                     disabled={mappings.length === 0}
                 >
                     Continue
+                </Button>
+                <Button variant="outline" onClick={() => console.log(mappings)}>
+                    Log Mappings    
                 </Button>
             </div>
         </div>
