@@ -56,15 +56,15 @@ export function NavMenu({
                                                 <SidebarMenuSubItem
                                                     key={subItem.title}
                                                 >
-                                                    <SidebarMenuSubButton
-                                                        asChild
-                                                    >
-                                                        <Link href={subItem.url}>
+                                                    <Link href={subItem.url}>
+                                                        <SidebarMenuSubButton
+                                                            asChild
+                                                        >
                                                             <span>
                                                                 {subItem.title}
                                                             </span>
-                                                        </Link>
-                                                    </SidebarMenuSubButton>
+                                                        </SidebarMenuSubButton>
+                                                    </Link>
                                                 </SidebarMenuSubItem>
                                             ))}
                                         </SidebarMenuSub>
@@ -73,12 +73,12 @@ export function NavMenu({
                             </Collapsible>
                         ) : (
                             <SidebarMenuItem key={item.title}>
-                                <SidebarMenuButton tooltip={item.title}>
-                                    {item.icon && <item.icon />}
-                                    <Link href={item.url? item.url : "/"}>
+                                <Link href={item.url ? item.url : "/"}>
+                                    <SidebarMenuButton tooltip={item.title}>
+                                        {item.icon && <item.icon />}
                                         <span>{item.title}</span>
-                                    </Link>
-                                </SidebarMenuButton>
+                                    </SidebarMenuButton>
+                                </Link>
                             </SidebarMenuItem>
                         )
                     )}

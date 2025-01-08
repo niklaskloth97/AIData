@@ -12,6 +12,29 @@ import { Button } from "../ui/button";
 import { SendHorizontal } from "lucide-react";
 import UserChatBubble from "./UserChatBubble";
 import AIChatBubble from "./AIChatBubble";
+import { createThread, sendMessage } from "@/lib/langgraphSDK";
+import { set } from "zod";
+import { send } from "process";
+
+const mockMessages = [
+    { role: "human", message: "Hello" },
+    { role: "ai", message: "Hi! How can I help you today?" },
+    { role: "human", message: "I need help with my order" },
+    { role: "ai", message: "Sure! What's your order number?" },
+    { role: "human", message: "123456" },
+    { role: "ai", message: "Thank you! Let me check that for you" },
+    {
+        role: "ai",
+        message: "It looks like your order is currently being processed",
+    },
+    { role: "ai", message: "It should be shipped out by tomorrow" },
+    { role: "human", message: "Thank you!" },
+    { role: "ai", message: "You're welcome! Have a great day!" },
+    { role: "human", message: "Goodbye" },
+    { role: "ai", message: "Goodbye!" },
+    { role: "human", message: "Hello" },
+    { role: "ai", message: "Hi! How can I help you today?" },
+]
 
 export interface Message {
     role: string;
@@ -19,26 +42,9 @@ export interface Message {
 }
 
 export default function ChatSidebar() {
-    const [messages, setMessages] = useState<Message[]>([
-        { role: "user", message: "Hello" },
-        { role: "ai", message: "Hi! How can I help you today?" },
-        { role: "user", message: "I need help with my order" },
-        { role: "ai", message: "Sure! What's your order number?" },
-        { role: "user", message: "123456" },
-        { role: "ai", message: "Thank you! Let me check that for you" },
-        {
-            role: "ai",
-            message: "It looks like your order is currently being processed",
-        },
-        { role: "ai", message: "It should be shipped out by tomorrow" },
-        { role: "user", message: "Thank you!" },
-        { role: "ai", message: "You're welcome! Have a great day!" },
-        { role: "user", message: "Goodbye" },
-        { role: "ai", message: "Goodbye!" },
-        { role: "user", message: "Hello" },
-        { role: "ai", message: "Hi! How can I help you today?" },
-    ]);
+    const [messages, setMessages] = useState<Message[]>(mockMessages);
     const [input, setInput] = useState("");
+    const [threadId, setThreadId] = useState("");
 
     // This enables the scroll down when messages are added
     useEffect(() => {
@@ -49,15 +55,28 @@ export default function ChatSidebar() {
         });
     }, [messages]);
 
+    // Setup Chat Client
+    useEffect(() => {
+        async function setup() {
+            const thread = await createThread();
+            console.log(thread);
+            setThreadId(thread.thread_id);
+        }
+        setup();
+    }, []);
+
     function addMessage(message: string, role: string) {
         setMessages([...messages, { role, message }]);
     }
 
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         if (input.trim()) {
-            addMessage(input, "user");
+            const response = (await sendMessage({ threadId, message: { type: "human", content: input } }));
+            addMessage(input, "human");
             setInput(""); // Clear input after sending
+            
         }
+        
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -79,7 +98,7 @@ export default function ChatSidebar() {
                     <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-white to-transparent pointer-events-none z-10" />
                     <div className="flex-grow" />
                     {messages.map((message, index) => {
-                        if (message.role === "user") {
+                        if (message.role === "human") {
                             return (
                                 <UserChatBubble key={index} message={message} />
                             );
