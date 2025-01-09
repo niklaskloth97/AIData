@@ -9,6 +9,8 @@ import { DataTable } from "@/components/DataTable";
 import PageHeader from "@/components/PageHeader";
 import { Loader } from "lucide-react";
 import useMockCaseIDTables from "@/hooks/api/useMockCaseIDTables";
+import { useWorkflow } from '../workflowContext';
+import { TableData } from "./columns";
 
 
 // FloatingWindowComponent
@@ -41,6 +43,29 @@ const CaseIDBuilderPage = () => {
     const mockData = data ?? [];
     const [floatingWindowOpen, setFloatingWindowOpen] = useState(false);
     const [globalFilter, setGlobalFilter] = useState("");
+    const [selectedMappings, setSelectedMappings] = useState<TableData[]>([]);
+    const { nextStep, previousStep } = useWorkflow();
+
+
+    
+
+    const handleContinue = () => {
+        if (selectedMappings.length > 0) {
+            sessionStorage.setItem('caseIdMappings', JSON.stringify(selectedMappings));
+            nextStep();
+        }
+    };
+
+    const handleBack = () => {
+        previousStep();
+    };
+
+    // Load selected rows when table selection changes
+    const handleSelectionChange = (selectedRows: TableData[]) => {
+        console.log("Selection changed:", selectedRows); // Debug log
+        setSelectedMappings(selectedRows);
+    };
+
 
     return (
         <>
@@ -76,12 +101,21 @@ const CaseIDBuilderPage = () => {
                     columns={columns}
                     data={mockData}
                     globalFilter={globalFilter}
+                    onSelectionChange={handleSelectionChange}  // Add this prop
                 />
             )}
 
             <div className="mt-6 flex justify-between">
-                <Button variant="secondary" onClick={() => alert("Going back")}>Back</Button>
-                <Button variant="default" onClick={() => setFloatingWindowOpen(true)}>Continue</Button>
+                <Button variant="secondary" onClick={handleBack}>
+                    Back
+                </Button>
+                <Button 
+                    variant="default" 
+                    onClick={handleContinue}
+                    disabled={selectedMappings.length === 0} 
+                >
+                    Continue
+                </Button>
             </div>
 
             <FloatingWindow isOpen={floatingWindowOpen} onClose={() => setFloatingWindowOpen(false)} />
