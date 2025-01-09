@@ -123,7 +123,7 @@ export default function FileUploadBox() {
                         ${
                           isDragActive
                             ? "border-green-500 bg-green-50"
-                            : "border-gray-300 hover:border-gray-400" 
+                            : "border-gray-300 hover:border-gray-400 hover:bg-gray-100" 
                         }`}
           >
             <input {...getInputProps()} />
