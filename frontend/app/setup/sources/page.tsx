@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import FileUploadBox from "./FileUpload";
 import DatabaseSetupBox from "./DatabaseSetup";
 
+function handleProceed() {
+  window.location.href = "/dashboard";
+  }
+
 export default function UploadDatabase() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
@@ -22,9 +26,10 @@ export default function UploadDatabase() {
 
         {/* Proceed to Model Editor Button */}
         <div className="w-full flex justify-end mt-2">
-          <Button variant="default">
-            Proceed to model editor
-          </Button>
+          <Button variant="default" onClick={handleProceed}>
+             
+              Proceed to model editor
+          </Button>workbench
         </div>
       </div>
     </div>
