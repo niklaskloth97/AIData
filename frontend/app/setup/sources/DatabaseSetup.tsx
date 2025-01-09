@@ -39,7 +39,7 @@ export default function DatabaseSetupBox() {
   };
 
   return (
-    <div className="bg-white shadow-md rounded-md p-6 flex flex-col justify-between">
+    <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
       {/* Use PageHeader for title & subtext */}
       <PageHeader
         heading="Add Database"

@@ -104,7 +104,7 @@ export default function FileUploadBox() {
   });
 
   return (
-    <div className="bg-white shadow-md rounded-md p-6 flex flex-col min-h-[500px] w-full">
+    <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow flex flex-col min-h-[500px] w-full">
       {/* PageHeader reused here */}
       <PageHeader
         heading="Upload files"
@@ -118,12 +118,12 @@ export default function FileUploadBox() {
           <div
             {...getRootProps()}
             className={`flex flex-col items-center justify-center flex-1 
-                        border-4 border-dashed rounded-md cursor-pointer 
+                        border-1 border rounded-md cursor-pointer 
                         p-6 transition-colors
                         ${
                           isDragActive
                             ? "border-green-500 bg-green-50"
-                            : "border-gray-400"
+                            : "border-gray-300 hover:border-gray-400" 
                         }`}
           >
             <input {...getInputProps()} />
@@ -182,7 +182,7 @@ export default function FileUploadBox() {
         {!uploaded ? (
           <Button
             // Same burgundy red as your "Test Connection"
-            className="w-full bg-[#7b1b1b] hover:bg-[#590e0e] text-white"
+            variant="default" className="w-full"
             onClick={handleUpload}
             disabled={uploading}
           >
@@ -198,7 +198,7 @@ export default function FileUploadBox() {
             </Button>
             <Button
               // Also burgundy red, half width
-              className="flex-1 bg-[#7b1b1b] hover:bg-[#590e0e] text-white"
+               variant="default" className="w-full"
               onClick={handleDone}
             >
               Done

@@ -2,13 +2,14 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 
+
 // Import the two boxes
 import FileUploadBox from "./FileUpload";
 import DatabaseSetupBox from "./DatabaseSetup";
 
 export default function UploadDatabase() {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+    <div className="min-h-screen flex items-center justify-center p-6">
       <div className="flex flex-col items-center w-full max-w-6xl gap-8">
         {/* Main Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
@@ -20,9 +21,9 @@ export default function UploadDatabase() {
         </div>
 
         {/* Proceed to Model Editor Button */}
-        <div className="w-full flex justify-end mt-4">
-          <Button className="w-auto bg-red-600 hover:bg-red-700 text-white">
-            Proceed to model editor 🚀
+        <div className="w-full flex justify-end mt-2">
+          <Button variant="default">
+            Proceed to model editor
           </Button>
         </div>
       </div>
