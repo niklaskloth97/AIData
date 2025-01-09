@@ -143,6 +143,9 @@ export default function Page() {
                 <Button variant="secondary" onClick={handleBack}>
                     Back
                 </Button>
+                <Button variant="outline" onClick={() => console.log(mappings)}>
+                    Log Mappings    
+                </Button>
                 <Button 
                     variant="default" 
                     onClick={handleContinue}
@@ -150,9 +153,7 @@ export default function Page() {
                 >
                     Continue
                 </Button>
-                <Button variant="outline" onClick={() => console.log(mappings)}>
-                    Log Mappings    
-                </Button>
+                
             </div>
         </div>
     );
