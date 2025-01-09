@@ -6,7 +6,7 @@ import { createColumns, MappingData } from "./columns";
 import { createBrowserColumns } from "./database-browser-columns";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
-import { Loader } from "lucide-react";
+import { Loader, PlusCircle } from "lucide-react";
 import useMockWorkbenchMappingEditor from "@/hooks/api/useMockWorkbenchMappingEditor";
 import useMockTableBrowser from "@/hooks/api/useMockTableBrowser";
 import { SelectNSearchTable } from "@/components/SelectNSearchTable";
@@ -95,9 +95,7 @@ export default function Page() {
                       heading="Mapping Editor"
                       subtext="Define your event log structure"
                   />
-                  <div className="mb-4">
-                      <Button variant={"secondary"} onClick={addNewColumn}>Add New Column</Button>
-                  </div>
+                  
                   <SelectNSearchTable 
                       globalFilter={editorFilter}
                       setGlobalFilter={setEditorFilter}
@@ -113,6 +111,11 @@ export default function Page() {
                     autoResetPageIndex={autoResetPageIndexMappings}
                     skipAutoResetPageIndex={skipAutoResetPageIndexMappings}
                 />
+                <div >
+                      <Button variant={"outline"} onClick={addNewColumn}>
+                        <PlusCircle className="mr-2 h-6 w-6" />
+                        Add New Column</Button>
+                  </div>
             </div>
 
             {/* Second Table Section */}
