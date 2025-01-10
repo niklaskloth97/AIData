@@ -1,4 +1,5 @@
 # For dev environment
+# Requirements: pip install "fastapi[standard]" 
 # Use 
 # langgraph dev
 # fastapi dev main.py

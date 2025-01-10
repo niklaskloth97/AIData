@@ -16,7 +16,7 @@ export default function useMockWorkbenchMappingEditor() {
         queryFn: async () => {
             console.log("Fetching mappings");
 
-            const mappings: MappingData[] = await (await fetch("http://localhost:8001/api/mappings")).json();    
+            const mappings: MappingData[] = await (await fetch("http://localhost:8000/api/mappings")).json();    
             
             console.log(mappings)
         
