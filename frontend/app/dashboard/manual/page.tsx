@@ -30,13 +30,13 @@ const UserManual: React.FC = () => {
     <PageHeader heading="Manual" subtext="Read more about the steps"/>
     <div style={{ display: "flex", alignItems: "flex-start" }}>
       {/* Main Content */}
-      <main style={{ flex: 1, padding: "20px" }}>
+      <div className="flex">
         <div className="markdown-body">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
             {markdownContent}
           </ReactMarkdown>
         </div>
-      </main>
+      </div>
       {/* Sidebar */}
       <aside>
         <h3>User Manual</h3>

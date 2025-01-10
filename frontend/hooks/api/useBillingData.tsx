@@ -17,13 +17,13 @@ export function useBillingData() {
           tokensSpent: 750000
         },
         dailyCosts: [
-          { date: "03-01", cost: 12.5 },
-          { date: "03-02", cost: 15.2 },
-          { date: "03-03", cost: 8.7 },
-          { date: "03-04", cost: 21.3 },
-          { date: "03-05", cost: 16.8 },
-          { date: "03-06", cost: 19.5 },
-          { date: "03-07", cost: 14.2 },
+          { date: "03-01", cost: 12.52 },
+          { date: "03-02", cost: 15.21 },
+          { date: "03-03", cost: 8.78 },
+          { date: "03-04", cost: 21.33 },
+          { date: "03-05", cost: 16.81 },
+          { date: "03-06", cost: 19.52 },
+          { date: "03-07", cost: 14.23 },
         ]
       };
     },
