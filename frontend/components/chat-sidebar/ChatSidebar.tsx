@@ -72,7 +72,7 @@ export default function ChatSidebar() {
         setInput("");
     }
 
-    function addMessageToDisplay(message: Message ) {
+    function addMessageToDisplay(message: Message) {
         setMessages((prevMessages) => [...prevMessages, message]);
     }
 
@@ -84,22 +84,29 @@ export default function ChatSidebar() {
         if (input.trim()) {
             const humanWords = input;
             setInput(""); // Clear input after sending
-            addMessageToDisplay({role: "human", message: humanWords});
+            addMessageToDisplay({ role: "human", message: humanWords });
             setAILoading(true);
-            const response = await sendMessage({
-                threadId,
-                assistantId: "agent",
-                message: { type: "human", content: humanWords },
-                currentPage: window.location.href,
-            });
             let answer = "";
-            for await (const chunk of response) {
-                if (chunk.event === "messages") {
-                    answer = answer.concat(chunk.data[0].content);
+            try {
+                const response = await sendMessage({
+                    threadId,
+                    assistantId: "agent",
+                    message: { type: "human", content: humanWords },
+                    currentPage: window.location.href,
+                });
+                console.log("hiii")
+                for await (const chunk of response) {
+                    if (chunk.event === "messages") {
+                        answer = answer.concat(chunk.data[0].content);
+                    }
                 }
+            } catch(e) {
+                console.log("Error sending message", e);
+                answer = "Sorry, I'm having trouble connecting to the server. Please try again later.";
             }
+
             setAILoading(false);
-            addMessageToDisplay({role: "ai", message: answer});
+            addMessageToDisplay({ role: "ai", message: answer });
         }
     };
 
@@ -134,9 +141,7 @@ export default function ChatSidebar() {
                             );
                         }
                     })}
-                    {aiLoading && (
-                        <LoadingBubble/>
-                    )}
+                    {aiLoading && <LoadingBubble />}
                 </div>
                 <div className="flex flex-col gap-2">
                     <Textarea
@@ -147,12 +152,12 @@ export default function ChatSidebar() {
                         className=""
                     ></Textarea>
                     <div className="flex w-full gap-1">
-                    <Button onClick={handleReset} className="w-full">
-                        <RotateCcw />
-                    </Button>
-                    <Button onClick={handleSendMessage} className="w-full">
-                        <SendHorizontal />
-                    </Button>
+                        <Button onClick={handleReset} className="w-full">
+                            <RotateCcw />
+                        </Button>
+                        <Button onClick={handleSendMessage} className="w-full">
+                            <SendHorizontal />
+                        </Button>
                     </div>
                 </div>
             </SidebarContent>
