@@ -70,7 +70,7 @@ const MultiSidebarProvider = React.forwardRef<
   (
     {
       defaultLeftOpen = true,
-      defaultRightOpen = true,
+      defaultRightOpen = false,
       leftOpen: leftOpenProp,
       rightOpen: rightOpenProp,
       onLeftOpenChange: setLeftOpenProp,
