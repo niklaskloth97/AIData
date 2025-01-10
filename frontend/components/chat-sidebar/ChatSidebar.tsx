@@ -9,12 +9,13 @@ import {
 import { useEffect, useState } from "react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { SendHorizontal } from "lucide-react";
+import { RotateCcw, SendHorizontal } from "lucide-react";
 import UserChatBubble from "./UserChatBubble";
 import AIChatBubble from "./AIChatBubble";
 import { createThread, sendMessage } from "@/lib/langgraphSDK";
 import { set } from "zod";
 import { send } from "process";
+import LoadingBubble from "./LoadingBubble";
 
 const mockMessages = [
     { role: "human", message: "Hello" },
@@ -34,7 +35,7 @@ const mockMessages = [
     { role: "ai", message: "Goodbye!" },
     { role: "human", message: "Hello" },
     { role: "ai", message: "Hi! How can I help you today?" },
-]
+];
 
 export interface Message {
     role: string;
@@ -42,16 +43,17 @@ export interface Message {
 }
 
 export default function ChatSidebar() {
-    const [messages, setMessages] = useState<Message[]>(mockMessages);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [threadId, setThreadId] = useState("");
+    const [aiLoading, setAILoading] = useState(false);
 
     // This enables the scroll down when messages are added
     useEffect(() => {
-        const container = document.getElementById('message-container');
+        const container = document.getElementById("message-container");
         container?.scrollTo({
             top: container.scrollHeight,
-            behavior: 'smooth'
+            behavior: "smooth",
         });
     }, [messages]);
 
@@ -59,24 +61,46 @@ export default function ChatSidebar() {
     useEffect(() => {
         async function setup() {
             const thread = await createThread();
-            console.log(thread);
             setThreadId(thread.thread_id);
         }
         setup();
     }, []);
 
-    function addMessage(message: string, role: string) {
-        setMessages([...messages, { role, message }]);
+    async function handleReset() {
+        setMessages([]);
+        setThreadId((await createThread()).thread_id);
+        setInput("");
+    }
+
+    function addMessageToDisplay(message: Message ) {
+        setMessages((prevMessages) => [...prevMessages, message]);
+    }
+
+    function prepareHumanMessage(message: string) {
+        return { role: "human", message };
     }
 
     const handleSendMessage = async () => {
         if (input.trim()) {
-            const response = (await sendMessage({ threadId, message: { type: "human", content: input } }));
-            addMessage(input, "human");
+            const humanWords = input;
             setInput(""); // Clear input after sending
-            
+            addMessageToDisplay({role: "human", message: humanWords});
+            setAILoading(true);
+            const response = await sendMessage({
+                threadId,
+                assistantId: "agent",
+                message: { type: "human", content: humanWords },
+                currentPage: window.location.href,
+            });
+            let answer = "";
+            for await (const chunk of response) {
+                if (chunk.event === "messages") {
+                    answer = answer.concat(chunk.data[0].content);
+                }
+            }
+            setAILoading(false);
+            addMessageToDisplay({role: "ai", message: answer});
         }
-        
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -84,17 +108,19 @@ export default function ChatSidebar() {
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === 'Enter' && e.shiftKey) {
+        if (e.key === "Enter" && e.shiftKey) {
             e.preventDefault();
             handleSendMessage();
         }
     };
-    
 
     return (
         <Sidebar side="right" variant="inset">
             <SidebarContent className="h-screen flex flex-col overflow-visible">
-                <div id="message-container" className="text-sm flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-2">
+                <div
+                    id="message-container"
+                    className="text-sm flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-2"
+                >
                     <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-white to-transparent pointer-events-none z-10" />
                     <div className="flex-grow" />
                     {messages.map((message, index) => {
@@ -108,8 +134,11 @@ export default function ChatSidebar() {
                             );
                         }
                     })}
+                    {aiLoading && (
+                        <LoadingBubble/>
+                    )}
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-2">
                     <Textarea
                         value={input}
                         onChange={handleInputChange}
@@ -117,9 +146,14 @@ export default function ChatSidebar() {
                         placeholder="Type a message... (use Shift + Enter to send)"
                         className=""
                     ></Textarea>
-                    <Button onClick={handleSendMessage} className="grow-0">
+                    <div className="flex w-full gap-1">
+                    <Button onClick={handleReset} className="w-full">
+                        <RotateCcw />
+                    </Button>
+                    <Button onClick={handleSendMessage} className="w-full">
                         <SendHorizontal />
                     </Button>
+                    </div>
                 </div>
             </SidebarContent>
         </Sidebar>
