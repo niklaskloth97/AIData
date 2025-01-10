@@ -19,8 +19,8 @@ import {
     SidebarMenuAction,
     SidebarMenuButton,
     SidebarMenuItem,
-    useSidebar,
-} from "../ui/sidebar";
+    useMultiSidebar,
+} from "@/components/sidebar/multisidebar";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -42,7 +42,8 @@ export function NavProjectsHeader({
         plan: string;
     }[];
 }) {
-    const { isMobile } = useSidebar();
+    const { leftSidebar: sidebarContext } = useMultiSidebar();
+    const { isMobile } = sidebarContext;
     const [activeProject, setActiveProject] = React.useState(projects[0]);
 
     return (
