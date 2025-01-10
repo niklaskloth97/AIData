@@ -14,21 +14,22 @@ export default function useMockWorkbenchMappingEditor() {
     return useQuery({
         queryKey: ["mockMappings"],
         queryFn: async () => {
-            console.log("Fetching mock mappings");
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            const response: MappingEditorData = { mappings: [], options: {columns: ["column1", "column2", "column3", "column4"],
-                eventTypes: ["Address_changed", "Payment_received", "Create/Select"],
-                attributes: ["employee_id", "time_taken", "cost", "department"]} }
-            const mappings = await fetch("http://localhost:8001/api/mappings");    
+            console.log("Fetching mappings");
+
+            const mappings: MappingData[] = await (await fetch("http://localhost:8001/api/mappings")).json();    
             
             console.log(mappings)
-            
-            
+        
             const options = {
                     columns: ["column1", "column2", "column3", "column4"],
                     eventTypes: ["Address_changed", "Payment_received", "Create/Select"],
                     attributes: ["employee_id", "time_taken", "cost", "department"]
                 }
+
+            const response: MappingEditorData = { mappings, options };
+
+            console.log(response);
+            
             return response;
         },
     });

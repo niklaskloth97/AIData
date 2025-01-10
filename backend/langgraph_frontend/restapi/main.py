@@ -86,6 +86,7 @@ def create_case_id(case_id: CaseIDSchema, db: Session = Depends(get_db)):
 
 @app.get("/api/mappings", response_model=List[MappingSchema])
 def get_mappings(db: Session = Depends(get_db)):
+    print("Get mappings")
     mappings = db.query(Mapping).all()
     if not mappings:
         raise HTTPException(status_code=404, detail="No mappings found")
