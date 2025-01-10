@@ -61,8 +61,8 @@ export default function Page() {
                   <Label htmlFor="light">Light</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="dark" id="dark" />
-                  <Label htmlFor="dark">Dark</Label>
+                  <RadioGroupItem value="disableddark" id="disableddark" />
+                  <Label htmlFor="disableddark">Dark</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="system" id="system" />
