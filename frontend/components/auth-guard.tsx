@@ -13,7 +13,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     if (!isLoggedIn && !PUBLIC_PATHS.includes(pathname)) {
       router.push('/login');
     }
-  }, [router, pathname]);
+  }, []);
 
   return <>{children}</>;
 }
