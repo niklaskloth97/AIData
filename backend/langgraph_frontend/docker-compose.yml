@@ -1,6 +1,8 @@
 volumes:
     langgraph-data:
         driver: local
+    pgadmin-data:
+        driver: local
 services:
     langgraph-redis:
         image: redis:6
@@ -25,6 +27,16 @@ services:
             timeout: 1s
             retries: 5
             interval: 5s
+    pgadmin:
+        image: dpage/pgadmin4
+        ports:
+            - "5050:80"
+        environment:
+            PGADMIN_DEFAULT_EMAIL: admin@admin.com
+            PGADMIN_DEFAULT_PASSWORD: admin
+        volumes:
+            - pgadmin-data:/var/lib/pgadmin
+
     langgraph-api:
         image: ${IMAGE_NAME}
         ports:

@@ -7,7 +7,7 @@ import { createBrowserColumns } from "./database-browser-columns";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { Loader, PlusCircle } from "lucide-react";
-import useMockWorkbenchMappingEditor from "@/hooks/api/useMockWorkbenchMappingEditor";
+import useMockWorkbenchMappingEditor from "@/hooks/api/useWorkbenchMappingEditor";
 import useMockTableBrowser from "@/hooks/api/useMockTableBrowser";
 import { SelectNSearchTable } from "@/components/SelectNSearchTable";
 import { useWorkflow } from '../workflowContext';

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from models import ProjectTable, ProjectProcess, AdapterProcessStep, AdapterBusinessObject, Base, CaseID, Mapping
 from schemas import ProjectTableSchema, ProjectProcessSchema, AdapterProcessStepSchema, AdapterBusinessObjectSchema, CaseIDSchema, CreateMappingSchema, MappingSchema
+from fastapi.middleware.cors import CORSMiddleware
 
 from typing import List
 import os
@@ -17,6 +18,14 @@ engine = create_engine(DATABASE_URL)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Dependency to get DB session
 def get_db():
@@ -78,6 +87,8 @@ def create_case_id(case_id: CaseIDSchema, db: Session = Depends(get_db)):
 @app.get("/api/mappings", response_model=List[MappingSchema])
 def get_mappings(db: Session = Depends(get_db)):
     mappings = db.query(Mapping).all()
+    if not mappings:
+        raise HTTPException(status_code=404, detail="No mappings found")
     return mappings
 
 
