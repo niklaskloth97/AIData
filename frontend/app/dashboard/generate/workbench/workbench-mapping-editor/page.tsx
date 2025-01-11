@@ -46,7 +46,7 @@ export default function Page() {
     const addNewColumn = () => {
         const newMapping: MappingData = {
             displayName: "",
-            timestamp: "",
+            timestampColumn: "",
             eventType: "",
             otherAttributes: "",
         };

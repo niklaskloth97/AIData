@@ -13,7 +13,7 @@ import React, { useEffect, useState } from "react";
 
 export type MappingData = {
     displayName: string;
-    timestamp: string;
+    timestampColumn: string;
     eventType: string;
     otherAttributes: string;
 };
@@ -92,7 +92,7 @@ function OtherAttributesCell(
     props: CellContext<MappingData, any>
 ) {
     const initialValue = props.getValue();
-    const [value, setValue] = useState(initialValue);
+    const [value, setValue] = useState();
 
     useEffect(() => {
         setValue(initialValue);
@@ -197,7 +197,7 @@ export const createColumns = (
         cell: EditCell,
     },
     {
-        accessorKey: "timestamp",
+        accessorKey: "timestampColumn",
         header: "Timestamp",
         cell: (props) => TimestampCell(options, props),
     },
