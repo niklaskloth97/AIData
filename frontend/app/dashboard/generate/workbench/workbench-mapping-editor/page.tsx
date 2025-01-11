@@ -15,7 +15,7 @@ import { useWorkflow } from '../workflowContext';
 export default function Page() {
     const { nextStep, previousStep } = useWorkflow();
     const { isLoading: isLoadingEditor, data: editorData } = useMockWorkbenchMappingEditor();
-    const { isLoading: isLoadingBrowser, data: browserData } = useMockTableBrowser();
+    const { isLoading: isLoadingBrowser, data: browserTableData } = useMockTableBrowser();
     const [mappings, setMappings] = useState<MappingData[]>([]);
     const [editorFilter, setEditorFilter] = useState("");
     const [browserFilter, setBrowserFilter] = useState("");
@@ -72,7 +72,6 @@ export default function Page() {
     const handleBack = () => {
         previousStep();
     };
-
     
     console.log("AHJIABDJANBD", editorData)
 
@@ -139,7 +138,7 @@ export default function Page() {
                 ) : (
                     <DataTable 
                         columns={createBrowserColumns} 
-                        data={browserData?.tables ?? []}
+                        data={browserTableData ?? []}
                         globalFilter={browserFilter}
                     />
                 )}
