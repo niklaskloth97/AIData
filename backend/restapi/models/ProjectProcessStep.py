@@ -22,3 +22,6 @@ class ProjectProcessStepSchema(BaseModel):
     tablesInvolved: str
     projectProcess_id: int
     # business_objects: List[AdapterBusinessObjectSchema]
+
+    class Config:
+        from_attributes = True 

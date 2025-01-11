@@ -1,16 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
-import { ProcessModelData } from "@/app/dashboard/process-model/content";
 
-export interface processData {
-    processName: string;
+export interface Step {
+    id: number;
+    name: string;
     description: string;
-    steps: [{
-        id: number;
-        text: string;
-    }]
+    projectProcess_id: number;
+    tablesInvolved: string;
+}
+export interface ProcessData {
+    id: number;
+    name: string;
+    description: string;
+    steps: Step[]
+    project_id: number
 }
 
-export default function useMockTables() {
+export default function useProcessModel() {
     return useQuery({
         queryKey: ["processModel"],
         queryFn: async () => {
@@ -26,7 +31,7 @@ export default function useMockTables() {
             //       ]
             // }
             console.log("Fetching process");
-            const response: processData = await (await fetch("http://localhost:8000/api/process")).json();    
+            const response: ProcessData = await (await fetch("http://localhost:8000/api/process")).json();    
             console.log(response);    
             return response;
         },
