@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams} from 'next/navigation';
 import { WorkflowState, WorkflowStep, STEP_CONFIG } from './workflowState';
 
 interface WorkflowContextType {
