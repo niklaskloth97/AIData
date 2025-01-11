@@ -126,7 +126,7 @@ export default function ChatSidebar() {
             <SidebarContent className="h-screen flex flex-col overflow-visible">
                 <div
                     id="message-container"
-                    className="text-sm flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-2"
+                    className="text-sm flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-4"
                 >
                     <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-white to-transparent pointer-events-none z-10" />
                     <div className="flex-grow" />
