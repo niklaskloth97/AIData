@@ -98,6 +98,7 @@ function OtherAttributesCell(
         setValue(initialValue);
     }, [initialValue]);
 
+        // Hier die Funktion ergänzen, damit die mit dem multiselect funkt.
     const onBlur = (newValue) => {
         props.table.options.meta?.updateData(
             props.row.index,
