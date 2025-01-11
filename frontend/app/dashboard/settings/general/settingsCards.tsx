@@ -21,9 +21,9 @@ export function AIModelSelection() {
               <SelectValue placeholder="Select API Model" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="chatgpt">ChatGPT-o1 (Default)</SelectItem>
+              <SelectItem value="chatgpt">ChatGPT-o1</SelectItem>
               <SelectItem value="chatgpt-mini">ChatGPT-o1-mini</SelectItem>
-              <SelectItem value="chatgpt-4o">ChatGPT-4o</SelectItem>
+              <SelectItem value="chatgpt-4o">ChatGPT-4o (default)</SelectItem>
               <SelectItem value="claude">Claude 3.5 Sonnet</SelectItem>
               <SelectItem value="llama">Llama 3.3-70B</SelectItem>
               <SelectItem value="mixtral">Mixtral 8x7B</SelectItem>
