@@ -26,7 +26,7 @@ export default function Page() {
     useEffect(() => {
         const saved = sessionStorage.getItem('workbenchMappings');
         if (saved) {
-            const { mappings: savedMappings, columnValues } = JSON.parse(saved);
+            const { mappings: savedMappings } = JSON.parse(saved);
             // Merge saved column values with mapping structure
             const restoredMappings = savedMappings.map((mapping: MappingData, index: number) => ({
                 ...mapping,
@@ -48,7 +48,7 @@ export default function Page() {
             displayName: "",
             timestampColumn: "",
             eventType: "",
-            otherAttributes: "",
+            otherAttributes: [],
         };
         setMappings([...mappings, newMapping]); // Only update local state
     };
@@ -73,6 +73,9 @@ export default function Page() {
         previousStep();
     };
 
+    
+    console.log("AHJIABDJANBD", editorData)
+
     if (isLoadingEditor || !editorData) {
         return (
             <div className="flex items-center justify-center min-h-[200px]">
@@ -85,9 +88,9 @@ export default function Page() {
         ...editorData.options,
         onDelete: handleDelete,
     });
-
+    
     return (
-        <div className="p-6 space-y-8">
+        <div>
             {/* First Table Section */}
             <div>
               <div className="justify-between">
@@ -95,7 +98,11 @@ export default function Page() {
                       heading="Mapping Editor"
                       subtext="Define your event log structure"
                   />
-                  
+                  <div >
+                      <Button variant={"outline"} onClick={addNewColumn}>
+                        <PlusCircle className="mr-2 h-6 w-6" />
+                        Add New Column</Button>
+                  </div>
                   <SelectNSearchTable 
                       globalFilter={editorFilter}
                       setGlobalFilter={setEditorFilter}
@@ -111,11 +118,7 @@ export default function Page() {
                     autoResetPageIndex={autoResetPageIndexMappings}
                     skipAutoResetPageIndex={skipAutoResetPageIndexMappings}
                 />
-                <div >
-                      <Button variant={"outline"} onClick={addNewColumn}>
-                        <PlusCircle className="mr-2 h-6 w-6" />
-                        Add New Column</Button>
-                  </div>
+                
             </div>
 
             {/* Second Table Section */}

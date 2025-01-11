@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from restapi.models.Mapping import Mapping, MappingSchema, MappingsResponseSchema, CreateMappingSchema
-from typing import List
+from typing import List, Optional
 from restapi.lib.db import get_db
 
 router = APIRouter(
@@ -16,9 +16,9 @@ def get_mappings(db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No mappings found")
     
     options = {
-        'columns': ["column1", "column2", "column3", "column4"],
+        'timestampColumns': ["column1", "column2", "column3", "column4"],
         'eventTypes': ["Address_changed", "Payment_received", "Create/Select"],
-        'attributes': ["employee_id", "time_taken", "cost", "department"]
+        'otherAttributes': ["employee_id", "time_taken", "cost", "department"]
     }
     
     return {"mappings": mappings, "options": options}

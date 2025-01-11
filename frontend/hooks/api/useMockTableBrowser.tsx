@@ -12,6 +12,7 @@ export default function useMockTableBrowser() {
         queryFn: async () => {
             console.log("Fetching mock table browser data");
             await new Promise((resolve) => setTimeout(resolve, 2000));
+            console.log("Fetched mock table browser data");
             const response: TableBrowserData = {
                 tables: [
                     {

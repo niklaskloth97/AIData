@@ -59,7 +59,7 @@ export default function Page() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="mt-2">
       <div className="rounded-md grid grid-cols-2 gap-4">
         <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
           <PageHeader

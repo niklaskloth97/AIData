@@ -164,6 +164,7 @@ export const MultiSelect = React.forwardRef<
         ? selectedValues.filter((value) => value !== option)
         : [...selectedValues, option];
       setSelectedValues(newSelectedValues);
+      console.log(newSelectedValues)
       onValueChange(newSelectedValues);
     };
 

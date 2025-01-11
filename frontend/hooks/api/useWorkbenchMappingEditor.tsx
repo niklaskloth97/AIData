@@ -4,9 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 export interface MappingEditorData {
   mappings: MappingData[];
   options: {
-    columns: string[];
+    timestampColumns: string[];
     eventTypes: string[];
-    attributes: string[];
+    otherAttributes: string[];
   }
 }
 
