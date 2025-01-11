@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import PageHeader from "@/components/PageHeader";
+import React from "react";
+import PageHeader from "@/components/PageHeader"; // Adjust this import based on your folder structure
+import ExampleFlow from "./ExampleFlow"; // Adjust this path if necessary
 
-export default function Page() {
-    return (
-        <>
-            <PageHeader heading="Welcome User!" subtext="This is the subtext."/>
-            <div className="flex items-center justify-center mt-6">
-            <img
-            src="/process.webp"
-            alt="Data Processing Flowchart"
-            className="max-w-full h-auto"
-            />
-            </div>
-        </>
-    );
-}
+const Page: React.FC = () => {
+  return (
+    <>
+      <PageHeader heading="Welcome User!" subtext="This is the subtext." />
+      <div className="mt-6" style={{ height: "80vh" }}>
+        <ExampleFlow />
+      </div>
+    </>
+  );
+};
+
+export default Page;
