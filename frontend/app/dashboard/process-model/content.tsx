@@ -9,9 +9,10 @@ import {
 } from "@dnd-kit/sortable";
 import ProcessModelStep from "@/components/processModel/ProcessModelStep";
 import useProcessModel from "@/hooks/api/useProcessModel";
-import { Loader } from "lucide-react";
+import { Loader, Plus, PlusCircle, Printer, Save, ArrowRight } from "lucide-react";
 import { Step, ProcessData } from "@/hooks/api/useProcessModel";
 import useProcessModelMutation from "@/hooks/api/useProcessModelMutation";
+import { Button } from "@/components/ui/button";
 
 const ProcessModelContent = () => {
     const { data, isLoading } = useProcessModel();
@@ -118,9 +119,24 @@ const ProcessModelContent = () => {
                     </div>
                     {/* Process Steps */}
                     <div>
-                        <h2 className="block font-semibold mb-4">
-                            Process Steps
-                        </h2>
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="font-semibold">Process Steps</h2>
+                            <Button variant="outline" onClick={() =>
+                                setSteps([
+                                    ...steps,
+                                    { 
+                                        id: Date.now(), 
+                                        name: `New Step`, 
+                                        description: "New Step description", 
+                                        projectProcess_id: data?.project_id ?? 0, 
+                                        tablesInvolved: "" 
+                                    },
+                                ])
+                            }>
+                                <PlusCircle className="h-4 w-4 mr-2" />
+                                Add Step
+                            </Button>
+                        </div>
                         <DndContext
                             collisionDetection={closestCenter}
                             onDragEnd={handleDragEnd}
@@ -146,38 +162,37 @@ const ProcessModelContent = () => {
                         </DndContext>
 
                         {/* Add New Step Button */}
-                        <div className="mt-6">
-                            <button
-                                className="w-full border rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"
-                                onClick={() =>
-                                    setSteps([
-                                        ...steps,
-                                        { id: Date.now(), name: `New Step`, description: "New Step description", projectProcess_id: data?.project_id ?? 0, tablesInvolved: "" },
-                                    ])
-                                }
-                            >
-                                +
-                            </button>
-                            <div className="my-2" />
-                            <button
-                                className="w-full border rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"
-                                onClick={() =>
-                                    console.log({
-                                        processName,
-                                        processDescription,
-                                        steps,
-                                    })
-                                }
-                            >
-                                Print state
-                            </button>
-                            <div className="my-2" />
-                            <button
-                                className="w-full border rounded-md px-3 py-2 text-gray-600 hover:bg-gray-100"
-                                onClick={() => handleSave()}
-                            >
-                                Save to backend
-                            </button>
+                        <div className="flex justify-between items-center my-4">
+                            <div>
+                                <Button variant={"outline"} onClick={() => setSteps([...steps, { 
+                                    id: Date.now(), 
+                                    name: `New Step`, 
+                                    description: "New Step description", 
+                                    projectProcess_id: data?.project_id ?? 0, 
+                                    tablesInvolved: "" 
+                                }])}>
+                                    <PlusCircle className="h-4 w-4" />
+                                    Add Step
+                                </Button>
+                            </div>
+                            <div className="flex space-x-2">
+                                <Button variant={"outline"} onClick={() => console.log({
+                                    processName,
+                                    processDescription,
+                                    steps,
+                                })}>
+                                    <Printer className="h-4 w-4" />
+                                    Print state
+                                </Button>
+                                <Button variant={"outline"} onClick={() => handleSave()}>
+                                    <Save className="h-4 w-4" />
+                                    Save to backend
+                                </Button>
+                                <Button variant={"default"} onClick={() => handleSave()}>
+                                    <ArrowRight className="h-4 w-4" />
+                                    Save and Continue
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,7 +1,7 @@
 import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Edit, ReceiptRussianRuble, Search, Trash2 } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import {
     Select,
     SelectContent,
@@ -10,18 +10,19 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import React, { useEffect, useState } from "react";
+import { MultiSelect } from "@/components/multi-select";
 
 export type MappingData = {
     displayName: string;
     timestampColumn: string;
     eventType: string;
-    otherAttributes: string;
+    otherAttributes: string[];
 };
 
 interface ColumnOptions {
-    columns: string[];
+    timestampColumns: string[];
     eventTypes: string[];
-    attributes: string[];
+    otherAttributes: string[];
     onDelete: (index: number) => void; // Add this line
 }
 
@@ -63,11 +64,11 @@ function TimestampCell(
         setValue(initialValue);
     }, [initialValue]);
 
-    const onBlur = (newValue) => {
+    const onBlur = (newValues) => {
         props.table.options.meta?.updateData(
             props.row.index,
             props.column.id,
-            newValue
+            newValues
         );
     };
 
@@ -77,7 +78,7 @@ function TimestampCell(
                 <SelectValue placeholder="Select a column" />
             </SelectTrigger>
             <SelectContent>
-                {options.columns.map((column) => (
+                {options.timestampColumns.map((column) => (
                     <SelectItem key={column} value={column}>
                         {column}
                     </SelectItem>
@@ -92,36 +93,37 @@ function OtherAttributesCell(
     props: CellContext<MappingData, any>
 ) {
     const initialValue = props.getValue();
-    const [value, setValue] = useState();
+    const [value, setValue] = useState(initialValue);
 
     useEffect(() => {
         setValue(initialValue);
     }, [initialValue]);
 
         // Hier die Funktion ergänzen, damit die mit dem multiselect funkt.
-    const onBlur = (newValue) => {
+    const onBlur = (newValues) => {
+        console.log(newValues)
         props.table.options.meta?.updateData(
             props.row.index,
             props.column.id,
-            newValue
+            newValues
         );
     };
 
+    const attributeOptions = options.otherAttributes.map(attr => ({
+        label: attr,
+        value: attr
+    }));
+
     return (
-        <div className="flex flex-wrap gap-2">
-            <Select onValueChange={onBlur} value={value}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a column" />
-                </SelectTrigger>
-                <SelectContent>
-                    {options.attributes.map((attr) => (
-                        <SelectItem key={attr} value={attr}>
-                            {attr}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
-        </div>
+        <MultiSelect
+            options={attributeOptions}
+            onValueChange={onBlur}
+            defaultValue={value} // Fix: use values instead of initialValues
+            placeholder="Select attributes"
+            className="min-w-[200px]"
+            animation={0}
+            maxCount={5}
+        />
     );
 }
 
