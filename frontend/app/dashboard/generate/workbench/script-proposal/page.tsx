@@ -1,78 +1,119 @@
 "use client";
-import React, { useState } from "react";
-import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
+import React, { useState, useEffect } from "react";
+import { useWorkflow } from '../workflowContext';
+import Controlled from "@uiw/react-codemirror";
+import { basicSetup } from "codemirror";
+import { sql as sqlLang } from "@codemirror/lang-sql";
+import { githubLight } from "@uiw/codemirror-theme-github";
 import { DataTable } from "@/components/DataTable";
-import { columns, TableData } from "@/app/dashboard/script-proposal/columns";
+import { columns } from "./columns";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-
-const initialSQL = `CREATE TABLE currency_conversion AS
-SELECT
-  F.AWKEY,
-  F.BLART,
-  F.USNAM,
-  F.WAERS AS currency_code,
-  F.WWERT AS original_value,
-  (F.WWERT * C.conversion_rate) AS value_in_eur
-FROM filtered_process_log F
-JOIN currency_table C ON F.WAERS = C.currency_code
-WHERE EXTRACT(YEAR FROM F.CPUDT) = C.year;
-
--- Step 3: Create aggregated view
-CREATE TABLE user_document_summary AS
-SELECT
-  USNAM AS user_name,
-  BLART AS document_type,
-  COUNT(AWKEY) AS total_documents,
-  SUM(value_in_eur) AS total_value_in_eur,
-  AVG(value_in_eur) AS average_value_in_eur
-FROM currency_conversion
-GROUP BY USNAM, BLART
-ORDER BY total_value_in_eur DESC;`;
-
-const sampleData: TableData[] = [
-  { caseId: 1001, activity: "delivery_made", timestamp: "2024-11-01 09:00 AM", otherAttributes: "{Username: Alice, Price: $5, Amount Of Pieces: 6}" },
-  { caseId: 1002, activity: "delivery_made", timestamp: "2024-11-02 10:00 AM", otherAttributes: "{Username: Jan, PaymentMade: True, Success: True}" },
-  { caseId: 1003, activity: "delivery_made", timestamp: "2024-11-03 09:00 AM", otherAttributes: "{Username: Jan, PaymentMade: True, Success: True}" },
-  { caseId: 1004, activity: "delivery_made", timestamp: "2024-11-04 11:00 AM", otherAttributes: "{Username: Jan, PaymentMade: False, Success: False}" },
-  { caseId: 1005, activity: "delivery_made", timestamp: "2024-11-06 12:00 AM", otherAttributes: "{Username: Sandro, PaymentMethod: Paypal, Success: True}" },
-  { caseId: 1006, activity: "delivery_made", timestamp: "2024-11-07 08:00 AM", otherAttributes: "{Username: Jan, PaymentMade: True, Success: True}" },
-];
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import PageHeader from "@/components/PageHeader";
+import { Loader } from "lucide-react";
+import useMockScriptProposal from "@/hooks/api/useMockScriptProposal";
 
 export default function Page() {
-  const [sql, setSql] = useState(initialSQL);
+  const { previousStep } = useWorkflow();
+  const { isLoading, data: mockData } = useMockScriptProposal();
+  const [sql, setSql] = useState("");
   const [feedback, setFeedback] = useState("");
 
+  // Load all stored data on mount
+  useEffect(() => {
+    const storedSql = sessionStorage.getItem('scriptProposalSQL');
+    const storedFeedback = sessionStorage.getItem('scriptProposalFeedback');
+    
+    // If we have stored data, use it; otherwise use initial data from API
+    if (storedSql) {
+      setSql(storedSql);
+    } else if (mockData?.initialSQL) {
+      setSql(mockData.initialSQL);
+    }
+    
+    if (storedFeedback) {
+      setFeedback(storedFeedback);
+    }
+  }, [mockData]);
+
+  // Handle navigation back
+  const handleBack = () => {
+    // Store all state before navigation
+    sessionStorage.setItem('scriptProposalSQL', sql);
+    sessionStorage.setItem('scriptProposalFeedback', feedback);
+    previousStep();
+  };
+
+  // Update textarea for feedback
+  const handleFeedbackChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setFeedback(e.target.value);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[200px]">
+        <Loader className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 bg-gray-50 min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div className="bg-white shadow rounded-lg p-4">
-        <h2 className="text-xl font-bold mb-4">SQL Script Proposal for Delivery Mapping</h2>
-        <SyntaxHighlighter
-          language="sql"
-          editable="true"  // ← Change to a string
-          value={sql}
-          onChange={(value: string) => setSql(value)}
-          className="border border-gray-200 rounded p-2 bg-gray-50"
-        >
-          {""}
-        </SyntaxHighlighter>
-        <div className="flex justify-between mt-4">
-          <Button variant="secondary" onClick={() => alert("Mappings Edited")}>Edit Mappings</Button>
-          <Button variant="destructive" onClick={() => alert("Changes Discarded")}>Discard Changes</Button>
-          <Button onClick={() => alert("Script Regenerated")}>ReGenerate</Button>
-          <Button onClick={() => alert("Script Exported")}>Export</Button>
+    <div className="mt-2">
+      <div className="rounded-md grid grid-cols-2 gap-4">
+        <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
+          <PageHeader
+            heading="SQL Script Proposal"
+            subtext="Adjust the SQL script to your needs."
+          />
+          <Controlled
+            value={sql}
+            extensions={[basicSetup, sqlLang() as any]}  // Enable SQL syntax highlighting
+            theme={githubLight}
+            onChange={(value) => setSql(value)}
+            className="border border-gray-200 rounded p-2"
+          />
+          <div className="mt-2 text-sm text-gray-600">Your changes will be passed to the AI-Engine as part of the feedback</div>
+          <div className="flex flex-wrap gap-4 mt-4 justify-start">
+            <Button variant="secondary" onClick={handleBack}>Edit Mappings</Button>
+            <Button variant="destructive" onClick={() => alert("Changes Discarded")}>Discard Changes</Button>
+            <Button onClick={() => alert("Script Regenerated")}>Re-Generate</Button>
+            <Button onClick={() => alert("Script Exported")}>Export</Button>
+          </div>
+        </div>
+        <div className="grid grid-cols-subgrid gap-4">
+          {/* 2nd card: "Add Feedback" */}
+          <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
+            <PageHeader
+              heading="Add Feedback"
+              subtext="Your feedback will be attached to the SQL script."
+            />
+            <div className="">
+              <Label htmlFor="feedback">Your message</Label>
+              <Textarea 
+                placeholder="Type your feedback to the AI here." 
+                id="feedback"
+                value={feedback}
+                onChange={handleFeedbackChange}
+              />
+            </div>
+          </div>
+        
+          {/* 3rd card: "Event Log Preview" */}
+          <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow">
+            <PageHeader
+              heading="Event Log Preview"
+              subtext="Anything missing? Add feedback or adapt the script"
+            />
+            <DataTable columns={columns} data={mockData?.sampleData || []} />
+          </div>
         </div>
       </div>
 
-      <div className="bg-white shadow rounded-lg p-4">
-        <h2 className="text-xl font-bold mb-4">Add Feedback</h2>
-        <SyntaxHighlighter
-          language="sql"
-          onChange={(value: string) => setSql(value)}
-          placeholder="Provide the AI with feedback for the displayed script before (Re)Generating."
-          className="w-full h-24 border border-gray-200 rounded mb-4" children={""}        />
-        <h2 className="text-xl font-bold mb-4">Event Log Preview</h2>
-        <DataTable columns={columns} data={sampleData} />
+      <div className="mt-6 flex justify-start">
+        <Button variant="secondary" onClick={handleBack}>
+          Back
+        </Button>
       </div>
     </div>
   );

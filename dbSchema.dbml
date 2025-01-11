@@ -100,12 +100,13 @@ Table projectProcessSteps {
   // Do order via linked list?
 }
 
+
 Table adapterProcessSteps {
   id integer [primary key]
   name varchar
   description varchar
   tablesInvolved varchar
-  //adapters_id integer -> adapterProcess ref
+  projectProcess_id integer
 }
 
 Table adapterBusinessObjects {
@@ -118,7 +119,27 @@ Table adapterBusinessObjects {
   adapterProcessSteps_id integer
 }
 
+Table caseID {
+  id integer [primary key]
+  projectTables_nativeTableName varchar
+  caseidkey varchar
+  projectTables_description varchar
+}
+
+Table mappings {
+  id integer [primary key]
+  timestamp ProjectTableColumn
+  eventtype varchar
+  otherAttributes ListprojectTablesColumns
+}
+
+Ref: caseID.projectTables_nativeTableName > projectTables.nativeTableName
+
+Ref: caseID.projectTables_description > projectTables.description
+
 Ref: adapterBusinessObjects.adapterProcessSteps_id > adapterProcessSteps.id
+
+Ref: adapterProcessSteps.projectProcess_id > projectProcess.id
 
 Ref: projectProcess.project_id > projects.id
 

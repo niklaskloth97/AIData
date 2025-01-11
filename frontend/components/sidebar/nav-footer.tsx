@@ -13,8 +13,8 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    useSidebar,
-} from "../ui/sidebar";
+    useMultiSidebar,
+} from "@/components/sidebar/multisidebar";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -32,7 +32,8 @@ const user = {
 };
 
 export function NavFooter() {
-    const { isMobile } = useSidebar();
+    const { leftSidebar: sidebarContext } = useMultiSidebar();
+    const { isMobile } = sidebarContext;
     return (
         <SidebarMenu>
             <SidebarMenuItem>

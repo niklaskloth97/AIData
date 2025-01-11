@@ -1,0 +1,44 @@
+# For dev environment
+# Requirements: pip install "fastapi[standard]" 
+# Use 
+# langgraph dev
+# fastapi dev main.py
+# for the other services to achieve hot reload
+volumes:
+    langgraph-data:
+        driver: local
+    pgadmin-data:
+        driver: local
+services:
+    langgraph-redis:
+        image: redis:6
+        healthcheck:
+            test: redis-cli ping
+            interval: 5s
+            timeout: 1s
+            retries: 5
+    langgraph-postgres:
+        image: postgres:16
+        ports:
+            - "5433:5432"
+        environment:
+            POSTGRES_DB: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+        volumes:
+            - langgraph-data:/var/lib/postgresql/data
+        healthcheck:
+            test: pg_isready -U postgres
+            start_period: 10s
+            timeout: 1s
+            retries: 5
+            interval: 5s
+    pgadmin:
+        image: dpage/pgadmin4
+        ports:
+            - "5050:80"
+        environment:
+            PGADMIN_DEFAULT_EMAIL: admin@admin.com
+            PGADMIN_DEFAULT_PASSWORD: admin
+        volumes:
+            - pgadmin-data:/var/lib/pgadmin

@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button"
 //   CardTitle,
 // } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+
 import { Label } from "@/components/ui/label"
 import {
     Select,
@@ -21,17 +23,19 @@ import {
     SelectGroup,
     SelectLabel
   } from "@/components/ui/select"
+import PageHeader from '@/components/PageHeader';
 
 export function AdapterSelection() {
   const [selectedAdapter, setSelectedAdapter] = useState("");
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-gray-100">
+    <div className="min-h-screen flex flex-col justify-between">
       {/* Adapter Selection Form */}
       <div className="flex items-center justify-center flex-grow">
-        <div className="bg-white shadow-lg rounded-md w-full max-w-lg p-8">
-          <h2 className="text-2xl font-bold text-left text-black-700">Select Adapter</h2>
-          <p className="text-sm text-left pb-4 text-gray-600">The Adapter will provide the AI with additional knowledge to ensure good results.</p>
+        <div className="bg-white p-4 rounded-lg border bg-card text-card-foreground shadow w-full max-w-lg"> <PageHeader
+                heading="Select Adapter"
+                subtext="The Adapter will provide the AI with database context and additional knowledge to ensure good results."
+            />
             <div className="grid gap-6">
                 <div className="grid gap-2">
                   <Label htmlFor="adapter">Adapter</Label>

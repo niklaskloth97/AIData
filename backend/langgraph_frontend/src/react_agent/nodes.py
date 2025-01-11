@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from react_agent.tools import tools
+from src.react_agent.tools import tools
 from langchain_core.messages import HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate

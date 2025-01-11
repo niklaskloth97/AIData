@@ -1,85 +1,222 @@
-// columns.tsx
-import { ColumnDef } from "@tanstack/react-table";
+import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Edit, Trash2 } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, Trash2 } from "lucide-react";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import React, { useEffect, useState } from "react";
+import { MultiSelect } from "@/components/multi-select";
 
 export type MappingData = {
-  displayName: string;
-  timestamp: string;
-  eventType: string;
-  otherAttributes: string;
+    displayName: string;
+    timestampColumn: string;
+    eventType: string;
+    otherAttributes: string[];
 };
 
-export const columns: ColumnDef<MappingData>[] = [
-  {
-    accessorKey: "displayName",
-    header: "Display Name",
-    cell: ({ row }) => (
-      <Input defaultValue={row.original.displayName} className="w-full" />
-    ),
-  },
-  {
-    accessorKey: "timestamp",
-    header: "Timestamp",
-    cell: ({ row }) => (
-      <Select>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Select a column" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="column1">Column 1</SelectItem>
-          <SelectItem value="column2">Column 2</SelectItem>
-        </SelectContent>
-      </Select>
-    ),
-  },
-  {
-    accessorKey: "eventType",
-    header: "Event Type",
-    cell: ({ row }) => (
-      <Select>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Select event type" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="Address_changed">Address Changed</SelectItem>
-          <SelectItem value="Payment_received">Payment Received</SelectItem>
-          <SelectItem value="Create/Select">Create / Select</SelectItem>
-        </SelectContent>
-      </Select>
-    ),
-  },
-  {
-    accessorKey: "otherAttributes",
-    header: "Other Attributes",
-    cell: ({ row }) => (
-      <div className="flex flex-wrap gap-2">
-        <Select>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a column" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="employee_id">Employee ID</SelectItem>
-            <SelectItem value="time_taken">Time Taken</SelectItem>
-          </SelectContent>
+interface ColumnOptions {
+    timestampColumns: string[];
+    eventTypes: string[];
+    otherAttributes: string[];
+    onDelete: (index: number) => void; // Add this line
+}
+
+function EditCell({
+    getValue,
+    row: { index },
+    column: { id },
+    table,
+}: CellContext<MappingData, any>) {
+    const initialValue = getValue();
+    const [value, setValue] = useState(initialValue);
+
+    useEffect(() => {
+        setValue(initialValue);
+    }, [initialValue]);
+
+    const onBlur = () => {
+        table.options.meta?.updateData(index, id, value);
+    };
+
+    return (
+        <Input
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onBlur={onBlur}
+            className="w-full"
+        />
+    );
+}
+
+function TimestampCell(
+    options: ColumnOptions,
+    props: CellContext<MappingData, any>
+) {
+    const initialValue = props.getValue();
+    const [value, setValue] = useState(initialValue);
+
+    useEffect(() => {
+        setValue(initialValue);
+    }, [initialValue]);
+
+    const onBlur = (newValues) => {
+        props.table.options.meta?.updateData(
+            props.row.index,
+            props.column.id,
+            newValues
+        );
+    };
+
+    return (
+        <Select onValueChange={onBlur} value={value}>
+            <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a column" />
+            </SelectTrigger>
+            <SelectContent>
+                {options.timestampColumns.map((column) => (
+                    <SelectItem key={column} value={column}>
+                        {column}
+                    </SelectItem>
+                ))}
+            </SelectContent>
         </Select>
-      </div>
-    ),
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm">
-          <Edit className="h-5 w-5" />
-        </Button>
-        <Button variant="ghost" size="sm" className="text-red-600">
-          <Trash2 className="h-5 w-5" /> 
-        </Button>
-      </div>
-    ),
-  },
+    );
+}
+
+function OtherAttributesCell(
+    options: ColumnOptions,
+    props: CellContext<MappingData, any>
+) {
+    const initialValue = props.getValue();
+    const [value, setValue] = useState(initialValue);
+
+    useEffect(() => {
+        setValue(initialValue);
+    }, [initialValue]);
+
+        // Hier die Funktion ergänzen, damit die mit dem multiselect funkt.
+    const onBlur = (newValues) => {
+        console.log(newValues)
+        props.table.options.meta?.updateData(
+            props.row.index,
+            props.column.id,
+            newValues
+        );
+    };
+
+    const attributeOptions = options.otherAttributes.map(attr => ({
+        label: attr,
+        value: attr
+    }));
+
+    return (
+        <MultiSelect
+            options={attributeOptions}
+            onValueChange={onBlur}
+            defaultValue={value} // Fix: use values instead of initialValues
+            placeholder="Select attributes"
+            className="min-w-[200px]"
+            animation={0}
+            maxCount={5}
+        />
+    );
+}
+
+function EventTypeCell(
+    options: ColumnOptions,
+    props: CellContext<MappingData, any>
+) {
+    const initialValue = props.getValue();
+    const [value, setValue] = useState(initialValue);
+
+    useEffect(() => {
+        setValue(initialValue);
+    }, [initialValue]);
+
+    const onBlur = (newValue) => {
+        props.table.options.meta?.updateData(
+            props.row.index,
+            props.column.id,
+            newValue
+        );
+    };
+
+    return (
+        <Select onValueChange={onBlur} value={value}>
+            <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select event type" />
+            </SelectTrigger>
+            <SelectContent>
+                {options.eventTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                        {type}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
+    );
+}
+
+function ActionsCell(
+    options: ColumnOptions,
+    props: CellContext<MappingData, any>
+) {
+    return (
+        <div className="flex items-center">
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => console.log("Inspect", props.row.original)}
+            >
+                <Search className="h-5 w-5" />
+            </Button>
+            <Button
+                variant="ghost"
+                size="sm"
+                className="text-red-600"
+                onClick={() => options.onDelete(props.row.index)} // Call with row.index
+            >
+                <Trash2 className="h-5 w-5" />
+            </Button>
+        </div>
+    );
+}
+
+function PrintCell(props: CellContext<MappingData, any>) {
+    console.log(props);
+}
+
+export const createColumns = (
+    options: ColumnOptions
+): ColumnDef<MappingData, any>[] => [
+    {
+        accessorKey: "displayName",
+        header: "Display Name",
+        cell: EditCell,
+    },
+    {
+        accessorKey: "timestampColumn",
+        header: "Timestamp",
+        cell: (props) => TimestampCell(options, props),
+    },
+    {
+        accessorKey: "eventType",
+        header: "Event Type",
+        cell: (props) => EventTypeCell(options, props),
+    },
+    {
+        accessorKey: "otherAttributes",
+        header: "Other Attributes",
+        cell: (props) => OtherAttributesCell(options, props),
+    },
+    {
+        id: "actions",
+        header: "Actions",
+        cell: (props) => ActionsCell(options, props),
+    },
 ];

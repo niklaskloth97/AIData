@@ -5,22 +5,10 @@ export default function useMockTables() {
     return useQuery({
         queryKey: ["mockTables"],
         queryFn: async () => {
-            console.log("Fetching mock tables");
-            //Wait to simulate network request
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            const response: TableData[] = [
-                {
-                    tableName: "BKPF",
-                    referenceColumn: "ORDERID",
-                    description: "Helps identify the type",
-                },
-                {
-                    tableName: "BKPF",
-                    referenceColumn: "RDERID",
-                    description: "Helps identify the type",
-                },
-            ];
-            return response;
+                console.log("Fetching mock table browser data");
+                const response: TableData = await (await fetch("http://localhost:8000/api/table-browser")).json();
+                console.log("Fetched mock table browser data");
+                return response;
         },
     });
 }

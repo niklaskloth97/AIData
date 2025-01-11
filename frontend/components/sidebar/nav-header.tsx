@@ -24,7 +24,7 @@ const projects = [
 export function NavHeader(){
     return(
         <>
-            <NavLogoHeader />
+            <NavLogoHeader link="/dashboard/start"/>
             <NavProjectsHeader projects={projects}/>
         </>
     )

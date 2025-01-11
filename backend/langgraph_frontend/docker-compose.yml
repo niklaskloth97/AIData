@@ -1,6 +1,8 @@
 volumes:
     langgraph-data:
         driver: local
+    pgadmin-data:
+        driver: local
 services:
     langgraph-redis:
         image: redis:6
@@ -25,6 +27,16 @@ services:
             timeout: 1s
             retries: 5
             interval: 5s
+    pgadmin:
+        image: dpage/pgadmin4
+        ports:
+            - "5050:80"
+        environment:
+            PGADMIN_DEFAULT_EMAIL: admin@admin.com
+            PGADMIN_DEFAULT_PASSWORD: admin
+        volumes:
+            - pgadmin-data:/var/lib/pgadmin
+
     langgraph-api:
         image: ${IMAGE_NAME}
         ports:
@@ -41,3 +53,20 @@ services:
             LANGSMITH_API_KEY: ${LANGCHAIN_API_KEY}
             POSTGRES_URI: postgres://postgres:postgres@langgraph-postgres:5432/postgres?sslmode=disable
             PYTHONPATH: /app/langgraph_frontend
+
+    ###
+    fastapi-service:
+        build:
+            context: ./restapi
+            dockerfile: Dockerfile
+        image: fastapi-service
+        ports:
+            - "8001:8000"
+        depends_on:
+            langgraph-postgres:
+                condition: service_healthy
+        environment:
+            SQLITE_DATABASE_URL: sqlite:///./project_metadata.db
+        volumes:
+            - ./restapi:/app
+
