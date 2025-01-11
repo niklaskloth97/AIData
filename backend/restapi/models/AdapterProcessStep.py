@@ -16,8 +16,8 @@ class AdapterProcessStep(Base):
     tablesInvolved = Column(String)
     projectProcess_id = Column(Integer, ForeignKey("projectProcess.id"))
 
-    process = relationship("ProjectProcess", back_populates="steps")
-    business_objects = relationship("AdapterBusinessObject", back_populates="process_step")
+    # process = relationship("AdapterProjectProcess", back_populates="steps")
+    # business_objects = relationship("AdapterBusinessObject", back_populates="process_step")
 
 class AdapterProcessStepSchema(BaseModel):
     id: int

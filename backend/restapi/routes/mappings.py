@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from restapi.models.Mapping import Mapping, MappingSchema, CreateMappingSchema
+from restapi.models.Mapping import Mapping, MappingSchema, MappingsResponseSchema, CreateMappingSchema
 from typing import List
 from restapi.lib.db import get_db
 
@@ -8,13 +8,20 @@ router = APIRouter(
     prefix="/mappings",
 )
 
-@router.get("/", response_model=List[MappingSchema])
+@router.get("/", response_model=MappingsResponseSchema)
 def get_mappings(db: Session = Depends(get_db)):
     print("Get mappings")
     mappings = db.query(Mapping).all()
     if not mappings:
         raise HTTPException(status_code=404, detail="No mappings found")
-    return mappings
+    
+    options = {
+        'columns': ["column1", "column2", "column3", "column4"],
+        'eventTypes': ["Address_changed", "Payment_received", "Create/Select"],
+        'attributes': ["employee_id", "time_taken", "cost", "department"]
+    }
+    
+    return {"mappings": mappings, "options": options}
 
 
 @router.post("/", response_model=MappingSchema)
@@ -44,4 +51,3 @@ def delete_mapping(mapping_id: int, db: Session = Depends(get_db)):
     db.delete(mapping)
     db.commit()
     return {"message": "Mapping deleted successfully"}
-

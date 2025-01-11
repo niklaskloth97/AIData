@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.ext.declarative import declarative_base
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List
 from restapi.lib.db import Base
 
@@ -20,7 +20,11 @@ class MappingSchema(BaseModel):
     displayName: str
     timestampColumn: str
     eventType: str
-    otherAttributes: List[str]
+    otherAttributes: List[str] = Field(default_factory=list)
+
+class MappingsResponseSchema(BaseModel):
+    mappings: List[MappingSchema]
+    options: dict
 
     class Config:
         from_attributes = True

@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import os
 from dotenv import load_dotenv
-from restapi.routes import mappings, caseIds
+from restapi.routes import mappings, caseIds, process
 from restapi.lib.db import get_db
 from restapi.lib.db import engine
 from restapi.lib.db import Base
@@ -20,7 +20,10 @@ from restapi.lib.db import Base
 load_dotenv()
 
 # Database connection
-DATABASE_URL = os.getenv("SQLITE_DATABASE_URL", "sqlite:///./project_metadata.db")
+RESTAPI_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_PATH = os.path.join(RESTAPI_DIR, "project_metadata.db")
+DATABASE_URL = os.getenv("SQLITE_DATABASE_URL", "sqlite:///{DB_PATH}")
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -37,8 +40,7 @@ root_router = APIRouter(prefix="/api")
 
 root_router.include_router(mappings.router)
 root_router.include_router(caseIds.router)
-
-
+root_router.include_router(process.router)
 
 @app.on_event("startup")
 async def startup():

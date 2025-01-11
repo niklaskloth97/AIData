@@ -15,9 +15,9 @@ class AdapterBusinessObject(Base):
     storage = Column(String)
     changeQuery_SQL = Column(String)
     changeQuery_explanation = Column(String)
-    adapterProcessSteps_id = Column(Integer, ForeignKey("adapterProcessSteps.id"))
+    # adapterProcessSteps_id = Column(Integer, ForeignKey("adapterProcessSteps.id"))
 
-    process_step = relationship("AdapterProcessStep", back_populates="business_objects")
+    # process_step = relationship("AdapterProcessStep", back_populates="business_objects")
 
 class AdapterBusinessObjectSchema(BaseModel):
     id: int
