@@ -98,9 +98,9 @@ export default function Page() {
                       heading="Mapping Editor"
                       subtext="Define your event log structure"
                   />
-                  <div >
+                  <div className="mb-4">
                       <Button variant={"outline"} onClick={addNewColumn}>
-                        <PlusCircle className="mr-2 h-6 w-6" />
+                        <PlusCircle />
                         Add New Column</Button>
                   </div>
                   <SelectNSearchTable 

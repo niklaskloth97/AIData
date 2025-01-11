@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export type TableData = {
-    tableName: string;
-    referenceColumn: string;
-    description: string;
+    projectTables_nativeTableName: string;
+    caseidkey: string;
+    projectTables_description: string;
   };
 
 export const columns: ColumnDef<TableData>[] = [
@@ -44,23 +44,23 @@ export const columns: ColumnDef<TableData>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "tableName",
+    accessorKey: "projectTables_nativeTableName",
     header: "Table Name",
   },
   {
-    accessorKey: "referenceColumn",
+    accessorKey: "caseidkey",
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Reference Column
-        <ArrowUpDown />
+        Reference Collumns
+        <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
   },
   {
-    accessorKey: "description",
+    accessorKey: "projectTables_description",
     header: "Description",
   },
   {
@@ -71,10 +71,10 @@ export const columns: ColumnDef<TableData>[] = [
 
       return (
         <div className="flex items-center space-x-2">
-          <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => alert(`Search action for ${data.tableName}`)}>
+          <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => alert(`Search action for ${data.projectTables_nativeTableName}`)}>
             <Search className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => alert(`Edit action for ${data.tableName}`)}>
+          <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => alert(`Edit action for ${data.projectTables_nativeTableName}`)}>
             <Edit className="h-5 w-5" />
           </Button>
           <DropdownMenu>
@@ -87,7 +87,7 @@ export const columns: ColumnDef<TableData>[] = [
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(data.tableName)}
+                onClick={() => navigator.clipboard.writeText(data.projectTables_nativeTableName)}
               >
                 Copy table name
               </DropdownMenuItem>
