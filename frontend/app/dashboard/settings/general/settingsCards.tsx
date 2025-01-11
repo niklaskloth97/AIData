@@ -15,7 +15,8 @@ export function AIModelSelection() {
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="api-model">API Model</Label>
-          <Select defaultValue="gpt4">
+          {/* Set defaultValue to "chatgpt-4o" */}
+          <Select defaultValue="chatgpt-4o">
             <SelectTrigger>
               <SelectValue placeholder="Select API Model" />
             </SelectTrigger>
