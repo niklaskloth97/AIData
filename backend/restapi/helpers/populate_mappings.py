@@ -1,3 +1,10 @@
+import sys
+import os
+# Dynamically adjust the path for proper imports
+
+# Dynamically add the project root directory to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
 from sqlalchemy.orm import Session
 from restapi.lib.db import engine, Base
 from restapi.models.Mapping import Mapping

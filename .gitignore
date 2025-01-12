@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+backend/restapi/project_metadata.db
 
 # C extensions
 *.stores
@@ -175,3 +176,4 @@ backend/app/scripts/BKPF_1.csv
 backend/app/scripts/bkpf2.html
 backend/app/scripts/bkpf.html
 backend/app/scripts/sap-table-BKPF.csv
+backend/restapi/project_metadata.db
