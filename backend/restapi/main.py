@@ -9,7 +9,7 @@ from restapi.models.AdapterProcessStep import AdapterProcessStepSchema
 from restapi.models.AdapterBusinessObject import AdapterBusinessObjectSchema
 from restapi.routes.projectTables import router as project_table_router
 from restapi.routes.projectTableColumns import column_router
-from restapi.routes.scripts import scripts
+from restapi.routes.scripts import router as scripts
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import os

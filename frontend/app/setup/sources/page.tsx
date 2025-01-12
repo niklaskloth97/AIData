@@ -8,7 +8,7 @@ import FileUploadBox from "./FileUpload";
 import DatabaseSetupBox from "./DatabaseSetup";
 
 function handleProceed() {
-  window.location.href = "/dashboard";
+  window.location.href = "/setup/additional-events";
   }
 
 export default function UploadDatabase() {
@@ -29,7 +29,7 @@ export default function UploadDatabase() {
           <Button variant="default" onClick={handleProceed}>
              
               Proceed to model editor
-          </Button>workbench
+          </Button>
         </div>
       </div>
     </div>

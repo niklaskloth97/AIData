@@ -7,7 +7,7 @@ import ExampleFlow from "./ExampleFlow"; // Adjust this path if necessary
 const Page: React.FC = () => {
   return (
     <>
-      <PageHeader heading="Welcome User!" subtext="This is the subtext." />
+      <PageHeader heading="Welcome Example User!" subtext="Enjoy this simple overview of the User Journey. For more details, visit the Manual." />
       <div className="mt-6" style={{ height: "80vh" }}>
         <ExampleFlow />
       </div>
