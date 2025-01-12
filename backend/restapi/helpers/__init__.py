@@ -1,4 +1,4 @@
-from .populateProcess import populate_process
-from .populateMappings import populate_mappings
+from .populate_projecttables import populate_projecttables
+from .populate_caseIDs import populate_caseids
 
-__all__ = ['populate_process', 'populate_mappings']
+__all__ = ["populate_projecttables", "populate_caseids"]

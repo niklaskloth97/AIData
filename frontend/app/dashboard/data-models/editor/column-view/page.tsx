@@ -7,12 +7,13 @@ import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TableFloatingWindow } from "@/components/TableFloatingWindow";
 import { SelectNSearchTable } from "@/components/SelectNSearchTable";
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from "next/navigation";
 import useTableColumn, { ColumnData } from "@/hooks/api/useTableColumn";
+import { Input } from "@/components/ui/input";
 
 export default function Page() {
-    const searchParams = useSearchParams()
-    const targetTable = searchParams.get('targetTable') ?? "NO QUERY PRESENT";
+    const searchParams = useSearchParams();
+    const targetTable = searchParams.get("targetTable") ?? "NO QUERY PRESENT";
     const router = useRouter();
 
     const { isLoading, data } = useTableColumn(targetTable);
@@ -31,31 +32,40 @@ export default function Page() {
                 heading={`Data Model Editor for ${targetTable} table`}
                 subtext={`Inspect the columns of the ${targetTable} table.`}
             />
-            <SelectNSearchTable 
-                globalFilter={globalFilter}
-                setGlobalFilter={setGlobalFilter}
-                selectButton="Select Table"
-            />
+
             {isLoading ? (
                 <div className="flex items-center justify-center min-h-[200px]">
                     <Loader className="h-8 w-8 animate-spin" />
                 </div>
             ) : (
-                <DataTable 
-                    data={tableData?? []} 
-                    columns={columns}
-                    globalFilter={globalFilter}
-                    setData={setTableData}
-                />
+                <div className="">
+                    <Input
+                        placeholder="Search..."
+                        value={globalFilter ?? ""}
+                        onChange={(e) => setGlobalFilter(e.target.value)}
+                        className="max-w-sm"
+                    />
+                    <div className="m-4"></div>
+                    <DataTable
+                        data={tableData ?? []}
+                        columns={columns}
+                        globalFilter={globalFilter}
+                        setData={setTableData}
+                    />
+                </div>
             )}
 
             <div className="mt-6 flex justify-between">
                 <Button variant="secondary" onClick={() => router.back()}>
-                    Back
+                    Back to Data Model
                 </Button>
-                <Button variant="default" disabled={true} onClick={() => setFloatingWindowOpen(true)}>
+                {/* <Button
+                    variant="default"
+                    disabled={true}
+                    onClick={() => setFloatingWindowOpen(true)}
+                >
                     Continue
-                </Button>
+                </Button> */}
             </div>
 
             <TableFloatingWindow

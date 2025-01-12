@@ -7,6 +7,9 @@ from restapi.models.ProjectTable import ProjectTableSchema
 from restapi.models.ProjectProcess import ProjectProcessSchema 
 from restapi.models.AdapterProcessStep import AdapterProcessStepSchema 
 from restapi.models.AdapterBusinessObject import AdapterBusinessObjectSchema
+from restapi.routes.projectTables import router as project_table_router
+from restapi.routes.projectTableColumns import column_router
+from restapi.routes.scripts import scripts
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import os
@@ -41,6 +44,11 @@ root_router = APIRouter(prefix="/api")
 root_router.include_router(mappings.router)
 root_router.include_router(caseIds.router)
 root_router.include_router(process.router)
+# Include the ProjectTable and ProjectTableColumn routers
+root_router.include_router(project_table_router, prefix="/v1", tags=["Project Tables"])
+root_router.include_router(column_router, prefix="/v1", tags=["Project Table Columns"])
+root_router.include_router(scripts, prefix="/v1", tags=["Populate Database"])
+
 
 @app.on_event("startup")
 async def startup():

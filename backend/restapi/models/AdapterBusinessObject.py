@@ -8,7 +8,6 @@ from restapi.lib.db import Base
 
 class AdapterBusinessObject(Base):
     __tablename__ = "adapterBusinessObjects"
-
     id = Column(Integer, primary_key=True)
     name = Column(String)
     description = Column(String)
@@ -16,7 +15,6 @@ class AdapterBusinessObject(Base):
     changeQuery_SQL = Column(String)
     changeQuery_explanation = Column(String)
     # adapterProcessSteps_id = Column(Integer, ForeignKey("adapterProcessSteps.id"))
-
     # process_step = relationship("AdapterProcessStep", back_populates="business_objects")
 
 class AdapterBusinessObjectSchema(BaseModel):
