@@ -65,7 +65,11 @@ def rewrite(state):
     # Grader
     model = ChatOpenAI(temperature=0, model="gpt-4o", streaming=True)
     response = model.invoke(msg)
-    return {"messages": [response]}
+    try:
+        count = state["count"][-1]
+    except KeyError:
+        count = 0
+    return {"messages": [response], "count": [count+1]}
 
 
 def generate(state):

@@ -110,8 +110,14 @@ def grade_documents(state) -> Literal["generate", "rewrite"]:
 
     # Extract the score
     score = scored_result.binary_score
-
+    try:
+        count = state["count"][-1]
+        print(count)
+    except KeyError:
+        count = 0
     # Decision based on relevance
+    if count >= 3:
+        return "generate"
     if score == "yes":
         print("---DECISION: DOCS RELEVANT---")
         return "generate"
