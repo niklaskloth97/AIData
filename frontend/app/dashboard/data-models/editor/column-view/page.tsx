@@ -3,16 +3,20 @@ import { useEffect, useState } from "react";
 import { DataTable } from "@/components/DataTable";
 import { columns } from "./columns";
 import PageHeader from "@/components/PageHeader";
-import useMockTables, { TableData } from "@/hooks/api/useTables";
 import { Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TableFloatingWindow } from "@/components/TableFloatingWindow";
 import { SelectNSearchTable } from "@/components/SelectNSearchTable";
+import { useRouter, useSearchParams } from 'next/navigation'
+import useTableColumn, { ColumnData } from "@/hooks/api/useTableColumn";
 
 export default function Page() {
-    const { isLoading, data } = useMockTables();
-    const [tableData, setTableData] = useState<TableData[]>([]);
-    
+    const searchParams = useSearchParams()
+    const targetTable = searchParams.get('targetTable') ?? "NO QUERY PRESENT";
+    const router = useRouter();
+
+    const { isLoading, data } = useTableColumn(targetTable);
+    const [tableData, setTableData] = useState<ColumnData[]>([]);
     const [floatingWindowOpen, setFloatingWindowOpen] = useState(false);
     const [globalFilter, setGlobalFilter] = useState("");
 
@@ -24,8 +28,8 @@ export default function Page() {
     return (
         <>
             <PageHeader
-                heading="Data Model Editor"
-                subtext="View which data are used in the system."
+                heading={`Data Model Editor for ${targetTable} table`}
+                subtext={`Inspect the columns of the ${targetTable} table.`}
             />
             <SelectNSearchTable 
                 globalFilter={globalFilter}
@@ -38,15 +42,18 @@ export default function Page() {
                 </div>
             ) : (
                 <DataTable 
-                    data={tableData ?? []} 
+                    data={tableData?? []} 
                     columns={columns}
                     globalFilter={globalFilter}
                     setData={setTableData}
                 />
             )}
 
-            <div className="mt-6 flex w-full justify-end">
-                <Button className="" variant="default" disabled={true} onClick={() => setFloatingWindowOpen(true)}>
+            <div className="mt-6 flex justify-between">
+                <Button variant="secondary" onClick={() => router.back()}>
+                    Back
+                </Button>
+                <Button variant="default" disabled={true} onClick={() => setFloatingWindowOpen(true)}>
                     Continue
                 </Button>
             </div>

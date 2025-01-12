@@ -5,6 +5,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useRouter } from "next/navigation";
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import SortableTableHeader from "@/components/sortableTableHeader";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export type InstanceData = {
   id: string;
@@ -46,19 +48,43 @@ const DeleteConfirmDialog = ({ isOpen, onClose, onConfirm }: {
   </Dialog>
 );
 
+
 export const columns = (options: ColumnOptions): ColumnDef<InstanceData>[] => [
   {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     accessorKey: "id",
-    header: "Instance ID",
+    header: ({column}) => SortableTableHeader({column, text: "Instance ID"}), 
+  },
+  {
+    accessorKey: "status",
+    header: ({column}) => SortableTableHeader({column, text: "Status"}), 
+    cell: ({ row }) => (
+      <div className={row.getValue("status") === "active" ? "text-green-600" : "text-red-600"}>
+        {row.getValue("status")}
+      </div>
+    ),
   },
   {
     accessorKey: "createdAt",
-    header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-        Created At
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
+    header: ({column}) => SortableTableHeader({column, text: "Created At"}), 
     cell: ({ row }) => new Date(row.getValue("createdAt")).toLocaleString(),
   },
   {
@@ -81,17 +107,9 @@ export const columns = (options: ColumnOptions): ColumnDef<InstanceData>[] => [
   },
   {
     accessorKey: "rowCount",
-    header: "Rows",
+    header: ({column}) => SortableTableHeader({column, text: "Rows"}), 
   },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <div className={row.getValue("status") === "active" ? "text-green-600" : "text-red-600"}>
-        {row.getValue("status")}
-      </div>
-    ),
-  },
+  
   {
     accessorKey: "description",
     header: "Description",
