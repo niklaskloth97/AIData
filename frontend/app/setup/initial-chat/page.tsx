@@ -129,7 +129,7 @@ export default function Page() {
 
     function proceedStep() {
         console.log("next step");
-        router.push("/dashboard/start");
+        router.push("/setup/sources");
     }
 
     return (
