@@ -180,7 +180,7 @@ export default function Page() {
                                 </Button>
                             )}
                         </div>
-                        <Button
+                        {/* <Button
                             variant={"outline"}
                             onClick={() => console.log(businessObjects)}
                         >
@@ -197,7 +197,7 @@ export default function Page() {
                             onClick={() => console.log(selectedRows)}
                         >
                             Print rowSelect
-                        </Button>
+                        </Button> */}
                     </div>
                 </div>
             </main>
