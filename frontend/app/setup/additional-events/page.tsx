@@ -79,7 +79,7 @@ export default function Page() {
             steps: [
                 ...processData.steps,
                 ...Object.keys(selectedRows).map((rowId) => ({
-                    id: allData[rowId].id,
+                    id: allData[rowId].id + 1000,
                     name: allData[rowId].change_event_name,
                     description: allData[rowId].description,
                     projectProcess_id: processData.id,

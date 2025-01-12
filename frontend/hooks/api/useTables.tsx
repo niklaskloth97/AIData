@@ -76,8 +76,8 @@ export default function useTables() {
         queryKey: ["mockTables"],
         queryFn: async () => {
                 console.log("Fetching mock table browser data");
-                // const response: TableData[] = await (await fetch("http://localhost:8000/api/table-browser")).json();
-                const response = mockData;
+                const response: TableData[] = await (await fetch("http://localhost:8000/api/project-tables")).json();
+                //const response = mockData;
                 console.log("Fetched mock table browser data");
                 return response;
         },

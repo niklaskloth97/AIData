@@ -65,11 +65,11 @@ const mockdata: ColumnData[] = [{
 
 export default function useTableColumn(columnId: string) {
     return useQuery({
-        queryKey: ["tablesColumn"],
-        queryFn: async (columnId) => {
-                console.log("Fetching table column data");
-                // const response: ColumnData = await (await fetch(`http://localhost:8000/api/column/${columnId}`)).json();
-                const response: ColumnData[] = mockdata
+        queryKey: ["tablesColumn", columnId],
+        queryFn: async () => {
+                console.log("Fetching table column data"+ columnId);
+                const response: ColumnData = await (await fetch(`http://localhost:8000/api/project-table-columns/${columnId}`)).json();
+                //const response: ColumnData[] = mockdata
                 return response;
         },
     });
