@@ -62,6 +62,7 @@ export default function ChatSidebar() {
         async function setup() {
             const thread = await createThread();
             setThreadId(thread.thread_id);
+            addMessageToDisplay({ role: "ai", message: "Ask me any question and I will answer with the help of my knowledge base" });
         }
         setup();
     }, []);
@@ -70,6 +71,7 @@ export default function ChatSidebar() {
         setMessages([]);
         setThreadId((await createThread()).thread_id);
         setInput("");
+        addMessageToDisplay({ role: "ai", message: "Ask me any question and I will answer with the help of my knowledge base" });
     }
 
     function addMessageToDisplay(message: Message) {

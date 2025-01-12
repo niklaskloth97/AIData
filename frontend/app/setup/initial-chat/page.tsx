@@ -61,6 +61,8 @@ export default function Page() {
         async function setup() {
             const thread = await createThread();
             setThreadId(thread.thread_id);
+            setMessages([]);
+            addMessageToDisplay({ role: "ai", message: "Describe the target process and I will guide you towards your desired model" });
         }
         setup();
     }, []);
@@ -69,6 +71,7 @@ export default function Page() {
         setMessages([]);
         setThreadId((await createThread()).thread_id);
         setInput("");
+        addMessageToDisplay({ role: "ai", message: "Describe the target process and I will guide you towards your desired model" });
         setProcessDetected(false);
     }
 
