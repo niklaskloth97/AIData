@@ -18,7 +18,7 @@ class AdditionalEvent(Base):
     id = Column(Integer, primary_key=True)
     business_object = Column(String)
     change_event_name = Column(String)
-    change_event_count = Column(int)
+    change_event_count = Column(Integer)
     description = Column(String)
     tablesInvolved = Column(String)
     
