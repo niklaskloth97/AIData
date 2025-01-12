@@ -10,6 +10,7 @@ import {
     RowData,
     SortingState,
     useReactTable,
+    VisibilityState,
 } from "@tanstack/react-table";
 
 import {
@@ -23,6 +24,7 @@ import {
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import React from "react";
+import { ColumnFiltersState, VisibilityTableState } from "@tanstack/react-table";
 
 declare module "@tanstack/react-table" {
     interface TableMeta<TData extends RowData> {
@@ -41,7 +43,11 @@ interface DataTableProps<TData> {
     columns: ColumnDef<TData>[];
     data: TData[];
     setData?: React.Dispatch<React.SetStateAction<TData[]>>;
+    myRowSelection?;
+    mySetRowSelection?;
     globalFilter?: string;
+    columnFilters?: ColumnFiltersState;
+    columnVisibility?: VisibilityState;
     onSelectionChange?: (rows: TData[]) => void;
     autoResetPageIndex?: boolean;
     skipAutoResetPageIndex?: () => void;
@@ -69,15 +75,21 @@ export function DataTable<TData>({
     columns,
     data,
     setData,
+    myRowSelection,
+    mySetRowSelection,
     globalFilter,
+    columnFilters,
+    columnVisibility,
     onSelectionChange,
     autoResetPageIndex,
     skipAutoResetPageIndex,
 }: DataTableProps<TData>) {
-    const [rowSelection, setRowSelection] = useState({});
     const [sorting, setSorting] = useState<SortingState>([]);
     const [editedRows, setEditedRows] = useState({});
-
+    const [rowSelectDummy, setRowSelectDummy] = useState([]);
+    const rowSelection = myRowSelection ?? rowSelectDummy;
+    const setRowSelection = mySetRowSelection ?? setRowSelectDummy;
+    
     const table = useReactTable({
         data,
         columns,
@@ -89,9 +101,11 @@ export function DataTable<TData>({
         onRowSelectionChange: setRowSelection,
         onSortingChange: setSorting,
         state: {
+            columnFilters,
             sorting,
             globalFilter,
             rowSelection,
+            columnVisibility
         },
         autoResetPageIndex,
         meta: {
@@ -199,10 +213,15 @@ export function DataTable<TData>({
             </div>
 
             <div className="flex items-center justify-end space-x-2 py-4">
+                {rowSelection ? (
                 <div className="flex-1 text-sm text-muted-foreground">
                     {table.getFilteredSelectedRowModel().rows.length} of{" "}
                     {table.getFilteredRowModel().rows.length} row(s) selected.
-                </div>
+                </div>) : (
+
+                    <div></div>
+                )
+            }
                 <div className="space-x-2">
                     <Button
                         variant="outline"
