@@ -6,6 +6,7 @@ import {
     ChevronsUpDown,
     CreditCard,
     LogOut,
+    Play,
     Sparkles,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -24,6 +25,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import Link from "next/link";
+
 
 const user = {
     name: "Example User",
@@ -99,8 +102,8 @@ export function NavFooter() {
                                 Account
                             </DropdownMenuItem>
                             <DropdownMenuItem>
-                                <CreditCard />
-                                Billing
+                                <Play />
+                                    <Link href="/setup/adapter-selection">Start Demo</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                                 <Bell />
