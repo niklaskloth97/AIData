@@ -26,29 +26,36 @@ export function DatabaseForm({ initialData, onSave }: DatabaseFormProps) {
     onSave(data.id, data);
   };
 
+  const handleChange = (field: keyof DatabaseFormData, value: string) => {
+    setData(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <div className="space-y-4">
       <div>
         <Label>Display Name</Label>
         <Input
           value={data.displayName}
-          onChange={(e) => setData({ ...data, displayName: e.target.value })}
+          onChange={(e) => handleChange('displayName', e.target.value)}
           onBlur={handleBlur}
         />
       </div>
       <div>
         <Label>Database Type</Label>
-        <Select value={data.type} onValueChange={(value) => {
-          setData({ ...data, type: value });
-          handleBlur();
-        }}>
+        <Select 
+          value={data.type} 
+          onValueChange={(value) => {
+            handleChange('type', value);
+            handleBlur();
+          }}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select type" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="postgres">PostgreSQL</SelectItem>
-            <SelectItem value="mysql">MySQL</SelectItem>
-            <SelectItem value="mssql">SQL Server</SelectItem>
+            <SelectItem value="sapsql">SAP-SQL-Server</SelectItem>
+            <SelectItem value="mssql">Microsoft SQL Server</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -57,7 +64,7 @@ export function DatabaseForm({ initialData, onSave }: DatabaseFormProps) {
           <Label>Username</Label>
           <Input
             value={data.username}
-            onChange={(e) => setData({ ...data, username: e.target.value })}
+            onChange={(e) => handleChange('username', e.target.value)}
             onBlur={handleBlur}
           />
         </div>
@@ -66,7 +73,7 @@ export function DatabaseForm({ initialData, onSave }: DatabaseFormProps) {
           <Input
             type="password"
             value={data.password}
-            onChange={(e) => setData({ ...data, password: e.target.value })}
+            onChange={(e) => handleChange('password', e.target.value)}
             onBlur={handleBlur}
           />
         </div>
@@ -75,7 +82,7 @@ export function DatabaseForm({ initialData, onSave }: DatabaseFormProps) {
         <Label>Hostname</Label>
         <Input
           value={data.hostname}
-          onChange={(e) => setData({ ...data, hostname: e.target.value })}
+          onChange={(e) => handleChange('hostname', e.target.value)}
           onBlur={handleBlur}
         />
       </div>
@@ -84,7 +91,7 @@ export function DatabaseForm({ initialData, onSave }: DatabaseFormProps) {
           <Label>Port</Label>
           <Input
             value={data.port}
-            onChange={(e) => setData({ ...data, port: e.target.value })}
+            onChange={(e) => handleChange('port', e.target.value)}
             onBlur={handleBlur}
           />
         </div>
@@ -92,7 +99,7 @@ export function DatabaseForm({ initialData, onSave }: DatabaseFormProps) {
           <Label>Database Name</Label>
           <Input
             value={data.name}
-            onChange={(e) => setData({ ...data, name: e.target.value })}
+            onChange={(e) => handleChange('name', e.target.value)}
             onBlur={handleBlur}
           />
         </div>
