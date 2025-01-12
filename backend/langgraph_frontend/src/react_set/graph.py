@@ -5,7 +5,7 @@ from typing_extensions import TypedDict
 from langchain_core.messages import BaseMessage
 from langgraph.graph import END, StateGraph, START
 from src.react_set.nodes import adjust_process, agent, human_feedback
-from src.react_set.tools import process_detected
+from src.react_set.tools import process_detected, feedback_determine
 from langgraph.types import interrupt
 
 class AgentState(TypedDict):
@@ -15,7 +15,8 @@ class AgentState(TypedDict):
     agenttask: str
     detected_process: str
     steps: list[str, operator.add]
-    user_feedback: str
+    feedback: str
+    confirmable: bool
 
 # Define a new graph
 graph = StateGraph(AgentState)
@@ -24,9 +25,10 @@ graph.add_node("agent", agent)
 graph.add_node("adjust_process", adjust_process)
 graph.add_node("process_detected", process_detected)
 graph.add_node("human_feedback", human_feedback)
+graph.add_node("feedback_determine", feedback_determine)
 # Add edges
 graph.add_edge(START, "process_detected")
-graph.add_edge("human_feedback", "adjust_process")
+graph.add_edge("human_feedback", "feedback_determine")
 graph.add_edge("adjust_process", END)
 
 
