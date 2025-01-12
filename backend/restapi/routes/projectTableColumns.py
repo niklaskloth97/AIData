@@ -6,19 +6,26 @@ from typing import List
 from restapi.lib.db import get_db
 
 # Router for ProjectTableColumn
-column_router = APIRouter(
+router = APIRouter(
     prefix="/project-table-columns",
 )
 
-@column_router.get("/", response_model=List[ProjectTableColumnSchema])
+@router.get("/", response_model=List[ProjectTableColumnSchema])
 def get_project_table_columns(db: Session = Depends(get_db)):
     project_table_columns = db.query(ProjectTableColumn).all()
     if not project_table_columns:
         raise HTTPException(status_code=404, detail="No project table columns found")
     return project_table_columns
 
+@router.get("/{column_id}", response_model=ProjectTableColumnSchema)
+def get_project_table_column(column_id: int, db: Session = Depends(get_db)):
+    project_table_column = db.query(ProjectTableColumn).filter_by(id=column_id).first()
+    if not project_table_column:
+        raise HTTPException(status_code=404, detail="Project table column not found")
+    return project_table_column
 
-@column_router.post("/", response_model=ProjectTableColumnSchema)
+
+@router.post("/", response_model=ProjectTableColumnSchema)
 def create_project_table_column(project_table_column: ProjectTableColumnSchema, db: Session = Depends(get_db)):
     new_project_table_column = ProjectTableColumn(
         nativeColumnName=project_table_column.nativeColumnName,
@@ -38,14 +45,14 @@ def create_project_table_column(project_table_column: ProjectTableColumnSchema, 
     return new_project_table_column
 
 
-@column_router.delete("/", response_model=dict)
+@router.delete("/", response_model=dict)
 def delete_all_project_table_columns(db: Session = Depends(get_db)):
     db.query(ProjectTableColumn).delete()
     db.commit()
     return {"message": "All project table columns deleted successfully"}
 
 
-@column_router.delete("/{column_id}", response_model=dict)
+@router.delete("/{column_id}", response_model=dict)
 def delete_project_table_column(column_id: int, db: Session = Depends(get_db)):
     project_table_column = db.query(ProjectTableColumn).filter_by(id=column_id).first()
     if not project_table_column:

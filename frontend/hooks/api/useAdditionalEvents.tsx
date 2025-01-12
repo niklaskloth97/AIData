@@ -9,7 +9,7 @@ export interface AdditionalEvent {
     tablesInvolved: string;
     business_object: string;
 }
-
+/*
 const mockData: AdditionalEvent[] = [
     {
         business_object: "Business Object 1",
@@ -44,14 +44,14 @@ const mockData: AdditionalEvent[] = [
         tablesInvolved: "ESG",
     },
 ];
-
+*/
 export default function useAdditionalEvents() {
     return useQuery({
         queryKey: ["additionalEvents"],
         queryFn: async () => {
             console.log("Fetching additional events data");
-            // const response: TableData[] = await (await fetch("http://localhost:8000/api/table-browser")).json();
-            const response = mockData;
+            const response: AdditionalEvent[] = await (await fetch("http://localhost:8000/api/additional-events")).json();
+            //const response = mockData;
             console.log("Fetched additional events data");
             return response;
         },
