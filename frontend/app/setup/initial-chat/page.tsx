@@ -6,7 +6,7 @@ import { MyAssistant } from "@/components/MyAssistant";
 import ChatSidebar from "@/components/chat-sidebar/ChatSidebar";
 import InitialChatWindow from "@/components/initialChatWindow";
 import { useEffect, useState } from "react";
-import { createThread, sendMessage } from "@/lib/langgraphSDK";
+import { createThread, invokeHumanMessage, sendMessage} from "@/lib/langgraphSDK";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/PageHeader";
 import { useRouter } from "next/navigation";
@@ -39,9 +39,12 @@ export interface Message {
 export default function Page() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [threadId, setThreadId] = useState("");
+    const [runId, setRunId] = useState("");
     const [aiLoading, setAILoading] = useState(false);
     const [input, setInput] = useState("");
     const [proceedDisabled, setProceedDisabled] = useState(false);
+    const [processDetected, setProcessDetected] = useState(false);
+    
     const router = useRouter();
 
     // This enables the scroll down when messages are added
@@ -66,6 +69,7 @@ export default function Page() {
         setMessages([]);
         setThreadId((await createThread()).thread_id);
         setInput("");
+        setProcessDetected(false);
     }
 
     function addMessageToDisplay(message: Message) {
@@ -84,17 +88,34 @@ export default function Page() {
             setAILoading(true);
             let answer = "";
             try {
-                const response = await sendMessage({
-                    threadId,
-                    assistantId: "agent",
-                    message: { type: "human", content: humanWords },
-                    currentPage: window.location.href,
-                });
-                for await (const chunk of response) {
-                    if (chunk.event === "messages") {
-                        answer = answer.concat(chunk.data[0].content);
-                    }
+                let response;
+                if (processDetected) {
+                    response = await invokeHumanMessage({
+                        threadId,
+                        assistantId: "setup",
+                        message: {type: "human", content: humanWords },
+                        currentPage: window.location.href,
+                    });
                 }
+                else {
+                    response = await sendMessage({
+                        threadId,
+                        assistantId: "setup",
+                        message: { type: "human", content: humanWords },
+                        currentPage: window.location.href,
+                    });
+                }
+                // Access the messages array
+                console.log(response);
+                const messages = response["messages"];
+                if (response["detected_process"] != null){
+                    setProcessDetected(true);
+                    console.log("Process detected");
+                }
+                // Safely get the content of the last message
+                // (assuming messages always has at least one element)
+                const lastMessageContent = messages[messages.length - 1].content;
+                answer = answer.concat(lastMessageContent);
             } catch (e) {
                 console.log("Error sending message", e);
                 answer =

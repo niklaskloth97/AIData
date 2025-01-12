@@ -4,6 +4,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.graph import StateGraph, START, END
 from langchain.prompts import PromptTemplate
 from langgraph.types import Command, interrupt
+from src.react_set.tools import drop_process_steps_llm
 
 # Define the nodes for the graph
 def agent(state):
@@ -13,6 +14,7 @@ def agent(state):
     print("---AGENT NODE---")
     messages = state["messages"]
     task = state["agenttask"]
+        
     print(f"Task: {task}")
     
     if task == "p2p":
@@ -89,33 +91,60 @@ def agent(state):
 def human_feedback(state):
     print("---human_feedback---")
     feedback = interrupt("Please provide feedback:")
-    return {"user_feedback": feedback}
+    return {"feedback": feedback}
 
 
 def adjust_process(state):
     """
-    Adjusts the process based on user input and confirms changes.
+    Adjusts the process based on user input (from state["human_feedback"]).
     """
     print("---ADJUST PROCESS---")
-    detected_process = state.get("detected_process")
+    detected_process = state["detected_process"]
     if not detected_process:
+        # No process was identified previously
         return {"messages": state["messages"], "error": "No process detected yet."}
 
-    # Provide process steps and allow user to drop steps
+    # The known steps for each process
     process_steps = {
         "Order to Cash": [
-            "Create Sales Order (SO)", "Approve Sales Order (SO)", "Delivery Creation",
-            "Goods Issue (GI)", "Billing Document Creation", "Receive Payment"
+            "Create Sales Order (SO)",
+            "Approve Sales Order (SO)",
+            "Delivery Creation",
+            "Goods Issue (GI)",
+            "Billing Document Creation",
+            "Receive Payment"
         ],
         "Procure to Pay": [
-            "Create Purchase Requisition (PR)", "Approve Purchase Requisition (PR)",
-            "Create Purchase Order (PO)", "Approve Purchase Order (PO)", "Goods Receipt (GR)",
-            "Create Invoice", "Verify Invoice", "Clear Invoice", "Payment"
+            "Create Purchase Requisition (PR)",
+            "Approve Purchase Requisition (PR)",
+            "Create Purchase Order (PO)",
+            "Approve Purchase Order (PO)",
+            "Goods Receipt (GR)",
+            "Create Invoice",
+            "Verify Invoice",
+            "Clear Invoice",
+            "Payment"
         ]
     }
+
     steps = process_steps.get(detected_process, [])
+    human_feedback_text = state["messages"][-1].content
+    print(human_feedback_text)
     messages = state["messages"]
-    response = f"The steps for the '{detected_process}' process are:\n" + "\n".join(f"{i+1}. {step}" for i, step in enumerate(steps))
-    response += "\nWould you like to drop any steps? Please specify step numbers."
-    messages.append({"role": "assistant", "content": response})
-    return {"messages": messages, "steps": steps}
+
+    # ---- (2) Use the LLM to remove steps based on feedback: ----
+    # If the user actually typed something in `human_feedback_text` indicating which steps to remove:
+    if human_feedback_text.strip():
+        adjusted_steps = drop_process_steps_llm(steps, human_feedback_text)
+
+        # ---- (3) Display the newly adjusted steps: ----
+        new_steps_msg = (
+            "Here are your updated steps:\n"
+            + "\n".join(f"{i+1}. {step}" for i, step in enumerate(adjusted_steps))
+            +". Do you want to make any further adjustments? If not click on \"Process to next step\" button."
+        )
+        messages.append({"role": "assistant", "content": new_steps_msg})
+
+        # Optionally store the new steps in `state`
+
+    return {"messages": messages, "steps": adjusted_steps, "confirmable": True}
