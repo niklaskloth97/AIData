@@ -31,6 +31,9 @@ declare module "@tanstack/react-table" {
             columnId: string,
             value: unknown
         ) => void;
+        editedRows: {};
+        setEditedRows: React.Dispatch<React.SetStateAction<{}>>;
+        toggleAIGenerated: (fieldName: string, rowIndex: number) => void;
     }
 }
 
@@ -73,6 +76,7 @@ export function DataTable<TData>({
 }: DataTableProps<TData>) {
     const [rowSelection, setRowSelection] = useState({});
     const [sorting, setSorting] = useState<SortingState>([]);
+    const [editedRows, setEditedRows] = useState({});
 
     const table = useReactTable({
         data,
@@ -107,6 +111,24 @@ export function DataTable<TData>({
                         })
                     );
             },
+            toggleAIGenerated: (fieldName, rowIndex) => {
+                skipAutoResetPageIndex?.();
+                if (setData)
+                    setData((old) =>
+                        old.map((row, index) => {
+                            if (index === rowIndex) {
+                                return {
+                                    ...old[rowIndex]!,
+                                    [fieldName]: false,
+                                };
+                            }
+                            return row;
+                        })
+                    );
+                    console.log(data)
+            },
+            editedRows,
+            setEditedRows,
         },
     });
 
