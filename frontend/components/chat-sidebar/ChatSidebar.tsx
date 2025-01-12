@@ -95,11 +95,9 @@ export default function ChatSidebar() {
                     currentPage: window.location.href,
                 });
                 console.log("hiii")
-                for await (const chunk of response) {
-                    if (chunk.event === "messages") {
-                        answer = answer.concat(chunk.data[0].content);
-                    }
-                }
+                const messages = response["messages"];
+                const lastMessageContent = messages[messages.length - 1].content;
+                answer = answer.concat(lastMessageContent);
             } catch(e) {
                 console.log("Error sending message", e);
                 answer = "Sorry, I'm having trouble connecting to the server. Please try again later.";
