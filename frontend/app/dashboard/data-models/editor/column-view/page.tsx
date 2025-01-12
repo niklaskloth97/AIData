@@ -14,23 +14,25 @@ import { Input } from "@/components/ui/input";
 export default function Page() {
     const searchParams = useSearchParams();
     const targetTable = searchParams.get("targetTable") ?? "NO QUERY PRESENT";
+    const targetTableName = searchParams.get("targetTableName") ?? "NO QUERY PRESENT";
     const router = useRouter();
 
     const { isLoading, data } = useTableColumn(targetTable);
-    const [tableData, setTableData] = useState<ColumnData[]>([]);
+    const [columnData, setColumnData] = useState<ColumnData[]>([]);
     const [floatingWindowOpen, setFloatingWindowOpen] = useState(false);
     const [globalFilter, setGlobalFilter] = useState("");
 
     // Load initial data
     useEffect(() => {
-        setTableData(data ?? []);
+        setColumnData(data ?? []);
+        console.log(data);
     }, [data]);
 
     return (
         <>
             <PageHeader
-                heading={`Data Model Editor for ${targetTable} table`}
-                subtext={`Inspect the columns of the ${targetTable} table.`}
+                heading={`Data Model Editor for ${targetTableName} table`}
+                subtext={`Inspect the columns of the ${targetTableName} table.`}
             />
 
             {isLoading ? (
@@ -47,10 +49,10 @@ export default function Page() {
                     />
                     <div className="m-4"></div>
                     <DataTable
-                        data={tableData ?? []}
+                        data={columnData ?? []}
                         columns={columns}
                         globalFilter={globalFilter}
-                        setData={setTableData}
+                        setData={setColumnData}
                     />
                 </div>
             )}

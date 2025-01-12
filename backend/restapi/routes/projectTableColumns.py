@@ -17,9 +17,9 @@ def get_project_table_columns(db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No project table columns found")
     return project_table_columns
 
-@router.get("/{column_id}", response_model=ProjectTableColumnSchema)
-def get_project_table_column(column_id: int, db: Session = Depends(get_db)):
-    project_table_column = db.query(ProjectTableColumn).filter_by(id=column_id).first()
+@router.get("/{table_id}", response_model=List[ProjectTableColumnSchema])
+def get_project_table_column(table_id: int, db: Session = Depends(get_db)):
+    project_table_column = db.query(ProjectTableColumn).filter_by(projectTables_id=table_id).all()
     if not project_table_column:
         raise HTTPException(status_code=404, detail="Project table column not found")
     return project_table_column

@@ -68,8 +68,8 @@ export default function useTableColumn(columnId: string) {
         queryKey: ["tablesColumn", columnId],
         queryFn: async () => {
                 console.log("Fetching table column data"+ columnId);
-                const response: ColumnData = await (await fetch(`http://localhost:8000/api/project-table-columns/${columnId}`)).json();
-                //const response: ColumnData[] = mockdata
+                const response: ColumnData[] = await (await fetch(`http://localhost:8000/api/project-table-columns/${columnId}`)).json();
+                // const response: ColumnData[] = mockdata
                 return response;
         },
     });

@@ -144,7 +144,7 @@ export const columns: ColumnDef<TableData>[] = [
                         className="h-8 w-8 p-0"
                         onClick={() =>
                             router.push(
-                                `/dashboard/data-models/editor/column-view?targetTable=${data.id.toString()}`
+                                `/dashboard/data-models/editor/column-view?targetTable=${data.id.toString()}&targetTableName=${data.table_name}`
                             )
                         }
                     >
