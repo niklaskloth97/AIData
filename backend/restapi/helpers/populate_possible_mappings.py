@@ -20,6 +20,7 @@ from restapi.lib.db import engine, Base
 from restapi.models.AdditionalEvent import AdditionalEvent
 from restapi.models.PossibleMapping import PossibleMapping
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
 
 def get_columns_for_table(table_name, pg_engine, schema=None):
@@ -36,10 +37,21 @@ def get_columns_for_table(table_name, pg_engine, schema=None):
     reflected_table = Table(table_name, metadata, autoload_with=pg_engine, schema=schema)
     return [col.name for col in reflected_table.columns]
 
-
 def create_tables():
-    """Create all tables (including `possible_mappings`) if not yet created."""
-    Base.metadata.create_all(bind=engine)
+    """Create all tables (including `possible_mappings`) if not yet created.
+       If the `PossibleMapping` table exists, drop and recreate it."""
+    try:
+        # Check if the PossibleMapping table exists
+        PossibleMapping.__table__.drop(engine)  # Drop the PossibleMapping table if it exists
+
+        # Recreate the table
+        PossibleMapping.__table__.create(engine)
+
+        # Create any other tables that haven't been created yet
+        Base.metadata.create_all(bind=engine)
+        print("Tables created successfully!")
+    except SQLAlchemyError as e:
+        print(f"An error occurred: {e}")
 
 
 def populate_possible_mappings():
@@ -54,6 +66,7 @@ def populate_possible_mappings():
     create_tables()  # ensure table is created
 
     with Session(engine) as session:
+        # delete table PossibleMapping
         # Get all AdditionalEvent records
         additional_events = session.query(AdditionalEvent).all()
 
@@ -95,9 +108,10 @@ def populate_possible_mappings():
             mapping = PossibleMapping(
                 displayName=display_name,
                 # Example: set a default timestamp column (or leave it null if you want)
-                timestampColumn="CDHDR.UDATE + CDHDR.UTIME",
+                timestampColumn="CDHDR.UDATE",
                 eventType=event.change_event_name,
-                possibleAttributes=all_columns
+                possibleAttributes=all_columns,
+                involvedTable=table_list[0]
             )
 
             session.add(mapping)
