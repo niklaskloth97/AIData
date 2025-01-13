@@ -13,14 +13,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CaseIdData } from "@/hooks/api/useCaseIDTables";
 
-export type TableData = {
-    projectTables_nativeTableName: string;
-    caseidkey: string;
-    projectTables_description: string;
-  };
-
-export const columns: ColumnDef<TableData>[] = [
+export const columns: ColumnDef<CaseIdData, any>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -48,7 +43,7 @@ export const columns: ColumnDef<TableData>[] = [
     header: "Table Name",
   },
   {
-    accessorKey: "caseidkey",
+    accessorKey: "referenceColumns",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -58,6 +53,7 @@ export const columns: ColumnDef<TableData>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
+    cell: (props) => { return(<div className="break-words"> {props.getValue().map((i)=> {return ` ${i}`})} </div>) }
   },
   {
     accessorKey: "projectTables_description",

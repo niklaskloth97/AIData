@@ -13,10 +13,12 @@ import { Loader, Plus, PlusCircle, Printer, Save, ArrowRight } from "lucide-reac
 import { Step, ProcessData } from "@/hooks/api/useProcessModel";
 import useProcessModelMutation from "@/hooks/api/useProcessModelMutation";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 const ProcessModelContent = () => {
     const { data, isLoading } = useProcessModel();
     const updateProcess = useProcessModelMutation();
+    const router = useRouter()
     const defaultProcess: ProcessData = {
         id: 0,
         steps: [],
@@ -121,17 +123,19 @@ const ProcessModelContent = () => {
                     <div>
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="font-semibold">Process Steps</h2>
-                            <Button variant="outline" onClick={() =>
-                                setSteps([
-                                    ...steps,
-                                    { 
-                                        id: Date.now(), 
-                                        name: `New Step`, 
-                                        description: "New Step description", 
-                                        projectProcess_id: data?.project_id ?? 0, 
-                                        tablesInvolved: "" 
-                                    },
-                                ])
+                            <Button variant="outline" onClick={
+                                // () =>
+                                // setSteps([
+                                //     ...steps,
+                                //     { 
+                                //         id: Date.now(), 
+                                //         name: `New Step`, 
+                                //         description: "New Step description", 
+                                //         projectProcess_id: data?.project_id ?? 0, 
+                                //         tablesInvolved: "" 
+                                //     },
+                                // ])
+                                () => router.push("/setup/additional-events")
                             }>
                                 <PlusCircle className="h-4 w-4 mr-2" />
                                 Add Step
@@ -164,16 +168,19 @@ const ProcessModelContent = () => {
                         {/* Add New Step Button */}
                         <div className="flex justify-between items-center my-4">
                             <div>
-                                <Button variant={"outline"} onClick={() => setSteps([...steps, { 
+                                {/* <Button variant={"outline"} onClick={
+                                    () => setSteps([...steps, { 
                                     id: Date.now(), 
                                     name: `New Step`, 
                                     description: "New Step description", 
                                     projectProcess_id: data?.project_id ?? 0, 
                                     tablesInvolved: "" 
-                                }])}>
+                                }])
+                                () => router.push("/setup/additional-events")
+                                }>
                                     <PlusCircle className="h-4 w-4" />
                                     Add Step
-                                </Button>
+                                </Button> */}
                             </div>
                             <div className="flex space-x-2">
                                 <Button variant={"outline"} onClick={() => console.log({

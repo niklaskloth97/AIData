@@ -1,5 +1,12 @@
-import { TableData } from "@/app/dashboard/generate/workbench/case-id-builder/columns";
 import { useQuery } from "@tanstack/react-query";
+
+export type CaseIdData = {
+    id: number;
+    projectTables_nativeTableName: string;
+    referenceColumns: string;
+    projectTables_description: string;
+    selected: boolean;
+}
 
 export default function useCaseIDTables() {
     return useQuery({
@@ -7,7 +14,7 @@ export default function useCaseIDTables() {
         queryFn: async () => {
             console.log("Fetching Case ID tables");
             // await new Promise((resolve) => setTimeout(resolve, 2000));
-            const response: TableData = await (await fetch("http://localhost:8000/api/case-ids/")).json();    
+            const response: CaseIdData[] = await (await fetch("http://localhost:8000/api/case-ids/")).json();    
                         console.log("The Respone", response);    
                         return response;
             // queryFn: async () => {

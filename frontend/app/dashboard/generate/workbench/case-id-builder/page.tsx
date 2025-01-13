@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,9 +8,10 @@ import { columns } from "./columns";
 import { DataTable } from "@/components/DataTable";
 import PageHeader from "@/components/PageHeader";
 import { Loader } from "lucide-react";
-import useCaseIDTables from "@/hooks/api/useCaseIDTables";
+import useCaseIDTables, { CaseIdData } from "@/hooks/api/useCaseIDTables";
 import { useWorkflow } from '../workflowContext';
-import { TableData } from "./columns";
+import { setSourceMapsEnabled } from "process";
+import next from "next";
 
 
 // FloatingWindowComponent
@@ -40,20 +41,27 @@ const FloatingWindow = ({
 
 const CaseIDBuilderPage = () => {
     const { isLoading, data } = useCaseIDTables();
-    const mockData = data ?? [];
+    const [tableData, setTableData] = useState<CaseIdData[]>([]);
     const [floatingWindowOpen, setFloatingWindowOpen] = useState(false);
     const [globalFilter, setGlobalFilter] = useState("");
-    const [selectedMappings, setSelectedMappings] = useState<TableData[]>([]);
+    const [selectedMappings, setSelectedMappings] = useState<CaseIdData[]>([]);
     const { nextStep, previousStep } = useWorkflow();
+    const [selectedRows, setSelectedRows] = useState({});
 
-
-    
+    useEffect(() => {
+        setTableData(data ?? []);
+        setSelectedRows((input) => data?.map((item, i) => {
+            console.log(item.selected)
+            return item.selected ? true : false;
+        }));
+    }, [data]);
 
     const handleContinue = () => {
-        if (selectedMappings.length > 0) {
-            sessionStorage.setItem('caseIdMappings', JSON.stringify(selectedMappings));
-            nextStep();
-        }
+        // if (selectedMappings.length > 0) {
+        //     sessionStorage.setItem('caseIdMappings', JSON.stringify(selectedMappings));
+        //     nextStep();
+        // }
+        nextStep();
     };
 
     const handleBack = () => {
@@ -61,7 +69,7 @@ const CaseIDBuilderPage = () => {
     };
 
     // Load selected rows when table selection changes
-    const handleSelectionChange = (selectedRows: TableData[]) => {
+    const handleSelectionChange = (selectedRows: CaseIdData[]) => {
         console.log("Selection changed:", selectedRows); // Debug log
         setSelectedMappings(selectedRows);
     };
@@ -99,9 +107,11 @@ const CaseIDBuilderPage = () => {
             ) : (
                 <DataTable
                     columns={columns}
-                    data={mockData}
+                    data={tableData ?? []}
                     globalFilter={globalFilter}
-                    onSelectionChange={handleSelectionChange}  // Add this prop
+                    onSelectionChange={handleSelectionChange} 
+                    myRowSelection={selectedRows}  
+                    mySetRowSelection={setSelectedRows}  
                 />
             )}
 
@@ -109,10 +119,11 @@ const CaseIDBuilderPage = () => {
                 <Button variant="secondary" onClick={handleBack}>
                     Back
                 </Button>
+                {/* <Button onClick={(() => console.log(selectedRows))}> Print selection </Button> */}
                 <Button 
                     variant="default" 
                     onClick={handleContinue}
-                    disabled={selectedMappings.length === 0} 
+                    disabled={selectedRows === 0} 
                 >
                     Continue
                 </Button>

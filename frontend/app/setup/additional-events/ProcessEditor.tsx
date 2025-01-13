@@ -12,6 +12,7 @@ import { Loader, Plus, PlusCircle, Printer, Save, ArrowRight } from "lucide-reac
 import { Step, ProcessData } from "@/hooks/api/useProcessModel";
 import useProcessModelMutation from "@/hooks/api/useProcessModelMutation";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function ProcessEditor({data, isLoading}: {data: ProcessData, isLoading: boolean}) {
     // const { data, isLoading } = useProcessModel();
@@ -36,6 +37,7 @@ export default function ProcessEditor({data, isLoading}: {data: ProcessData, isL
     const [steps, setSteps] = useState(defaultProcess.steps);
     const [processName, setProcessName] = useState(defaultProcess.name);
     const [processDescription, setProcessDescription] = useState(defaultProcess.description);
+    const router = useRouter();
 
     const [editingStep, setEditingStep] = useState<number | null>(null);
 
@@ -177,7 +179,7 @@ export default function ProcessEditor({data, isLoading}: {data: ProcessData, isL
                                     <Save className="h-4 w-4" />
                                     Save to backend
                                 </Button>
-                                <Button variant={"default"} onClick={() => handleSave()}>
+                                <Button variant={"default"} onClick={() => {handleSave(); router.push("/dashboard/process-model")}}>
                                     <ArrowRight className="h-4 w-4" />
                                     Save and Continue
                                 </Button>

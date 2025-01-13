@@ -47,6 +47,7 @@ export default function Page() {
     }, [currentBO]);
 
     function identifyUniqueBOs() {
+        if (!Array.isArray(data)) return;
         setBusinessObjects(
             // Find all unique AdditionalEvent.business_object values in allData and save them in businessObjects array
             [...new Set(data?.map((event) => event.business_object))]
