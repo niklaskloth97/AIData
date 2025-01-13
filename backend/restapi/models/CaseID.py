@@ -30,6 +30,8 @@ class CaseID(Base):
         backref="case_ids"
     )
     projectTables_description = Column(String)
+    
+
 class CaseIDSchema(BaseModel):
     id: int
     projectTables_nativeTableName: str
