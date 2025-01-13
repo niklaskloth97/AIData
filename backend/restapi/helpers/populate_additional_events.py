@@ -72,7 +72,7 @@ def populate_additional_events():
                     change_event_name=fname,
                     change_event_count=event_count,
                     # Short description using the descriptive name
-                    description=f"Most common change event for {descriptive_name}",
+                    description=f"Change event for field {fname}",
                     tablesInvolved=table_name
                 )
                 print(

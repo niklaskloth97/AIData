@@ -84,7 +84,7 @@ export default function Page() {
                     name: allData[rowId].change_event_name,
                     description: allData[rowId].description,
                     projectProcess_id: processData.id,
-                    tablesInvolved: allData[rowId].business_object,
+                    tablesInvolved: allData[rowId].tablesInvolved,
                 })),
             ] 
             }
