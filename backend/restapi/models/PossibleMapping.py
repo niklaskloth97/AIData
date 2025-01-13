@@ -15,6 +15,7 @@ class PossibleMapping(Base):
     eventType = Column(String)
     # Storing attributes as JSON
     possibleAttributes = Column(JSON)
+    involvedTable = Column(String)
 
 
 class PossibleMappingSchema(BaseModel):
@@ -23,6 +24,7 @@ class PossibleMappingSchema(BaseModel):
     timestampColumn: str
     eventType: str
     possibleAttributes: List[str]
+    involvedTable: str
 
     class Config:
         from_attributes = True
@@ -32,6 +34,7 @@ class CreatePossibleMappingSchema(BaseModel):
     timestampColumn: str
     eventType: str
     possibleAttributes: List[str]
+    involvedTable: str
 
     class Config:
         from_attributes = True

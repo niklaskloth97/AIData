@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import os
 from dotenv import load_dotenv
-from restapi.routes import mappings, caseIds, process, additional_events, projectTables, projectTableColumns
+from restapi.routes import mappings, caseIds, process, additional_events, projectTables, projectTableColumns, script_generation, scripts
 from restapi.lib.db import get_db
 from restapi.lib.db import engine
 from restapi.lib.db import Base
@@ -45,6 +45,8 @@ root_router.include_router(process.router)
 root_router.include_router(additional_events.router)
 root_router.include_router(projectTables.router)
 root_router.include_router(projectTableColumns.router)
+root_router.include_router(script_generation.router)
+root_router.include_router(scripts.router)
 # Include the ProjectTable and ProjectTableColumn routers
 
 
