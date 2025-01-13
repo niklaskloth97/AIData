@@ -108,7 +108,7 @@ def populate_possible_mappings():
             mapping = PossibleMapping(
                 displayName=display_name,
                 # Example: set a default timestamp column (or leave it null if you want)
-                timestampColumn="CDHDR.UDATE + CDHDR.UTIME",
+                timestampColumn="CDHDR.UDATE",
                 eventType=event.change_event_name,
                 possibleAttributes=all_columns,
                 involvedTable=table_list[0]

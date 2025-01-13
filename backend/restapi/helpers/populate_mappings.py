@@ -28,10 +28,10 @@ def populate_mappings():
         mappings = [
                 Mapping(
                     displayName="Order Creation Time",
-                    timestampColumn="VBAK.ERDAT",
-                    eventType="Order_Created",
-                    otherAttributes=["VBAK.VBELN", "VBAK.AUART"],
-                    tableInvolved="VBAK"
+                    timestampColumn="CDHDR.UDATE",
+                    eventType="KEY",
+                    otherAttributes=["CDPOS.VALUE_NEW", "CDPOS.VALUE_OLD"],
+                    tableInvolved="EBAN"
                 ),
                 Mapping(
                     displayName="Delivery Processing",

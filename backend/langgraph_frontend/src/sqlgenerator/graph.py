@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.types import Command
 from sqlalchemy.orm import Session
-
+import re
 import os
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session, sessionmaker
@@ -87,7 +87,7 @@ def load_mapping_node(state) -> Command:
         prompt = (
         f"Generate an SQL statement for the event '{mapping_obj.displayName}'. "
         f"Timestamp column is '{mapping_obj.timestampColumn}'. "
-        # iterate over otherAttributes
+        f"Event type: '{mapping_obj.eventType}'. "
         f"Other attributes: {', '.join(mapping_obj.otherAttributes)}. "
         f"Involved table: {mapping_obj.tableInvolved}."
         )
@@ -99,8 +99,7 @@ def load_mapping_node(state) -> Command:
     )
     
 def generate_sql_node(state) -> Command:
-    
-    sql= """
+    sqltemplate = """
     SELECT 
     CONCAT(
         LPAD("EBAN"."MANDT", 3, '0'), 
@@ -108,44 +107,107 @@ def generate_sql_node(state) -> Command:
         LPAD("EBAN"."BNFPO", 5, '0')
     ) AS "CASEID",
     "CDHDR"."UDATE" AS "TIMESTAMP",
-    'Change PR: Material Number' AS "EVENTNAME",
+    'Order Creation Time' AS "EVENTNAME",
 
-    -- Additional attributes
-    "CDHDR"."USERNAME" AS "User",
-    "CDHDR"."TCODE"    AS "Transaction",
-    "CDPOS"."VALUE_NEW" AS "NewValue",
-    "CDPOS"."VALUE_OLD" AS "OldValue"
+    -- 4th column: Build a JSON object of all additional attributes
+    JSON_BUILD_OBJECT(
+        'User',       "CDHDR"."USERNAME",
+        'Transaction',"CDHDR"."TCODE",
+        'NewValue',   "CDPOS"."VALUE_NEW",
+        'OldValue',   "CDPOS"."VALUE_OLD"
+    ) AS "otherAttributes"
     
-FROM "EBAN"
-    INNER JOIN "CDPOS"
-        -- Typically, you match OBJECTID with the same concatenated key from EBAN
-        ON CONCAT(
-            LPAD("EBAN"."MANDT", 3, '0'),
-            LPAD("EBAN"."BANFN", 10, '0'),
-            LPAD("EBAN"."BNFPO", 5, '0')
-        ) = "CDPOS"."TABKEY"
-        
-    INNER JOIN "CDHDR"
-        ON "CDHDR"."OBJECTCLAS" = "CDPOS"."OBJECTCLAS"
-       AND "CDHDR"."OBJECTID"   = "CDPOS"."OBJECTID"
-       AND "CDHDR"."CHANGENR"   = "CDPOS"."CHANGENR"
-       
-WHERE 
-    "CDPOS"."FNAME"   = 'KEY'
-    AND "CDPOS"."TABNAME" = 'EBAN';
-"""
+    FROM "EBAN"
+        INNER JOIN "CDPOS"
+            ON CONCAT(
+                LPAD("EBAN"."MANDT", 3, '0'),
+                LPAD("EBAN"."BANFN", 10, '0'),
+                LPAD("EBAN"."BNFPO", 5, '0')
+            ) = "CDPOS"."TABKEY"
+            
+        INNER JOIN "CDHDR"
+            ON "CDHDR"."OBJECTCLAS" = "CDPOS"."OBJECTCLAS"
+        AND "CDHDR"."OBJECTID"   = "CDPOS"."OBJECTID"
+        AND "CDHDR"."CHANGENR"   = "CDPOS"."CHANGENR"
+            
+    WHERE 
+        "CDPOS"."FNAME"   = 'KEY'
+        AND "CDPOS"."TABNAME" = 'EBAN';
+    """
+    try: 
+        user_input = state["user_input"]
+    except KeyError:
+        user_input = ""
+    model = ChatOpenAI(temperature=0, model="gpt-4o", streaming=False)
+    # Initialize the ChatOpenAI model  # Corrected model name
+
+    # System prompt
+    system_prompt = SystemMessage(
+        content=(
+            "You are a SQL expert. Please adjust the following SQL statement with the information provided by the user. "
+            "You should rename the Event to whatever the prompt specifies, add the information from the otherAttribute "
+            "columns to the output. The CDHDR and CDPOS tables are fixed and should stay. You should adapt the JOIN so it "
+            f"matches the primary key for the involvedTable instead of EBAN. The FNAME should be matching the EventType.\n\n{sqltemplate}"
+        )
+    )
+
+    # Create user prompt
+    user_prompt_str = HumanMessage(content=state["prompt"] + "\n" + user_input)
+
+    # Generate the final SQL using the model
+    finalsql = model([system_prompt, user_prompt_str])
+    pattern = r"```sql\s*(.*?)\s*```"
     
-    model = ChatOpenAI(temperature=0, model="gpt-4o", streaming=True)
-    system_prompt = SystemMessage(content="You are a SQL expert. Please adjust the following SQL statement with the Information provided from the user. You should rename the Event to whatever the prompt says, add the Information from the otherAttribute Columns to the Output. The CDHDR and CDPOS Tables are fixed and should stay. You should adapt the join so it matches the primary key for the involvedTable instead of EBAN. The FNAME should be matching the EVENT {sql}" )
-    user_prompt_str = HumanMessage(content = state["prompt"] + state["user_input"])
-    finalsql = model.invoke(system_prompt, user_prompt_str)
-    
+    match = re.search(pattern, finalsql.content, flags=re.DOTALL)
+    try:
+        finalsql = match.group(1).strip()
+    except:
+        finalsql = ""  # or handle error if not found
+    query_result = ""    
+    #query_result = db_query_tool(finalsql)
+    if "Error" in query_result:
+        return Command(
+            update={"finalsql": finalsql},
+            goto=END
+        )
     return Command(
-        update={"sql": finalsql},
+        update={"finalsql": finalsql, "query_result": query_result},
         goto=END
     )
     
+from langchain_core.tools import tool
 
+
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import SQLAlchemyError
+
+# Create a session factory using pg_engine
+SessionLocal = sessionmaker(bind=pg_engine)
+
+@tool
+def db_query_tool(query: str) -> str:
+    """
+    Execute a SQL query against the database and get back the result.
+    If the query is not correct, an error message will be returned.
+    If an error is returned, rewrite the query, check the query, and try again.
+    """
+    # Initialize a new session
+    session = SessionLocal()
+
+    try:
+        # Execute the query
+        result = session.execute(query).fetchall()
+        # If the result is empty
+        if not result:
+            return "Error: Query returned no results. Please rewrite your query and try again."
+        # Convert result to a string or format as needed
+        return str(result)
+    except SQLAlchemyError as e:
+        # Catch and return any SQL errors
+        return f"Error: {str(e)}"
+    finally:
+        # Close the session to prevent connection leaks
+        session.close()
 
 # 2. Add Nodes
 graph.add_node("load_mapping", load_mapping_node)  # your first node

@@ -18,3 +18,5 @@ def populate_database():
         return {"message": "Database population completed successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error during database population: {str(e)}")
+    
+
