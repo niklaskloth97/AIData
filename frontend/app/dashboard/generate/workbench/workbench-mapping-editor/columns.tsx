@@ -11,13 +11,7 @@ import {
 } from "@/components/ui/select";
 import React, { useEffect, useState } from "react";
 import { MultiSelect } from "@/components/multi-select";
-
-export type MappingData = {
-    displayName: string;
-    timestampColumn: string;
-    eventType: string;
-    otherAttributes: string[];
-};
+import { PossibleMapping } from "@/hooks/api/usePossibleMappings";
 
 interface ColumnOptions {
     timestampColumns: string[];
@@ -31,7 +25,7 @@ function EditCell({
     row: { index },
     column: { id },
     table,
-}: CellContext<MappingData, any>) {
+}: CellContext<PossibleMapping, any>) {
     const initialValue = getValue();
     const [value, setValue] = useState(initialValue);
 
@@ -55,7 +49,7 @@ function EditCell({
 
 function TimestampCell(
     options: ColumnOptions,
-    props: CellContext<MappingData, any>
+    props: CellContext<PossibleMapping, any>
 ) {
     const initialValue = props.getValue();
     const [value, setValue] = useState(initialValue);
@@ -90,7 +84,7 @@ function TimestampCell(
 
 function OtherAttributesCell(
     options: ColumnOptions,
-    props: CellContext<MappingData, any>
+    props: CellContext<PossibleMapping, any>
 ) {
     const initialValue = props.getValue();
     const [value, setValue] = useState(initialValue);
@@ -129,7 +123,7 @@ function OtherAttributesCell(
 
 function EventTypeCell(
     options: ColumnOptions,
-    props: CellContext<MappingData, any>
+    props: CellContext<PossibleMapping, any>
 ) {
     const initialValue = props.getValue();
     const [value, setValue] = useState(initialValue);
@@ -164,7 +158,7 @@ function EventTypeCell(
 
 function ActionsCell(
     options: ColumnOptions,
-    props: CellContext<MappingData, any>
+    props: CellContext<PossibleMapping, any>
 ) {
     return (
         <div className="flex items-center">
@@ -187,13 +181,13 @@ function ActionsCell(
     );
 }
 
-function PrintCell(props: CellContext<MappingData, any>) {
+function PrintCell(props: CellContext<PossibleMapping, any>) {
     console.log(props);
 }
 
 export const createColumns = (
     options: ColumnOptions
-): ColumnDef<MappingData, any>[] => [
+): ColumnDef<PossibleMapping, any>[] => [
     {
         accessorKey: "displayName",
         header: "Display Name",
