@@ -7,6 +7,7 @@ from restapi.lib.db import get_db
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.sql import text
+from sqlalchemy.engine import CursorResult
 # create_engine
 from sqlalchemy import create_engine
 
@@ -58,34 +59,29 @@ pg_engine = create_engine(POSTGRES_URI)
 @router.post("/execute")
 def execute_sql(request: SQLScriptRequest) -> dict:
     """
-    This endpoint is called from the frontend with a plain SQL string as `sqlscript`.
-    We run the SQL script and return the result.
+    This endpoint executes a SQL script and returns the first 10 rows.
+    The SQL script is provided in the JSON body (request.sqlscript).
     """
-    # extract from json sqlscript value
     sqlscript = request.sqlscript
+
     try:
-        # Open a connection to the database
         with pg_engine.connect() as connection:
-            # Use `text` to safely execute raw SQL
-            result = connection.execute(text(sqlscript))
+            # The key change: call .mappings() to get rows as dictionaries
+            result = connection.execute(text(sqlscript)).mappings()
+
+            # fetchmany(10) still works
+            rows = result.fetchmany(10)
             
-            # Check if the query returns results
-            if result.returns_rows:
-                # Fetch all rows and convert them to a JSON-serializable format
-                rows = result.fetchall()
-                return {
-                    "status": "success",
-                    "data": [dict(row) for row in rows]  # Convert each row to a dictionary
-                }
-            else:
-                return {
-                    "status": "success",
-                    "message": "SQL script executed successfully, no data returned."
-                }
+            # Now each 'row' is already a dict-like mapping
+            # so we can just do dict(row) to convert it to a normal Python dict
+            result_data = [dict(row) for row in rows]
+
+            return {
+                "status": "success",
+                "data": result_data
+            }
 
     except SQLAlchemyError as e:
-        # Catch and return any SQL execution errors
         raise HTTPException(status_code=400, detail=f"SQL execution error: {str(e)}")
     except Exception as e:
-        # Handle other unexpected errors
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
