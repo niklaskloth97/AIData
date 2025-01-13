@@ -26,3 +26,12 @@ class PossibleMappingSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+class CreatePossibleMappingSchema(BaseModel):
+    displayName: str
+    timestampColumn: str
+    eventType: str
+    possibleAttributes: List[str]
+
+    class Config:
+        from_attributes = True

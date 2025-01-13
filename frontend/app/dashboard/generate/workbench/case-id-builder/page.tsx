@@ -8,7 +8,7 @@ import { columns } from "./columns";
 import { DataTable } from "@/components/DataTable";
 import PageHeader from "@/components/PageHeader";
 import { Loader } from "lucide-react";
-import useMockCaseIDTables from "@/hooks/api/useMockCaseIDTables";
+import useCaseIDTables from "@/hooks/api/useCaseIDTables";
 import { useWorkflow } from '../workflowContext';
 import { TableData } from "./columns";
 
@@ -39,7 +39,7 @@ const FloatingWindow = ({
 };
 
 const CaseIDBuilderPage = () => {
-    const { isLoading, data } = useMockCaseIDTables();
+    const { isLoading, data } = useCaseIDTables();
     const mockData = data ?? [];
     const [floatingWindowOpen, setFloatingWindowOpen] = useState(false);
     const [globalFilter, setGlobalFilter] = useState("");

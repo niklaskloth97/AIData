@@ -35,6 +35,7 @@ class CaseIDSchema(BaseModel):
     projectTables_nativeTableName: str
     referenceColumns: List[str]
     projectTables_description: str
+    selected: bool
     #projectTables_id: Optional[int] 
 
     class Config:
