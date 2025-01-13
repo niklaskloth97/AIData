@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from restapi.models.Mapping import Mapping, MappingSchema, MappingsResponseSchema, CreateMappingSchema
 from typing import List, Optional
@@ -14,6 +15,9 @@ router = APIRouter(
 )
 
 from langgraph_sdk import get_sync_client
+
+class SQLScriptRequest(BaseModel):
+    sqlscript: str
 
 
 @router.post("/generate_sql")
@@ -52,11 +56,13 @@ POSTGRES_URI = "postgresql://aidatahilti_owner:YDkg5rC6jpdL@ep-flat-leaf-a20i5go
 pg_engine = create_engine(POSTGRES_URI)
 
 @router.post("/execute")
-def execute_sql(sqlscript: str) -> str:
+def execute_sql(request: SQLScriptRequest) -> dict:
     """
     This endpoint is called from the frontend with a plain SQL string as `sqlscript`.
     We run the SQL script and return the result.
     """
+    # extract from json sqlscript value
+    sqlscript = request.sqlscript
     try:
         # Open a connection to the database
         with pg_engine.connect() as connection:
