@@ -85,6 +85,7 @@ export default function Page() {
                     description: allData[rowId].description,
                     projectProcess_id: processData.id,
                     tablesInvolved: allData[rowId].tablesInvolved,
+                    nativeColumnName: allData[rowId].nativeColumnName,
                 })),
             ] 
             }

@@ -9,32 +9,50 @@ import { Button } from "@/components/ui/button";
 import { TableFloatingWindow } from "@/components/TableFloatingWindow";
 import { SelectNSearchTable } from "@/components/SelectNSearchTable";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { routeros } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { Label } from "@/components/ui/label";
 
-const CreateInstanceDialog = ({ isOpen, onClose, onConfirm }: { 
+const CreateInstanceDialog = ({
+    isOpen,
+    onClose,
+    onConfirm,
+}: {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: () => void;
-  }) => (
+}) => (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create new Instance</DialogTitle>
-          <DialogDescription>
-            Create a new Instance of your current data model to be used for script generation and tests.
-          </DialogDescription>
-        </DialogHeader>
-        <div>
-            Further Input Content
-        </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button variant="destructive" onClick={onConfirm}>Create Instance</Button>
-        </DialogFooter>
-      </DialogContent>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Create new Instance</DialogTitle>
+                <DialogDescription>
+                    Create a new Instance of your current data model to be used
+                    for script generation and tests.
+                </DialogDescription>
+            </DialogHeader>
+            <Label> Instance Name </Label>
+            <Input/>
+            <Label> Data </Label>
+            <Input/>
+            <DialogFooter>
+                <Button variant="ghost" onClick={onClose}>
+                    Cancel
+                </Button>
+                <Button variant="destructive" onClick={onConfirm}>
+                    Create Instance
+                </Button>
+            </DialogFooter>
+        </DialogContent>
     </Dialog>
-  );
+);
 
 export default function Page() {
     const { isLoading, data } = useMockTables();
@@ -49,9 +67,8 @@ export default function Page() {
     }, [data]);
 
     function handleCreateInstance() {
-        setFloatingWindowOpen(false)
-        console.log("confirm")
-        
+        setFloatingWindowOpen(false);
+        console.log("confirm");
     }
 
     return (
@@ -72,12 +89,22 @@ export default function Page() {
                 </div>
             ) : (
                 <div className="">
-                    <Input
-                        placeholder="Search..."
-                        value={globalFilter ?? ""}
-                        onChange={(e) => setGlobalFilter(e.target.value)}
-                        className="max-w-sm"
-                    />
+                    <div className="flex justify-between">
+                        <Input
+                            placeholder="Search..."
+                            value={globalFilter ?? ""}
+                            onChange={(e) => setGlobalFilter(e.target.value)}
+                            className="max-w-sm"
+                        />
+                        <Button
+                            className=""
+                            variant="default"
+                            disabled={false}
+                            onClick={() => setFloatingWindowOpen(true)}
+                        >
+                            Create Instance
+                        </Button>
+                    </div>
                     <div className="m-4"></div>
                     <DataTable
                         data={tableData ?? []}
@@ -89,22 +116,21 @@ export default function Page() {
             )}
 
             <div className="mt-6 flex w-full justify-end">
-                <Button
+                {/* <Button
                     className=""
                     variant="default"
                     disabled={false}
                     onClick={() => setFloatingWindowOpen(true)}
                 >
                     Create Instance
-                </Button>
+                </Button> */}
             </div>
 
             <CreateInstanceDialog
                 isOpen={floatingWindowOpen}
                 onClose={() => setFloatingWindowOpen(false)}
                 onConfirm={() => handleCreateInstance()}
-            >
-            </CreateInstanceDialog>
+            ></CreateInstanceDialog>
         </>
     );
 }

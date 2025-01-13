@@ -17,7 +17,7 @@ from restapi.models.ProjectProcessStep import ProjectProcessStep
 router = APIRouter(prefix="/possible-mappings")
 
 
-@router.get("/", response_model=PossibleMappingSchema)
+@router.get("/", response_model=List[PossibleMappingSchema])
 def get_possible_mappings(db: Session = Depends(get_db)):
     print("Get PossibleMappings")
     possible_mappings = db.query(PossibleMapping).all()
@@ -35,7 +35,6 @@ def get_possible_mappings(db: Session = Depends(get_db)):
                 response_list.append(s)
     
     return response_list
-
 
 @router.post("/", response_model=PossibleMappingSchema)
 def create_possible_mapping(

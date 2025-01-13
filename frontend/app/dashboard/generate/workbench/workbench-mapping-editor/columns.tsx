@@ -1,4 +1,4 @@
-import { CellContext, ColumnDef } from "@tanstack/react-table";
+import { CellContext, ColumnDef, RowExpanding } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Trash2 } from "lucide-react";
@@ -66,20 +66,24 @@ function TimestampCell(
         );
     };
 
-    return (
-        <Select onValueChange={onBlur} value={value}>
-            <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a column" />
-            </SelectTrigger>
-            <SelectContent>
-                {options.timestampColumns.map((column) => (
-                    <SelectItem key={column} value={column}>
-                        {column}
-                    </SelectItem>
-                ))}
-            </SelectContent>
-        </Select>
-    );
+    return(
+        <div> {props.getValue()} </div>
+    )
+    
+    // return (
+    //     <Select onValueChange={onBlur} value={value}>
+    //         <SelectTrigger className="w-full">
+    //             <SelectValue placeholder="Select a column" />
+    //         </SelectTrigger>
+    //         <SelectContent>
+    //             {options.timestampColumns.map((column) => (
+    //                 <SelectItem key={column} value={column}>
+    //                     {column}
+    //                 </SelectItem>
+    //             ))}
+    //         </SelectContent>
+    //     </Select>
+    // );
 }
 
 function OtherAttributesCell(
@@ -103,7 +107,7 @@ function OtherAttributesCell(
         );
     };
 
-    const attributeOptions = options.otherAttributes.map(attr => ({
+    const attributeOptions = props.row.original.possibleAttributes.map(attr => ({
         label: attr,
         value: attr
     }));
@@ -140,20 +144,24 @@ function EventTypeCell(
         );
     };
 
-    return (
-        <Select onValueChange={onBlur} value={value}>
-            <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select event type" />
-            </SelectTrigger>
-            <SelectContent>
-                {options.eventTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                        {type}
-                    </SelectItem>
-                ))}
-            </SelectContent>
-        </Select>
-    );
+    return(
+        <div> {props.getValue()} </div>
+    )
+
+    // return (
+    //     <Select onValueChange={onBlur} value={value}>
+    //         <SelectTrigger className="w-full">
+    //             <SelectValue placeholder="Select event type" />
+    //         </SelectTrigger>
+    //         <SelectContent>
+    //             {options.eventTypes.map((type) => (
+    //                 <SelectItem key={type} value={type}>
+    //                     {type}
+    //                 </SelectItem>
+    //             ))}
+    //         </SelectContent>
+    //     </Select>
+    // );
 }
 
 function ActionsCell(

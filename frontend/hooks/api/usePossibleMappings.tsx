@@ -5,7 +5,7 @@ export type PossibleMapping = {
     displayName: string;
     timestampColumn: string;
     eventType: string;
-    possibleAtrtibutes: {};
+    possibleAttributes: [];
     involvedTable: string;
 }
 

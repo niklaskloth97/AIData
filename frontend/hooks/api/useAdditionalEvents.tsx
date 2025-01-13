@@ -8,6 +8,7 @@ export interface AdditionalEvent {
     description: string;
     tablesInvolved: string;
     business_object: string;
+    nativeColumnName: string;
 }
 /*
 const mockData: AdditionalEvent[] = [
