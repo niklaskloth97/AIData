@@ -122,7 +122,7 @@ export default function ProcessEditor({data, isLoading}: {data: ProcessData, isL
                     {/* <div > */}
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="font-semibold">Process Steps</h2>
-                            <Button variant="outline" onClick={() =>
+                            {/* <Button variant="outline" onClick={() =>
                                 setSteps([
                                     ...steps,
                                     { 
@@ -136,7 +136,7 @@ export default function ProcessEditor({data, isLoading}: {data: ProcessData, isL
                             }>
                                 <PlusCircle className="h-4 w-4 mr-2" />
                                 Add Step
-                            </Button>
+                            </Button> */}
                         </div>
                         <div className="flex flex-col overflow-y-auto h-full">
                         <DndContext

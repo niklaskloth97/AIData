@@ -6,6 +6,7 @@ export interface Step {
     description: string;
     projectProcess_id: number;
     tablesInvolved: string;
+    nativeColumnName: string;
 }
 export interface ProcessData {
     id: number;
