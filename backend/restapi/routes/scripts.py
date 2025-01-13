@@ -4,8 +4,7 @@ import os
 
 # Add the project root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-from restapi.helpers.populate_projecttables import populate_projecttables
-from restapi.helpers.populate_caseIDs import populate_caseids
+from restapi.helpers.populateDB import populate_db
 
 router = APIRouter(
     prefix="/populate",
@@ -15,8 +14,7 @@ router = APIRouter(
 @router.post("/")
 def populate_database():
     try:
-        populate_projecttables()
-        populate_caseids()
+        populate_db()
         return {"message": "Database population completed successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error during database population: {str(e)}")

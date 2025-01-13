@@ -111,7 +111,7 @@ def populate_possible_mappings():
                 timestampColumn="CDHDR.UDATE + CDHDR.UTIME",
                 eventType=event.change_event_name,
                 possibleAttributes=all_columns,
-                involvedTable=table_list
+                involvedTable=table_list[0]
             )
 
             session.add(mapping)
