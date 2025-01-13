@@ -141,7 +141,7 @@ def adjust_process(state):
         new_steps_msg = (
             "Here are your updated steps:\n"
             + "\n".join(f"{i+1}. {step}" for i, step in enumerate(adjusted_steps))
-            +". Do you want to make any further adjustments? If not click on \"Process to next step\" button."
+            +"\nDo you want to make any further adjustments? If not click on \"Process to next step\" button."
         )
         messages.append({"role": "assistant", "content": new_steps_msg})
 
