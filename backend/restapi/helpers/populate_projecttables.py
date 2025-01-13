@@ -22,7 +22,6 @@ pg_engine = create_engine(POSTGRES_URI)
 sqlite_engine = engine
 
 def create_entries():
-    Base.metadata.drop_all(bind=sqlite_engine)
     Base.metadata.create_all(bind=sqlite_engine)
 
 import json
