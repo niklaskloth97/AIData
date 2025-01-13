@@ -13,7 +13,7 @@ from restapi.models.PossibleMapping import (
 )
 from restapi.models.PossibleMapping import CreatePossibleMappingSchema
 
-router = APIRouter(prefix="/possible_mappings")
+router = APIRouter(prefix="/possible-mappings")
 
 
 @router.get("/", response_model=PossibleMappingSchema)
