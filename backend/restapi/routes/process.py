@@ -35,6 +35,7 @@ def update_process(process_id: int, process: ProjectProcessSchema, db: Session =
             description=step.description,
             projectProcess_id=step.projectProcess_id,
             tablesInvolved=step.tablesInvolved,
+            nativeColumnName=step.nativeColumnName,
         )
         updated_process.steps.append(new_step)
     

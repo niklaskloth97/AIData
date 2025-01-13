@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/PageHeader";
 import { Loader } from "lucide-react";
-import useMockScriptProposal from "@/hooks/api/useMockScriptProposal";
+import useMockScriptProposal from "@/hooks/api/useScriptProposal";
 
 export default function Page() {
   const { previousStep } = useWorkflow();

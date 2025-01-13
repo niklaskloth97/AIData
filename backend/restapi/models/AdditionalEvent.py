@@ -20,6 +20,7 @@ class AdditionalEvent(Base):
     change_event_name = Column(String)
     change_event_count = Column(Integer)
     description = Column(String)
+    nativeColumnName = Column(String)
     tablesInvolved = Column(String)
     
     
@@ -29,6 +30,7 @@ class AdditionalEventSchema(BaseModel):
     change_event_name: str
     change_event_count: int
     description: str
+    nativeColumnName: str
     tablesInvolved: str
 
     class Config:
