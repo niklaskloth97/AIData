@@ -12,6 +12,7 @@ class ProjectProcessStep(Base):
     description = Column(String)
     tablesInvolved = Column(String)
     projectProcess_id = Column(Integer, ForeignKey("projectProcess.id"))
+    nativeColumnName = Column(String)
     process = relationship("ProjectProcess", back_populates="steps")
     # business_objects = relationship("AdapterBusinessObject", back_populates="process_step")
 
@@ -19,6 +20,7 @@ class ProjectProcessStepSchema(BaseModel):
     id: int
     name: str
     description: str
+    nativeColumnName: str
     tablesInvolved: str
     projectProcess_id: int
     # business_objects: List[AdapterBusinessObjectSchema]

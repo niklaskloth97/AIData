@@ -19,10 +19,13 @@ from langgraph_sdk import get_sync_client
 
 class SQLScriptRequest(BaseModel):
     sqlscript: str
+    
+class SQLScript(BaseModel):
+    sqlscript: str
 
 
 @router.post("/generate_sql")
-def generate_sql(mapping_id: int, script: str, user_input: str) -> str:
+def generate_sql(mapping_id: int, script: str, user_input: str) -> SQLScript:
     """
     This endpoint is called from the frontend with a `mapping_id`.
     We run our LangGraph, starting from the 'START' node, which eventually calls
@@ -44,13 +47,13 @@ def generate_sql(mapping_id: int, script: str, user_input: str) -> str:
     # 1) Construct initial state
     # The only required key is "mapping_id" for the first node
     # We might also have placeholders for 'messages', 'agenttask', etc.
-    
-    finalsql = ""
 
     # 3) Return something to the caller
     # For example, the final messages or the entire state
     return {
-        finalsql
+        SQLScript(
+            sqlscript=finalsql
+        )
     }
     
 POSTGRES_URI = "postgresql://aidatahilti_owner:YDkg5rC6jpdL@ep-flat-leaf-a20i5gog.eu-central-1.aws.neon.tech/aidatahilti?sslmode=require"
