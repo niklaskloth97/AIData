@@ -16,15 +16,13 @@ from restapi.models.PossibleMapping import CreatePossibleMappingSchema
 router = APIRouter(prefix="/possible-mappings")
 
 
-@router.get("/", response_model=PossibleMappingSchema)
+@router.get("/", response_model=List[PossibleMappingSchema])
 def get_possible_mappings(db: Session = Depends(get_db)):
     print("Get PossibleMappings")
     possible_mappings = db.query(PossibleMapping).all()
     if not possible_mappings:
         raise HTTPException(status_code=404, detail="No PossibleMappings found")
-  
-    return {"possibleMappings": possible_mappings}
-
+    return possible_mappings
 
 @router.post("/", response_model=PossibleMappingSchema)
 def create_possible_mapping(

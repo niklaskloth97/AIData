@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input";
 export default function Page() {
     const searchParams = useSearchParams();
     const targetTable = searchParams.get("targetTable") ?? "NO QUERY PRESENT";
-    const targetTableName = searchParams.get("targetTableName") ?? "NO QUERY PRESENT";
+    const targetTableName =
+        searchParams.get("targetTableName") ?? "NO QUERY PRESENT";
     const router = useRouter();
 
     const { isLoading, data } = useTableColumn(targetTable);
@@ -41,12 +42,17 @@ export default function Page() {
                 </div>
             ) : (
                 <div className="">
+                    <div className="flex justify-between">
                     <Input
                         placeholder="Search..."
                         value={globalFilter ?? ""}
                         onChange={(e) => setGlobalFilter(e.target.value)}
                         className="max-w-sm"
                     />
+                    <Button variant="secondary" onClick={() => router.back()}>
+                        Back to Data Model
+                    </Button>
+                    </div>
                     <div className="m-4"></div>
                     <DataTable
                         data={columnData ?? []}
@@ -58,9 +64,9 @@ export default function Page() {
             )}
 
             <div className="mt-6 flex justify-between">
-                <Button variant="secondary" onClick={() => router.back()}>
+                {/* <Button variant="secondary" onClick={() => router.back()}>
                     Back to Data Model
-                </Button>
+                </Button> */}
                 {/* <Button
                     variant="default"
                     disabled={true}
