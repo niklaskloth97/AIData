@@ -23,15 +23,23 @@ class SQLScriptRequest(BaseModel):
 class SQLScript(BaseModel):
     sqlscript: str
 
+class GenerateSchema(BaseModel):
+    mapping_id: int
+    script: str
+    user_input: str
 
-@router.post("/generate_sql")
-def generate_sql(mapping_id: int, script: str, user_input: str) -> SQLScript:
+
+@router.post("/generate_sql", )
+def generate_sql(obj: GenerateSchema) -> SQLScript:
     """
     This endpoint is called from the frontend with a `mapping_id`.
     We run our LangGraph, starting from the 'START' node, which eventually calls
     'load_mapping_node' -> 'agent' -> etc.
     """
-    
+    mapping_id = obj.mapping_id
+    script = obj.script
+    user_input = obj.user_input
+
     client = get_sync_client(url="http://127.0.0.1:2024", api_key="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")
     client.assistants.search()
     thread = client.threads.create()
