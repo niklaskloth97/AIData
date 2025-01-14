@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { routeros } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
 
 const CreateInstanceDialog = ({
     isOpen,
@@ -60,6 +61,7 @@ export default function Page() {
 
     const [floatingWindowOpen, setFloatingWindowOpen] = useState(false);
     const [globalFilter, setGlobalFilter] = useState("");
+    const router = useRouter();
 
     // Load initial data
     useEffect(() => {
@@ -68,7 +70,7 @@ export default function Page() {
 
     function handleCreateInstance() {
         setFloatingWindowOpen(false);
-        console.log("confirm");
+        router.push("/dashboard/generate/workbench");
     }
 
     return (

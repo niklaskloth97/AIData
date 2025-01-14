@@ -32,7 +32,7 @@ class MappingsResponseSchema(BaseModel):
 
 class CreateMappingSchema(BaseModel):
     displayName: str
-    timestamp_column: str
-    eventtype: str
+    timestampColumn: str
+    eventType: str
     otherAttributes: List[str]
     tableInvolved: str

@@ -13,12 +13,19 @@ import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/PageHeader";
 import { Loader } from "lucide-react";
 import useMockScriptProposal from "@/hooks/api/useMockScriptProposal";
+import useMappings, { Mapping } from "@/hooks/api/useMappings";
 
 export default function Page() {
   const { previousStep } = useWorkflow();
   const { isLoading, data: mockData } = useMockScriptProposal();
   const [sql, setSql] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [mappings, setMappings] = useState<Mapping[]>([]);
+  const { isLoading: isLoadingMappings, data: mappingData } = useMappings();
+
+  useEffect(() => {
+    setMappings(mappingData ?? []);
+  }, [mappingData]);
 
   // Load all stored data on mount
   useEffect(() => {

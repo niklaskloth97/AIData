@@ -7,11 +7,12 @@ export type PossibleMapping = {
     eventType: string;
     possibleAttributes: [];
     involvedTable: string;
+    otherAttributes?: [];
 }
 
 export default function useAdditionalEvents() {
     return useQuery({
-        queryKey: ["additionalEvents"],
+        queryKey: ["possibleMappings"],
         queryFn: async () => {
             console.log("Fetching possible mappings data");
             const response: PossibleMapping[] = await (await fetch("http://localhost:8000/api/possible-mappings")).json();
