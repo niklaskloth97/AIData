@@ -10,6 +10,7 @@ from sqlalchemy import text
 
 from restapi.lib.db import engine, Base
 from restapi.models.AdditionalEvent import AdditionalEvent
+from restapi.models.ProjectTable import ProjectTable
 
 POSTGRES_URI = "postgresql://aidatahilti_owner:YDkg5rC6jpdL@ep-flat-leaf-a20i5gog.eu-central-1.aws.neon.tech/aidatahilti?sslmode=require"
 pg_engine = create_engine(POSTGRES_URI)
@@ -20,7 +21,7 @@ def create_tables():
     Creates all tables defined in the SQLAlchemy Base metadata,
     including ProjectProcess, ProjectProcessStep, and AdditionalEvent.
     """
-    AdditionalEvent.__table__.drop(engine, checkfirst=True)
+    AdditionalEvent.__table__.drop(engine)
     Base.metadata.create_all(bind=engine)
     
     
@@ -64,7 +65,14 @@ def populate_additional_events():
             for row in result:
                 fname = row[0]
                 event_count = row[1]
+                description = f"Change event for field {fname}"
+                all_tables= session.query(ProjectTable).all()
                 
+                for table in all_tables:
+                    for column in table.columns:
+                        if column.nativeColumnName == fname:
+                            description = f"Change event for field {column.column_name} ({fname}): {column.description}"
+                            break
                 # Use the descriptive name from table_descriptions for business_object
                 descriptive_name = table_descriptions.get(table_name, table_name)
                 
@@ -73,7 +81,7 @@ def populate_additional_events():
                     change_event_name=fname,
                     change_event_count=event_count,
                     # Short description using the descriptive name
-                    description=f"Change event for field {fname}",
+                    description=description,
                     nativeColumnName=fname,
                     tablesInvolved=table_name
                 )
@@ -82,6 +90,7 @@ def populate_additional_events():
                     f"Business Object: {additional_event.business_object}, "
                     f"Change Event Name: {additional_event.change_event_name}, "
                     f"Count: {additional_event.change_event_count}"
+                    f"Description: {additional_event.description}"
                 )
                 
                 # Add to target DB session
