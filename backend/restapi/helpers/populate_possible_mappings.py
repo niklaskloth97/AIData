@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 from restapi.lib.db import engine, Base
 from restapi.models.AdditionalEvent import AdditionalEvent
 from restapi.models.PossibleMapping import PossibleMapping
+from restapi.models.ProjectTable import ProjectTable
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -100,7 +101,12 @@ def populate_possible_mappings():
 
             # Remove duplicates if multiple tables or if CDHDR/CDPOS was added
             all_columns = list(set(all_columns))
-
+            # get the display names of the columns from the ProjectTable
+            all_tables = session.query(ProjectTable).all()
+            for table in all_tables:
+                for column in table.columns:
+                    if column.nativeColumnName in all_columns:
+                        all_columns[all_columns.index(column.nativeColumnName)] = column.column_name
             # Create a display name combining business_object & change_event_name
             display_name = f"{event.business_object} - {event.change_event_name}"
 
