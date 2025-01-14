@@ -4,34 +4,36 @@ import {Search} from "lucide-react";
 
 
 export type TableData = {
-  caseId: number;
-  activity: string;
-  timestamp: string;
-  otherAttributes: string;
+  CASEID: string;
+  EVENTNAME: string;
+  TIMESTAMP: string;
+  otherAttributes: {};
 };
 
-export const columns: ColumnDef<TableData>[] = [
+export const columns: ColumnDef<TableData, any>[] = [
   {
-    accessorKey: "caseId",
+    accessorKey: "CASEID",
     header: "Case ID",
-    cell: ({ row }) => row.original.caseId,
+    cell: (props) => props.getValue(),
   },
   {
-    accessorKey: "activity",
-    header: "Activity",
-    cell: ({ row }) => row.original.activity,
+    accessorKey: "EVENTNAME",
+    header: "Event Name",
+    cell: (props) => props.getValue(),
   },
   {
-    accessorKey: "timestamp",
+    accessorKey: "TIMESTAMP",
     header: "Timestamp",
-    cell: ({ row }) => row.original.timestamp,
+    cell: (props) => props.getValue(),
   },
   {
     accessorKey: "otherAttributes",
     header: "Other Attributes",
-    cell: ({ row }) => row.original.otherAttributes,
-  },
-  // {
+    cell: (props) => {
+      <div> {props.getValue()} </div>
+    },
+  }
+
   //   id: "actions",
   //   header: "Actions",
   //   cell: ({ row }) => (
