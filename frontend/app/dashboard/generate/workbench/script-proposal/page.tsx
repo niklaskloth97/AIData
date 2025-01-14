@@ -77,14 +77,17 @@ export default function Page() {
             script: sql[currentMappingIndex] ?? "",
         });
         setSql((sql) => {
-            sql[currentMappingIndex] = generation.sqlScript ?? "";
-            return sql;
+            console.log(generation);
+            const newSQL = [...sql];
+            newSQL[currentMappingIndex] = generation ?? "";
+            return newSQL;
         });
         getLogPreview();
     }
 
     async function getLogPreview() {
         const demoLogs = await useDemoLogs({sql: sql[currentMappingIndex]});
+        console.log(demoLogs);
         setLogPreview((prev) => {
             prev[currentMappingIndex] = demoLogs;
             return prev;

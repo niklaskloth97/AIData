@@ -16,7 +16,8 @@ export default async function useDemoLogs({sql}: {sql: string}) {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                request: sql,
+                body: "",
+                sqlscript: sql,
             }),
         })
     ).json();

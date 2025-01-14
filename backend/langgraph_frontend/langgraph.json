@@ -3,7 +3,7 @@
   "graphs": {
     "agent": "./src/react_agent/graph.py:graph",
     "setup": "./src/react_set/graph.py:graph",
-    "sql": "./src/sqlgenerator/graph.py:graph"
+    "sqlgenerator": "./src/sqlgenerator/graph.py:graph"
   },
   "env": ".env"
 }
