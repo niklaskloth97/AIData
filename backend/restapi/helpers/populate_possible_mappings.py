@@ -118,7 +118,113 @@ def populate_possible_mappings():
 
         session.commit()
         print("PossibleMapping records populated successfully.")
+        
+
+def populate_possible_standard_mappings():
+    """
+    Creates a set of 'PossibleMapping' records for standard P2P events
+    (Create PR, Approve PR, Create PO, Approve PO, Goods Receipt, Create Invoice, Verify Invoice, 
+     Clear Invoice, Payment),
+    but DOES NOT involve CDHDR/CDPOS change-document tables.
+    """
+
+    # 2) Define your "standard" events without CDHDR/CDPOS.
+    standard_events = [
+        {
+            "business_object": "Purchase Requisition",
+            "change_event_name": "Create PR",
+            "tables": ["EBAN"],            # Basic creation data in EBAN
+            "timestamp_column": "EBAN.ERDAT"
+        },
+        {
+            "business_object": "Purchase Requisition",
+            "change_event_name": "Approve PR",
+            "tables": ["EBAN"],            # Approvals can also appear in EBAN (release fields)
+            "timestamp_column": "EBAN.ERDAT"
+        },
+        {
+            "business_object": "Purchase Order",
+            "change_event_name": "Create PO",
+            "tables": ["EKKO"],            # Basic creation data in EKKO
+            "timestamp_column": "EKKO.BEDAT"
+        },
+        {
+            "business_object": "Purchase Order",
+            "change_event_name": "Approve PO",
+            "tables": ["EKKO"],            # Approvals can also be tracked in EKKO (release fields)
+            "timestamp_column": "EKKO.BEDAT"
+        },
+        {
+            "business_object": "Goods Receipt",
+            "change_event_name": "Goods Receipt",
+            "tables": ["MKPF", "MSEG"],    # Material doc header/items
+            "timestamp_column": "MKPF.BUDAT"
+        },
+        {
+            "business_object": "Invoice",
+            "change_event_name": "Create Invoice",
+            "tables": ["RBKP", "RSEG"],    # Invoice doc header/items
+            "timestamp_column": "RBKP.CPUDT"
+        },
+        {
+            "business_object": "Invoice",
+            "change_event_name": "Verify Invoice",
+            "tables": ["RBKP"],            # If you track “verify” in the same invoice doc
+            "timestamp_column": "RBKP.CPUDT"
+        },
+        {
+            "business_object": "Invoice",
+            "change_event_name": "Clear Invoice",
+            "tables": ["BSEG", "BKPF"],    # Clearing info typically in BSEG (AUGBL/AUGDT)
+            "timestamp_column": "BSEG.AUGDT"
+        },
+        {
+            "business_object": "Payment",
+            "change_event_name": "Payment",
+            "tables": ["BKPF", "BSEG"],    # Payment doc in BKPF/BSEG
+            "timestamp_column": "BKPF.BUDAT"
+        },
+    ]
+
+    with Session(engine) as session:
+        # 3) For each standard event, gather columns & create a PossibleMapping
+        for evt in standard_events:
+            bo_name = evt["business_object"]
+            event_name = evt["change_event_name"]
+            table_list = evt["tables"]
+            timestamp_col = evt["timestamp_column"]
+
+            # Gather columns for all involved tables
+            all_columns = []
+            for tbl in table_list:
+                try:
+                    cols = get_columns_for_table(tbl, pg_engine)
+                    all_columns.extend(cols)
+                except Exception as ex:
+                    print(f"Warning: Could not reflect table {tbl} -> {ex}")
+
+            # Remove duplicates
+            all_columns = list(set(all_columns))
+
+            # Create displayName
+            display_name = f"{bo_name} - {event_name}"
+
+            # Insert new PossibleMapping
+            mapping = PossibleMapping(
+                displayName=display_name,
+                timestampColumn=timestamp_col,
+                eventType=display_name + "standard event",
+                possibleAttributes=all_columns,
+                involvedTable=table_list[0] if table_list else None
+            )
+            session.add(mapping)
+
+        session.commit()
+
+    print("Standard P2P PossibleMapping records populated successfully!")
+
 
 
 if __name__ == "__main__":
     populate_possible_mappings()
+    populate_possible_standard_mappings()

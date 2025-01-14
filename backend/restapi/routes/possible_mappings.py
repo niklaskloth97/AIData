@@ -31,8 +31,8 @@ def get_possible_mappings(db: Session = Depends(get_db)):
     for p in possible_mappings:
         # Transform ProjectTableColumn objects -> list of strings
         for s in steps:
-            if p.nativeColumnName is s.eventType:
-                response_list.append(s)
+            if p.eventType is s.nativeColumnName or "standard steps" in p.eventType:
+                response_list.append(p)
     
     return response_list
 
