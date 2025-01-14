@@ -146,7 +146,7 @@ export default function Page() {
                         heading="Select additional Process Steps"
                         subtext="These are potential additional Process Steps that where identified based on events found your data. Select them for further consideration."
                     ></PageHeader>
-                    <div className="flex flex-col p-4 h-4/6 gap-4 bg-white rounded-lg border bg-card text-card-foreground shadow">
+                    <div className="flex flex-col overflow-y-auto p-4 h-4/6 gap-4 bg-white rounded-lg border bg-card text-card-foreground shadow">
                         <div className="flex gap-1">
                             Select additional Process Steps from{" "}
                             <span className="font-md">{currentBO}</span>

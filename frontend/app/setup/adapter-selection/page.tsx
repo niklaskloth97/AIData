@@ -57,7 +57,13 @@ export function AdapterSelection() {
                                             Supported Adapters
                                         </SelectLabel>
                                         <SelectItem value="sap-adapter">
-                                            SAP Table Adapter
+                                            SAP ERP
+                                        </SelectItem>
+                                        <SelectItem value="ms">
+                                            Microsoft Dynamics
+                                        </SelectItem>
+                                        <SelectItem value="oracle">
+                                            Oracle ERP
                                         </SelectItem>
                                     </SelectGroup>
                                 </SelectContent>
