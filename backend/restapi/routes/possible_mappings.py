@@ -29,9 +29,13 @@ def get_possible_mappings(db: Session = Depends(get_db)):
     # Build the response so it fits the schema exactly
     response_list = []
     for p in possible_mappings:
+        
         # Transform ProjectTableColumn objects -> list of strings
         for s in steps:
-            if p.eventType is s.nativeColumnName or "standard steps" in p.eventType:
+            print(p.eventType + " " + s.nativeColumnName)
+            # i want to add them if p.eventType value ends with "standard steps" or if it matches the nativeColumnName
+            if p.eventType == s.nativeColumnName or p.eventType.endswith("standard steps"):
+                print("Found match")
                 response_list.append(p)
     
     return response_list
