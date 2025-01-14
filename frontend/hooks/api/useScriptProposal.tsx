@@ -7,7 +7,7 @@ export interface ScriptProposal {
 
 export default async function useScriptProposal({mappingId, script, userInput}: {mappingId: number, script: string, userInput: string}) {
     console.log("Fetching a script proposal");
-    const response: ScriptProposal = await(
+    const response: string = await(
         await fetch("http://localhost:8000/api/scripts/generate_sql",{
             method: "POST",
             headers: {

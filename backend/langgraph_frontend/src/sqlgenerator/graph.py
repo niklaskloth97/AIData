@@ -171,7 +171,7 @@ def generate_sql_node(state) -> Command:
             goto=END
         )
     return Command(
-        update={"finalsql": finalsql, "query_result": query_result},
+        update={"finalsql": finalsql},
         goto=END
     )
     
