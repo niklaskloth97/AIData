@@ -15,6 +15,7 @@ import { Loader } from "lucide-react";
 import useMappings, { Mapping } from "@/hooks/api/useMappings";
 import useScriptProposal from "@/hooks/api/useScriptProposal";
 import { set } from "zod";
+import useDemoLogs from "@/hooks/api/useDemoLogs";
 
 export default function Page() {
     const { previousStep } = useWorkflow();
@@ -79,9 +80,16 @@ export default function Page() {
             sql[currentMappingIndex] = generation.sqlScript ?? "";
             return sql;
         });
+        getLogPreview();
     }
 
-    function getLogPreview() {}
+    async function getLogPreview() {
+        const demoLogs = await useDemoLogs({sql: sql[currentMappingIndex]});
+        setLogPreview((prev) => {
+            prev[currentMappingIndex] = demoLogs;
+            return prev;
+          });
+    }
 
     function nextMapping() {
         setCurrentMappingIndex((index) => {
@@ -215,7 +223,8 @@ export default function Page() {
                             heading="Event Log Preview"
                             subtext="Anything missing? Add feedback, edit script, or re-generate."
                         />
-                        <DataTable columns={columns} data={[]} />
+                        <DataTable columns={columns} data={logPreview[currentMappingIndex] ?? []} />
+                        {/* <Button> Generate Demo Logs </Button> */}
                     </div>
                 </div>
             </div>

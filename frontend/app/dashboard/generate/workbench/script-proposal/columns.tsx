@@ -31,15 +31,15 @@ export const columns: ColumnDef<TableData>[] = [
     header: "Other Attributes",
     cell: ({ row }) => row.original.otherAttributes,
   },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-         <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => alert(`Search action for Event log preview`)}>
-                    <Search className="h-5 w-5" />
-                  </Button>
-      </div>
-    ),
-  },
+  // {
+  //   id: "actions",
+  //   header: "Actions",
+  //   cell: ({ row }) => (
+  //     <div className="flex items-center gap-2">
+  //        <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => alert(`Search action for Event log preview`)}>
+  //                   <Search className="h-5 w-5" />
+  //                 </Button>
+  //     </div>
+  //   ),
+  // },
 ];
