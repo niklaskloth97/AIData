@@ -12,12 +12,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/PageHeader";
 import { Loader } from "lucide-react";
-import useMockScriptProposal from "@/hooks/api/useMockScriptProposal";
 import useMappings, { Mapping } from "@/hooks/api/useMappings";
+import useScriptProposal from "@/hooks/api/useScriptProposal";
 
 export default function Page() {
   const { previousStep } = useWorkflow();
-  const { isLoading, data: mockData } = useMockScriptProposal();
+  const { isLoading, data: mockData } = useScriptProposal();
   const [sql, setSql] = useState("");
   const [feedback, setFeedback] = useState("");
   const [mappings, setMappings] = useState<Mapping[]>([]);

@@ -12,6 +12,7 @@ from restapi.models.PossibleMapping import (
     # We define these separately or in the same file
 )
 from restapi.models.PossibleMapping import CreatePossibleMappingSchema
+from restapi.models.ProjectProcessStep import ProjectProcessStep
 
 router = APIRouter(prefix="/possible-mappings")
 
@@ -20,9 +21,20 @@ router = APIRouter(prefix="/possible-mappings")
 def get_possible_mappings(db: Session = Depends(get_db)):
     print("Get PossibleMappings")
     possible_mappings = db.query(PossibleMapping).all()
+    steps = db.query(ProjectProcessStep).all()
+    if not steps:
+        raise HTTPException(status_code=404, detail="No steps found")
     if not possible_mappings:
         raise HTTPException(status_code=404, detail="No PossibleMappings found")
-    return possible_mappings
+    # Build the response so it fits the schema exactly
+    response_list = []
+    for p in possible_mappings:
+        # Transform ProjectTableColumn objects -> list of strings
+        for s in steps:
+            if p.nativeColumnName is s.eventType:
+                response_list.append(s)
+    
+    return response_list
 
 @router.post("/", response_model=PossibleMappingSchema)
 def create_possible_mapping(

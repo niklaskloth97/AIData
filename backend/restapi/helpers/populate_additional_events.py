@@ -20,6 +20,7 @@ def create_tables():
     Creates all tables defined in the SQLAlchemy Base metadata,
     including ProjectProcess, ProjectProcessStep, and AdditionalEvent.
     """
+    AdditionalEvent.__table__.drop(engine, checkfirst=True)
     Base.metadata.create_all(bind=engine)
     
     
@@ -73,6 +74,7 @@ def populate_additional_events():
                     change_event_count=event_count,
                     # Short description using the descriptive name
                     description=f"Change event for field {fname}",
+                    nativeColumnName=fname,
                     tablesInvolved=table_name
                 )
                 print(
