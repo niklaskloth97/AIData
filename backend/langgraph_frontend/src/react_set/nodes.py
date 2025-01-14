@@ -2,9 +2,25 @@ from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage
 from langgraph.graph import StateGraph, START, END
+import sys
+import os
+from src.react_set.models import ProjectProcess, ProjectProcessStep
 from langchain.prompts import PromptTemplate
 from langgraph.types import Command, interrupt
 from src.react_set.tools import drop_process_steps_llm
+import sys
+import os
+from dotenv import load_dotenv
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../")))
+from lib.db import engine, init_db
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+load_dotenv()
+
+
+def create_tables():
+    init_db()
 
 # Define the nodes for the graph
 def agent(state):
@@ -126,8 +142,11 @@ def adjust_process(state):
             "Payment"
         ]
     }
-
     steps = process_steps.get(detected_process, [])
+    
+        
+    
+        
     human_feedback_text = state["messages"][-1].content
     print(human_feedback_text)
     messages = state["messages"]
@@ -136,7 +155,29 @@ def adjust_process(state):
     # If the user actually typed something in `human_feedback_text` indicating which steps to remove:
     if human_feedback_text.strip():
         adjusted_steps = drop_process_steps_llm(steps, human_feedback_text)
-
+         # create process steps in db from steps
+        process = ProjectProcess(
+                name=detected_process,
+                description="End-to-end order processing workflow in SAP",
+                project_id=1
+            )
+        
+        process_steps = []
+        for step in adjusted_steps:
+            process_step = ProjectProcessStep(
+                name=step,
+                description="",
+                nativeColumnName="",
+                tablesInvolved="",
+                projectProcess_id=1
+            )
+            process_steps.append(process_step)
+        
+        create_tables()
+        session = Session(engine)
+        session.add(process)
+        session.add_all(process_steps)
+        session.commit()
         # ---- (3) Display the newly adjusted steps: ----
         new_steps_msg = (
             "Here are your updated steps:\n"
