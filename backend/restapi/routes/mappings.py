@@ -8,20 +8,14 @@ router = APIRouter(
     prefix="/mappings",
 )
 
-@router.get("/", response_model=MappingsResponseSchema)
+@router.get("/", response_model=List[MappingSchema])
 def get_mappings(db: Session = Depends(get_db)):
     print("Get mappings")
     mappings = db.query(Mapping).all()
     if not mappings:
         raise HTTPException(status_code=404, detail="No mappings found")
     
-    options = {
-        'timestampColumns': ["column1", "column2", "column3", "column4"],
-        'eventTypes': ["Address_changed", "Payment_received", "Create/Select"],
-        'otherAttributes': ["employee_id", "time_taken", "cost", "department"]
-    }
-    
-    return {"mappings": mappings, "options": options}
+    return mappings
 
 
 @router.post("/", response_model=MappingSchema)
