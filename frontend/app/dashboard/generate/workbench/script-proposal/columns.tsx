@@ -30,7 +30,7 @@ export const columns: ColumnDef<TableData, any>[] = [
     accessorKey: "otherAttributes",
     header: "Other Attributes",
     cell: (props) => {
-      <div> {props.getValue()} </div>
+      return(<div className="break-all"> {JSON.stringify(props.getValue())} </div>)
     },
   }
 

@@ -89,8 +89,9 @@ export default function Page() {
         const demoLogs = await useDemoLogs({sql: sql[currentMappingIndex]});
         console.log(demoLogs);
         setLogPreview((prev) => {
-            prev[currentMappingIndex] = demoLogs;
-            return prev;
+            const newLogs = [...prev];
+            newLogs[currentMappingIndex] = demoLogs;
+            return newLogs;
           });
     }
 
@@ -226,7 +227,7 @@ export default function Page() {
                             heading="Event Log Preview"
                             subtext="Anything missing? Add feedback, edit script, or re-generate."
                         />
-                        <DataTable columns={columns} data={logPreview[currentMappingIndex] ?? []} />
+                        <DataTable columns={columns} data={logPreview[currentMappingIndex]?.data ?? []} />
                         {/* <Button> Generate Demo Logs </Button> */}
                     </div>
                 </div>
