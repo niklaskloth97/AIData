@@ -14,6 +14,8 @@ import { useWorkflow } from "../workflowContext";
 import usePossibleMappings, {
     PossibleMapping,
 } from "@/hooks/api/usePossibleMappings";
+import useMappingMutation from "@/hooks/api/useMappingMutation";
+import { Mapping } from "@/hooks/api/useMappings";
 
 export default function Page() {
     const { nextStep, previousStep } = useWorkflow();
@@ -29,6 +31,7 @@ export default function Page() {
     // const [selectedMappings, setSelectedMappings] = useState<MappingData[]>([]);
     const [autoResetPageIndexMappings, skipAutoResetPageIndexMappings] =
         useSkipper();
+    const updateMappings = useMappingMutation();
 
     // Load initial data
     useEffect(() => {
@@ -82,12 +85,22 @@ export default function Page() {
             // );
             // Send data to backend
             
+            console.log(prepareSave(mappings))
+            updateMappings.mutate(prepareSave(mappings));
             nextStep();
         }
     };
 
-    function prepareSave(){
-        return []
+    function prepareSave(inputMappings: PossibleMapping[]): Mapping[] {
+        const formattedMappings: Mapping[] = inputMappings.map((mapping) => ({
+            id: mapping.id,
+            displayName: mapping.displayName,
+            timestampColumn: mapping.timestampColumn,
+            eventType: mapping.eventType,
+            tableInvolved: mapping.involvedTable,
+            otherAttributes: mapping.otherAttributes?? []
+        }));
+        return formattedMappings;
     }
 
     const handleBack = () => {

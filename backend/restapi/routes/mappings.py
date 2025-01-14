@@ -27,8 +27,8 @@ def get_mappings(db: Session = Depends(get_db)):
 @router.post("/", response_model=MappingSchema)
 def create_mapping(mapping: CreateMappingSchema, db: Session = Depends(get_db)):
     new_mapping = Mapping(
-        timestamp_column=mapping.timestamp_column,
-        eventtype=mapping.eventtype,
+        timestampColumn=mapping.timestampColumn,
+        eventType=mapping.eventType,
         otherAttributes=mapping.otherAttributes,
     )
     db.add(new_mapping)
@@ -36,6 +36,24 @@ def create_mapping(mapping: CreateMappingSchema, db: Session = Depends(get_db)):
     db.refresh(new_mapping)
     return new_mapping
 
+@router.put("/", response_model=List[MappingSchema])
+def save_mappings(mappings: List[CreateMappingSchema], db: Session = Depends(get_db)):
+    db.query(Mapping).delete()
+    db.commit()
+    new_mappings = []
+    for mapping in mappings:
+        new_mapping = Mapping(
+            timestampColumn=mapping.timestampColumn,
+            eventType=mapping.eventType,
+            otherAttributes=mapping.otherAttributes,
+            displayName=mapping.displayName,
+            tableInvolved=mapping.tableInvolved
+        )
+        db.add(new_mapping)
+        db.commit()
+        db.refresh(new_mapping)
+        new_mappings.append(new_mapping)
+    return new_mappings
 
 @router.delete("/", response_model=dict)
 def delete_all_mappings(db: Session = Depends(get_db)):

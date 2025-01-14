@@ -195,7 +195,7 @@ const ProcessModelContent = () => {
                                     <Save className="h-4 w-4" />
                                     Save to backend
                                 </Button>
-                                <Button variant={"default"} onClick={() => handleSave()}>
+                                <Button variant={"default"} onClick={() => {handleSave(); router.push("/dashboard/generate/workbench")}}>
                                     <ArrowRight className="h-4 w-4" />
                                     Save and Continue
                                 </Button>
