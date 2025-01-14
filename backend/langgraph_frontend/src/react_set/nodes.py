@@ -120,6 +120,27 @@ def adjust_process(state):
         # No process was identified previously
         return {"messages": state["messages"], "error": "No process detected yet."}
 
+    STEP_TABLES_MAPPING = {
+    # Procure to Pay (P2P)
+    "Create Purchase Requisition (PR)": "EBAN",
+    "Approve Purchase Requisition (PR)": "EBAN",
+    "Create Purchase Order (PO)": "EKKO",
+    "Approve Purchase Order (PO)": "EKKO",
+    "Goods Receipt (GR)": "MKPF, MSEG",
+    "Create Invoice": "RBKP, RSEG",
+    "Verify Invoice": "RBKP, RSEG",
+    "Clear Invoice": "BSEG, BKPF",
+    "Payment": "BKPF, BSEG",
+
+    # Order to Cash (O2C)
+    "Create Sales Order (SO)": "VBAK, VBAP",
+    "Approve Sales Order (SO)": "VBAK, VBAP",  # If you track approval in same tables
+    "Delivery Creation": "LIKP, LIPS",
+    "Goods Issue (GI)": "MSEG, MKPF",
+    "Billing Document Creation": "VBRK, VBRP",
+    "Receive Payment": "BKPF, BSEG"
+}
+
     # The known steps for each process
     process_steps = {
         "Order to Cash": [
