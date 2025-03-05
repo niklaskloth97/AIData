@@ -109,10 +109,31 @@ def human_feedback(state):
     feedback = interrupt("Please provide feedback:")
     return {"feedback": feedback}
 
+STEP_TABLES_MAPPING = {
+    # Procure to Pay (P2P)
+    "Create Purchase Requisition (PR)": "EBAN",
+    "Approve Purchase Requisition (PR)": "EBAN",
+    "Create Purchase Order (PO)": "EKKO",
+    "Approve Purchase Order (PO)": "EKKO",
+    "Goods Receipt (GR)": "MKPF, MSEG",
+    "Create Invoice": "RBKP, RSEG",
+    "Verify Invoice": "RBKP, RSEG",
+    "Clear Invoice": "BSEG, BKPF",
+    "Payment": "BKPF, BSEG",
+
+    # Order to Cash (O2C)
+    "Create Sales Order (SO)": "VBAK, VBAP",
+    "Approve Sales Order (SO)": "VBAK, VBAP",  # If you track approval in same tables
+    "Delivery Creation": "LIKP, LIPS",
+    "Goods Issue (GI)": "MSEG, MKPF",
+    "Billing Document Creation": "VBRK, VBRP",
+    "Receive Payment": "BKPF, BSEG"
+}
 
 def adjust_process(state):
     """
     Adjusts the process based on user input (from state["human_feedback"]).
+    Associates each step with the corresponding SAP tables.
     """
     print("---ADJUST PROCESS---")
     detected_process = state["detected_process"]
@@ -143,49 +164,53 @@ def adjust_process(state):
         ]
     }
     steps = process_steps.get(detected_process, [])
-    
-        
-    
-        
+
     human_feedback_text = state["messages"][-1].content
-    print(human_feedback_text)
     messages = state["messages"]
 
-    # ---- (2) Use the LLM to remove steps based on feedback: ----
-    # If the user actually typed something in `human_feedback_text` indicating which steps to remove:
+    # (2) Use the LLM to remove steps based on feedback
     if human_feedback_text.strip():
         adjusted_steps = drop_process_steps_llm(steps, human_feedback_text)
-         # create process steps in db from steps
+
+        # Create the ProjectProcess record
         process = ProjectProcess(
-                name=detected_process,
-                description="End-to-end order processing workflow in SAP",
-                project_id=1
-            )
-        
-        process_steps = []
+            name=detected_process,
+            description="End-to-end order processing workflow in SAP",
+            project_id=1
+        )
+
+        # Build the ProjectProcessStep records
+        process_steps_list = []
         for step in adjusted_steps:
+            # Lookup the tables from the mapping dictionary:
+            tables_involved = STEP_TABLES_MAPPING.get(step, "")
+            print(tables_involved)
+            
             process_step = ProjectProcessStep(
                 name=step,
                 description="",
-                nativeColumnName="",
-                tablesInvolved="",
+                nativeColumnName="",  # or fill in as needed
+                tablesInvolved=tables_involved,
                 projectProcess_id=1
             )
-            process_steps.append(process_step)
-        
-        create_tables()
+            print(process_step)
+            process_steps_list.append(process_step)
+
+        create_tables()  # Make sure your tables exist
         session = Session(engine)
+        
+        # Persist to DB
         session.add(process)
-        session.add_all(process_steps)
+        session.add_all(process_steps_list)
         session.commit()
-        # ---- (3) Display the newly adjusted steps: ----
+        
+        # Prepare response
         new_steps_msg = (
             "Here are your updated steps:\n"
             + "\n".join(f"{i+1}. {step}" for i, step in enumerate(adjusted_steps))
-            +"\nDo you want to make any further adjustments? If not click on \"Process to next step\" button."
+            + "\nDo you want to make any further adjustments? If not, click on 'Process to next step' button."
         )
         messages.append({"role": "assistant", "content": new_steps_msg})
 
-        # Optionally store the new steps in `state`
-
     return {"messages": messages, "steps": adjusted_steps, "confirmable": True}
+
