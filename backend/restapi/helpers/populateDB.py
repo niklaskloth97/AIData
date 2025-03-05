@@ -10,7 +10,6 @@ from restapi.helpers import populate_projecttables, populate_caseids, populate_a
 
 
 def populate_db():
-    populate_projecttables()
     populate_caseids()
     populate_possible_mappings()
     populate_additional_events()

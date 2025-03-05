@@ -50,7 +50,7 @@ export default function ProcessModelStep({
                 <FaGripVertical className="text-gray-400 mr-3" />
             </div>
             {isEditing ? (
-                <div className="flex-1 gap-2 mr-2">
+                <div className="flex-1 gap-2 mr-2 flex-col">
                     <input
                         type="text"
                         value={step.name}
@@ -64,12 +64,18 @@ export default function ProcessModelStep({
                         onChange={(e) => onEdit({id, description: e.target.value})}
                         className="flex-1 border rounded-md px-2 py-1 w-full"
                     />
+                    <br/>
+                    <div>
+                        {step.tablesInvolved}
+                    </div>
                 </div>
             ) : (
                 <div className="flex-1">
                     <span className="flex-1 font-semibold">{step.name}</span>
                     <br />
                     <span className="flex-1">{step.description}</span>
+                    <br/>
+                    <span> Business Object Table: {step.tablesInvolved} </span>
                 </div>
             )}
             <div className="flex items-center space-x-2">
